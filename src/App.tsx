@@ -1,9 +1,11 @@
+import { Input } from "@chakra-ui/react";
 import React from "react";
 
 export const App: React.FC = () => {
   return (
     <div className="App">
-      <h1>Hello world!</h1>
+      <p>Hello world!</p>
+      <Input placeholder="hola" variant="base" />
     </div>
   );
 };
