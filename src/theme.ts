@@ -47,7 +47,7 @@ export const theme = extendTheme({
       secondary: {
         default: "#2C2C2C",
       },
-      font: {
+      fontPrimary: {
         default: "#2C2C2C",
       },
     },
@@ -102,9 +102,10 @@ export const theme = extendTheme({
   styles: {
     global: {
       ...cssReset,
-      html: {
-        color: "font",
+      body: {
         fontSize: "1.5rem",
+        color: "fontPrimary",
+        fontFamily: "Inter, Roboto, system-ui,sans-serif",
       },
       ul: {
         listStyle: "none",
