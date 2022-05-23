@@ -106,6 +106,9 @@ export const theme = extendTheme({
         color: "font",
         fontSize: "1.5rem",
       },
+      ul: {
+        listStyle: "none",
+      },
     },
   },
 });
