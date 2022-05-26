@@ -99,7 +99,7 @@ export const theme = extendTheme({
         },
         h4: {
           // 25px
-          fontSize: "1.5625",
+          fontSize: "1.5625rem",
           fontWeight: "500",
         },
       },
