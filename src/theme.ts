@@ -58,6 +58,7 @@ export const theme = extendTheme({
         base: {
           color: "font",
           fontSize: "1.5rem",
+          width: "fit-content",
         },
         h1: {
           fontSize: "5rem",
@@ -69,7 +70,7 @@ export const theme = extendTheme({
         },
         h3: {
           fontSize: "3.125rem",
-          fontWeight: "500",
+          fontWeight: "700",
         },
         h4: {
           fontSize: "2,1875rem",
