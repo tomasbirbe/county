@@ -3,7 +3,13 @@ import React from "react";
 
 const Savings: React.FC<GridItemProps> = ({ children, ...rest }) => {
   return (
-    <GridItem {...rest} colStart={1} rowSpan={2}>
+    <GridItem
+      {...rest}
+      borderInlineEnd="1px solid"
+      borderInlineEndColor="blackAlpha.400"
+      colStart={1}
+      rowSpan={2}
+    >
       {children}
     </GridItem>
   );

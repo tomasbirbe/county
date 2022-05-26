@@ -1,5 +1,5 @@
+import React from "react";
 import { Grid, GridProps } from "@chakra-ui/react";
-import React, { HTMLAttributes } from "react";
 
 const Overview: React.FC<GridProps> = ({ children, ...rest }) => {
   return (

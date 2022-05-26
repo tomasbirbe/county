@@ -5,7 +5,7 @@ import { Link, Outlet } from "react-router-dom";
 const Layout: React.FC = () => {
   return (
     <>
-      <Stack as="nav" direction="row">
+      <Stack as="nav" bg="red" direction="row" height="50px">
         <Stack as="ul" direction="row">
           <Box as="li">
             <Link to="/">Resumen</Link>
