@@ -79,24 +79,27 @@ export const theme = extendTheme({
       variants: {
         base: {
           color: "fontPrimary",
-          fontSize: "1.5rem",
           width: "fit-content",
           fontWeight: "400",
         },
         h1: {
-          fontSize: "5rem",
+          // 60px
+          fontSize: "3.75rem",
           fontWeight: "700",
         },
         h2: {
-          fontSize: "3.75rem",
+          // 40px
+          fontSize: "2.5rem",
           fontWeight: "500",
         },
         h3: {
-          fontSize: "3.125rem",
+          // 35px
+          fontSize: "2.1875rem",
           fontWeight: "700",
         },
         h4: {
-          fontSize: "2.1875rem",
+          // 25px
+          fontSize: "1.5625",
           fontWeight: "500",
         },
       },
@@ -127,7 +130,7 @@ export const theme = extendTheme({
     global: {
       ...cssReset,
       body: {
-        fontSize: "1.5rem",
+        fontSize: "1.125rem",
         color: "fontPrimary",
         fontFamily: "Inter, Roboto, system-ui,sans-serif",
       },

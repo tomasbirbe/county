@@ -18,7 +18,7 @@ export const Home: React.FC = () => {
           <Stack align="center" height="full" justify="center" spacing={0}>
             <Text variant="h3">Gastos</Text>
             <Stack align="center" direction="row">
-              <Img height="75px" src={ArrowUpIcon} width="75px" />
+              <Img height="55px" src={ArrowUpIcon} width="55px" />
               <Text variant="h1">$50000</Text>
             </Stack>
           </Stack>
@@ -27,7 +27,7 @@ export const Home: React.FC = () => {
           <Stack align="center" height="full" justify="center" spacing={0}>
             <Text variant="h4">Ahorros</Text>
             <Stack align="center" direction="row">
-              <Img height="75px" src={SavingsIcon} width="75px" />
+              <Img height="45px" src={SavingsIcon} width="45px" />
               <Text variant="h2">$50000</Text>
             </Stack>
           </Stack>
@@ -36,7 +36,7 @@ export const Home: React.FC = () => {
           <Stack align="center" height="full" justify="center" spacing={0}>
             <Text variant="h4">Ingresos</Text>
             <Stack align="center" direction="row">
-              <Img height="75px" src={ArrowDownIcon} width="75px" />
+              <Img height="45px" src={ArrowDownIcon} width="45px" />
               <Text variant="h2">$50000</Text>
             </Stack>
           </Stack>
