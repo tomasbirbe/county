@@ -87,6 +87,11 @@ export const theme = extendTheme({
           fontSize: "3.75rem",
           fontWeight: "700",
         },
+        "h1/2": {
+          // 48px
+          fontSize: "3rem",
+          fontWeight: "700",
+        },
         h2: {
           // 40px
           fontSize: "2.5rem",
