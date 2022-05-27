@@ -6,7 +6,7 @@ import Spends from "./pages/Spends";
 import Savings from "./pages/Savings";
 import Incomes from "./pages/Incomes";
 import NotFound from "./pages/NotFound";
-import Layout from "./components/Layout";
+import { Layout } from "./components/Layout";
 
 export const App: React.FC = () => {
   return (
