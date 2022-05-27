@@ -25,5 +25,6 @@ export const cssReset = {
   "#root, #__next": {
     isolation: "isolate",
     width: "100%",
+    height: "100%",
   },
 };

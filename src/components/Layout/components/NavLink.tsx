@@ -12,7 +12,6 @@ export const NavLink: React.FC<Props> = ({ children, to }) => {
     <Box
       _hover={{ outlineBlockEnd: "1px solid", outlineColor: "blue" }}
       as="li"
-      outlineBlockEnd="1px solid"
       outlineColor="blue"
       position="relative"
       transition="200ms all ease-in-out"
