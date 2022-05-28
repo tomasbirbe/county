@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Stack,
@@ -20,7 +20,19 @@ import {
 import ArrowUp from "/Icons/arrow-up.svg";
 import PlusIcon from "/Icons/plus.svg";
 
+enum KindOfSpend {
+  NOINSTALLMENTS = "NOINSTALLMENTS",
+  INSTALLMENTS = "INSTALLMENTS",
+  RECURRENT = "RECURRENT",
+}
+
 export const Spends: React.FC = () => {
+  const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
+
+  function handleSelect(e) {
+    setKindOfSpend(e.target.value);
+  }
+
   return (
     <Container maxWidth="full" paddingBlockStart={6} paddingX={0}>
       <Stack align="center" spacing={6}>
@@ -32,41 +44,56 @@ export const Spends: React.FC = () => {
       </Stack>
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Button marginBlockEnd={4} marginInlineStart={6} type="button" variant="add">
-          <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />
-          <Text>Agregar gasto</Text>
-        </Button>
-        <Stack marginInlineStart={6} paddingInline={6} spacing={6}>
-          <Stack direction="row" spacing={12}>
-            <label htmlFor="">
+        <Stack marginInlineStart={6} paddingBlock={10}>
+          <Stack align="flex-start" direction="row" justify="space-around">
+            <Stack as="label" htmlFor="description" spacing={5}>
               <Text>Descripcion</Text>
-              <Input placeholder="Notebook" width="400px" />
-            </label>
-            <label htmlFor="">
+              <Input autoFocus name="description" placeholder="Notebook" width="400px" />
+            </Stack>
+            <Stack as="label" htmlFor="spend" spacing={5}>
               <Text>Gasto</Text>
-              <Input placeholder="$50000" type="number" width="100px" />
-            </label>
-          </Stack>
-          <Stack direction="row" spacing={12}>
-            <label htmlFor="">
-              <Text>Tipo de compra</Text>
-              <Select width="200px">
-                <option value="">Efectivo / Debito</option>
-                <option value="">Credito</option>
-                <option value="">Recurrente</option>
-              </Select>
-            </label>
-            <label htmlFor="">
-              <Text>Cuotas</Text>
               <Input
-                max={99}
-                min={1}
-                placeholder="1"
-                textAlign="center"
+                marginBlockStart={4}
+                name="spend"
+                placeholder="$50000"
                 type="number"
-                width="30px"
+                width="100px"
               />
-            </label>
+            </Stack>
+            <Stack as="label" htmlFor="kind_of_spend">
+              <Text>Tipo de compra</Text>
+              <Select
+                border="1px solid"
+                borderColor="primary.900"
+                name="kind_of_spend"
+                width="200px"
+                onChange={handleSelect}
+              >
+                <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
+                <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
+                <option value={KindOfSpend.RECURRENT}>Recurrente</option>
+              </Select>
+            </Stack>
+            {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+              <Stack align="center" as="label" htmlFor="installments" spacing={5}>
+                <Text>Cuotas</Text>
+                <Input
+                  marginBlockStart={4}
+                  max={99}
+                  min={1}
+                  name="installments"
+                  placeholder="1"
+                  textAlign="center"
+                  type="number"
+                  width="30px"
+                />
+              </Stack>
+            )}
+
+            <Button alignSelf="flex-end" type="button" variant="add">
+              <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+              <Text>Agregar gasto</Text>
+            </Button>
           </Stack>
         </Stack>
         <TableContainer>

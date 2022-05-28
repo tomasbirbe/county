@@ -143,6 +143,7 @@ export const theme = extendTheme({
           bg: "primary.600",
           paddingInlineEnd: "0.8rem",
           paddingInlineStart: "0.5rem",
+          borderRadius: "8px",
           fontSize: "1rem",
           width: "fit-content",
           _hover: { boxShadow: {} },
