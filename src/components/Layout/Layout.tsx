@@ -1,9 +1,10 @@
-import { Box, Stack, Text } from "@chakra-ui/react";
+import { Box, Img, Stack, Text } from "@chakra-ui/react";
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 import { NavLink } from "./components/NavLink";
 
+import Pocket from "/public/Icons/pocket.svg";
 export const Layout: React.FC = () => {
   return (
     <>
@@ -13,14 +14,28 @@ export const Layout: React.FC = () => {
         boxShadow="lg"
         direction="row"
         height="70px"
-        justify="center"
+        justify="space-between"
+        paddingInline={6}
         width="full"
       >
-        <Box>
+        <Box width="150px">
           <Text>County</Text>
         </Box>
-        <Stack as="ul" direction="row" spacing={10}>
+        <Stack as="ul" direction="row" spacing={8}>
           <NavLink to="/">Resumen</NavLink>
+          <NavLink to="/spends" underlineColor="spend">
+            Gastos
+          </NavLink>
+          <NavLink to="/savings" underlineColor="saving">
+            Ahorros
+          </NavLink>
+          <NavLink to="/incomes" underlineColor="income">
+            Ingresos
+          </NavLink>
+        </Stack>
+        <Stack direction="row" justify="flex-end" width="150px">
+          <Img height="30px" loading="eager" src={Pocket} width="30px" />
+          <Text>$500000</Text>
         </Stack>
       </Stack>
       <Outlet />

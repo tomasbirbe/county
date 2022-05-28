@@ -5,15 +5,10 @@ import ArrowUpIcon from "/Icons/arrow-up.svg";
 import SavingsIcon from "/Icons/savings.svg";
 import ArrowDownIcon from "/Icons/arrow-down.svg";
 
-import Savings from "./Components/UI/Savings";
-import Spends from "./Components/UI/Spends";
-import Overview from "./Components/UI/Overview";
-import Incomes from "./Components/UI/Incomes";
-
 export const Home: React.FC = () => {
   return (
-    <Container as="main" height="calc(100% - 50px)" maxWidth="full" paddingX={0}>
-      <Stack as="section" height="full">
+    <Container as="main" height="calc(100% - 70px)" maxWidth="full" paddingX={0}>
+      <Stack as="header" height="full">
         <Stack align="center" as="article" height="40%" justify="center" spacing={0} width="full">
           <Text variant="h3">Gastos</Text>
           <Stack align="center" direction="row">

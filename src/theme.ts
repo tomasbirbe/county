@@ -48,6 +48,13 @@ export const theme = extendTheme({
       800: "#222222",
       900: "#1F1F1F",
     },
+    primary: {
+      500: "#FFFFFF",
+      600: "#EDEDED",
+      700: "#DBDBDB",
+      800: "#C8C8C8",
+      900: "#B6B6B6",
+    },
     fontPrimary: {
       default: "#2C2C2C",
     },
@@ -130,6 +137,20 @@ export const theme = extendTheme({
         variant: "base",
       },
     },
+    Button: {
+      variants: {
+        add: {
+          bg: "primary.600",
+          paddingInlineEnd: "0.8rem",
+          paddingInlineStart: "0.5rem",
+          fontSize: "1rem",
+          width: "fit-content",
+          _hover: { boxShadow: {} },
+          _focus: { boxShadow: {} },
+          _active: { boxShadow: {} },
+        },
+      },
+    },
   },
   styles: {
     global: {
@@ -141,6 +162,10 @@ export const theme = extendTheme({
       },
       ul: {
         listStyle: "none",
+      },
+      "nav a": {
+        display: "inline-block",
+        height: "full",
       },
     },
   },

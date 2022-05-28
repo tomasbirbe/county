@@ -3,8 +3,8 @@ import { Route, Routes } from "react-router-dom";
 
 import { Home } from "./pages/Home";
 import { Spends } from "./pages/Spends";
-import Savings from "./pages/Savings";
-import Incomes from "./pages/Incomes";
+import { Savings } from "./pages/Savings";
+import { Incomes } from "./pages/Incomes";
 import NotFound from "./pages/NotFound";
 import { Layout } from "./components/Layout";
 
