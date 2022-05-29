@@ -150,6 +150,15 @@ export const theme = extendTheme({
           _focus: { boxShadow: {} },
           _active: { boxShadow: {} },
         },
+        icon: {
+          bg: "transparent",
+          padding: "0",
+          margin: "0",
+          borderRadius: "50%",
+          width: "35px",
+          minWidth: "fit-content",
+          height: "35px",
+        },
       },
     },
   },
@@ -168,6 +177,24 @@ export const theme = extendTheme({
         display: "inline-flex",
         height: "full",
         alignItems: "center",
+      },
+
+      ".editButton": {
+        visibility: "hidden",
+      },
+      ".deleteButton": {
+        visibility: "hidden",
+      },
+
+      ".tableRow: hover": {
+        bg: "red",
+      },
+
+      ".tableRow:hover > .editButton": {
+        visibility: "visible",
+      },
+      ".tableRow:hover > .deleteButton": {
+        visibility: "visible",
       },
     },
   },

@@ -14,7 +14,6 @@ import {
   Td,
   Button,
   Input,
-  Select,
 } from "@chakra-ui/react";
 
 import SavingIcon from "/Icons/savings.svg";
