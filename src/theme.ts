@@ -165,8 +165,9 @@ export const theme = extendTheme({
         listStyle: "none",
       },
       "nav a": {
-        display: "inline-block",
+        display: "inline-flex",
         height: "full",
+        alignItems: "center",
       },
     },
   },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Stack,
@@ -29,8 +29,10 @@ enum KindOfSpend {
 export const Spends: React.FC = () => {
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
 
-  function handleSelect(e) {
-    setKindOfSpend(e.target.value);
+  function handleSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const value = e.target.value as KindOfSpend;
+
+    setKindOfSpend(value);
   }
 
   return (
@@ -89,13 +91,13 @@ export const Spends: React.FC = () => {
                 />
               </Stack>
             )}
-
             <Button alignSelf="flex-end" type="button" variant="add">
               <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
               <Text>Agregar gasto</Text>
             </Button>
           </Stack>
         </Stack>
+
         <TableContainer>
           <Table>
             <Thead>

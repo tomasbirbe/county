@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 
 import { NavLink } from "./components/NavLink";
 
-import Pocket from "/public/Icons/pocket.svg";
+import Pocket from "/Icons/pocket.svg";
 export const Layout: React.FC = () => {
   return (
     <>
@@ -19,9 +19,9 @@ export const Layout: React.FC = () => {
         width="full"
       >
         <Box width="150px">
-          <Text>County</Text>
+          <Text fontWeight="700">County</Text>
         </Box>
-        <Stack as="ul" direction="row" spacing={8}>
+        <Stack align="center" as="ul" direction="row" height="full" spacing={8}>
           <NavLink to="/">Resumen</NavLink>
           <NavLink to="/spends" underlineColor="spend">
             Gastos
@@ -35,7 +35,7 @@ export const Layout: React.FC = () => {
         </Stack>
         <Stack direction="row" justify="flex-end" width="150px">
           <Img height="30px" loading="eager" src={Pocket} width="30px" />
-          <Text>$500000</Text>
+          <Text color="secondary.100">$500000</Text>
         </Stack>
       </Stack>
       <Outlet />
