@@ -20,6 +20,7 @@ import PlusIcon from "/Icons/plus.svg";
 import moneyFormatter from "src/utils/moneyFormatter";
 import { KindOfSpend, Spend } from "src/types";
 
+import Editable from "./components/Editable";
 import { useSpends } from "./hooks/useSpends";
 
 export const Spends: React.FC = () => {
@@ -60,23 +61,8 @@ export const Spends: React.FC = () => {
     }
   }
 
-  function modifySpend(spend: Spend) {
-    actions.addSpend(currentSpend);
-  }
-
-  function handleNewDescription(e: any) {
-    setCurrentSpend({ ...currentSpend, description: e.target.value });
-  }
-  function handleNewAmount(e: any) {
-    setCurrentSpend({ ...currentSpend, amount: e.target.value });
-  }
-
   function selectSpend(spend: Spend) {
     setCurrentSpend(spend);
-  }
-
-  function cancelModify() {
-    setCurrentSpend(null);
   }
 
   function totalSpends() {
@@ -102,16 +88,19 @@ export const Spends: React.FC = () => {
             </Stack>
             <Stack as="label" htmlFor="amount" spacing={5}>
               <Text>Gasto</Text>
-              <Input
-                required
-                marginBlockStart={4}
-                min={1}
-                name="amount"
-                placeholder="$50000"
-                step="any"
-                type="number"
-                width="100px"
-              />
+              <Stack direction="row" spacing={1}>
+                <Text>$</Text>
+                <Input
+                  required
+                  marginBlockStart={4}
+                  min={1}
+                  name="amount"
+                  placeholder="50000"
+                  step="any"
+                  type="number"
+                  width="70px"
+                />
+              </Stack>
             </Stack>
             <Stack as="label" htmlFor="kind_of_spend">
               <Text>Tipo de compra</Text>
@@ -185,7 +174,7 @@ export const Spends: React.FC = () => {
             >
               {currentSpend && currentSpend.id === spend.id ? (
                 <>
-                  <GridItem>
+                  {/* <GridItem>
                     <Input
                       required
                       placeholder={spend.description}
@@ -208,11 +197,16 @@ export const Spends: React.FC = () => {
                     <Button type="button" onClick={cancelModify}>
                       Cancelar
                     </Button>
-                  </GridItem>
+                  </GridItem> */}
                 </>
               ) : (
                 <>
-                  <GridItem>{spend.description}</GridItem>
+                  {/* <GridItem contentEditable onChange={() => console.log("hola")}>
+                    {spend.description}
+                  </GridItem> */}
+                  <GridItem>
+                    <Editable defaultValue={'Some text'} />
+                  </GridItem>
                   <GridItem textAlign="center">{moneyFormatter(spend.amount)}</GridItem>
                   <GridItem textAlign="center">
                     {spend?.installments ? spend.installments : "-"}
