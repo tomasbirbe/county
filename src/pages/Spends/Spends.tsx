@@ -11,6 +11,7 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 import DeleteIcon from "/Icons/delete.svg";
 import ArrowUp from "/Icons/arrow-up.svg";
@@ -18,6 +19,7 @@ import PlusIcon from "/Icons/plus.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 import { KindOfSpend, Spend } from "src/types";
+import dayjs from "dayjs";
 
 import { useSpends } from "./hooks/useSpends";
 
@@ -46,6 +48,10 @@ export const Spends: React.FC = () => {
       kind: kind.value,
       amount: amount.value,
       installments: installments?.value ? installments.value : "",
+      firstInstallment:
+        kind.value === KindOfSpend.INSTALLMENTS && installments.value
+          ? dayjs().add(1, "month").set("date", 1).format()
+          : "",
     };
 
     spendActions.addSpend(newSpend);
@@ -64,6 +70,18 @@ export const Spends: React.FC = () => {
 
   function totalSpends() {
     return spends.reduce((acc, spend) => acc + Number(spend.amount), 0);
+  }
+
+  function calculateInstallment(spend: Spend) {
+    const monthsSinceFirstInstallment = dayjs()
+      .set("date", 2)
+      .diff(dayjs(spend.firstInstallment), "month");
+
+    if (monthsSinceFirstInstallment > Number(spend.installments)) {
+      spendActions.deleteSpend(spend.id);
+    }
+
+    return `${monthsSinceFirstInstallment + 1}/${spend.installments}`;
   }
 
   return (
@@ -120,7 +138,7 @@ export const Spends: React.FC = () => {
                   required
                   marginBlockStart={4}
                   max={99}
-                  min={1}
+                  min={0}
                   name="installments"
                   placeholder="1"
                   textAlign="center"
@@ -173,7 +191,7 @@ export const Spends: React.FC = () => {
                 <GridItem>{spend.description}</GridItem>
                 <GridItem textAlign="center">{moneyFormatter(spend.amount)}</GridItem>
                 <GridItem textAlign="center">
-                  {spend?.installments ? spend.installments : "-"}
+                  {spend?.installments ? calculateInstallment(spend) : "-"}
                 </GridItem>
                 <GridItem className="deleteButton" justifySelf="center">
                   <Button variant="icon" onClick={() => deleteSpend(spend)}>
@@ -188,3 +206,4 @@ export const Spends: React.FC = () => {
     </Container>
   );
 };
+1;
