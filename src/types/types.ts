@@ -6,4 +6,5 @@ export interface Spend {
   kind: KindOfSpend;
   amount: string;
   installments: string;
+  expirationDate: string;
 }

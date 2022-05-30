@@ -12,7 +12,6 @@ import {
   GridItem,
 } from "@chakra-ui/react";
 
-import EditIcon from "/Icons/edit.svg";
 import DeleteIcon from "/Icons/delete.svg";
 import ArrowUp from "/Icons/arrow-up.svg";
 import PlusIcon from "/Icons/plus.svg";
@@ -20,13 +19,11 @@ import PlusIcon from "/Icons/plus.svg";
 import moneyFormatter from "src/utils/moneyFormatter";
 import { KindOfSpend, Spend } from "src/types";
 
-import Editable from "./components/Editable";
 import { useSpends } from "./hooks/useSpends";
 
 export const Spends: React.FC = () => {
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
-  const { spends, actions } = useSpends();
-  const [currentSpend, setCurrentSpend] = useState<Spend | null>(null);
+  const { spends, actions: spendActions } = useSpends();
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -51,7 +48,7 @@ export const Spends: React.FC = () => {
       installments: installments?.value ? installments.value : "",
     };
 
-    actions.addSpend(newSpend);
+    spendActions.addSpend(newSpend);
 
     description.value = "";
     amount.value = "";
@@ -61,8 +58,8 @@ export const Spends: React.FC = () => {
     }
   }
 
-  function selectSpend(spend: Spend) {
-    setCurrentSpend(spend);
+  function deleteSpend(spend: Spend) {
+    spendActions.deleteSpend(spend.id);
   }
 
   function totalSpends() {
@@ -146,7 +143,7 @@ export const Spends: React.FC = () => {
             marginBlockEnd={2}
             paddingBlockEnd={2}
             paddingInline={2}
-            templateColumns="6fr 3fr 1fr 0.5fr 0.5fr"
+            templateColumns="6fr 3fr 1fr 0.5fr"
           >
             <GridItem color="gray.500" fontWeight="600">
               Descripcion
@@ -170,59 +167,20 @@ export const Spends: React.FC = () => {
               className="tableRow"
               paddingBlock={4}
               paddingInline={2}
-              templateColumns="6fr 3fr 1fr 0.5fr 0.5fr"
+              templateColumns="6fr 3fr 1fr 0.5fr "
             >
-              {currentSpend && currentSpend.id === spend.id ? (
-                <>
-                  {/* <GridItem>
-                    <Input
-                      required
-                      placeholder={spend.description}
-                      width="70%"
-                      onChange={handleNewDescription}
-                    />
-                  </GridItem>
-                  <GridItem textAlign="center">
-                    <Input required placeholder={spend.amount} onChange={handleNewAmount} />
-                  </GridItem>
-                  <GridItem textAlign="center">
-                    {spend?.installments ? spend.installments : "-"}
-                  </GridItem>
-                  <GridItem>
-                    <Button type="button" onClick={modifySpend}>
-                      Modificar
-                    </Button>
-                  </GridItem>
-                  <GridItem>
-                    <Button type="button" onClick={cancelModify}>
-                      Cancelar
-                    </Button>
-                  </GridItem> */}
-                </>
-              ) : (
-                <>
-                  {/* <GridItem contentEditable onChange={() => console.log("hola")}>
-                    {spend.description}
-                  </GridItem> */}
-                  <GridItem>
-                    <Editable defaultValue={'Some text'} />
-                  </GridItem>
-                  <GridItem textAlign="center">{moneyFormatter(spend.amount)}</GridItem>
-                  <GridItem textAlign="center">
-                    {spend?.installments ? spend.installments : "-"}
-                  </GridItem>
-                  <GridItem className="editButton" justifySelf="center">
-                    <Button variant="icon" onClick={() => selectSpend(spend)}>
-                      <Img height="25px" src={EditIcon} width="25px" />
-                    </Button>
-                  </GridItem>
-                  <GridItem className="deleteButton" justifySelf="center">
-                    <Button variant="icon">
-                      <Img height="25px" src={DeleteIcon} width="25px" />
-                    </Button>
-                  </GridItem>
-                </>
-              )}
+              <>
+                <GridItem>{spend.description}</GridItem>
+                <GridItem textAlign="center">{moneyFormatter(spend.amount)}</GridItem>
+                <GridItem textAlign="center">
+                  {spend?.installments ? spend.installments : "-"}
+                </GridItem>
+                <GridItem className="deleteButton" justifySelf="center">
+                  <Button variant="icon" onClick={() => deleteSpend(spend)}>
+                    <Img height="25px" src={DeleteIcon} width="25px" />
+                  </Button>
+                </GridItem>
+              </>
             </Grid>
           ))}
         </Stack>

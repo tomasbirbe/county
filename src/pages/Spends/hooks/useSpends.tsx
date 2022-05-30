@@ -3,6 +3,7 @@ import { Spend } from "src/types";
 
 export enum SpendActions {
   ADD = "ADD",
+  DELETE = "DELETE",
 }
 
 const spendReducer = (state: Spend[], action: any) => {
@@ -13,6 +14,15 @@ const spendReducer = (state: Spend[], action: any) => {
       localStorage.setItem("spends", JSON.stringify([...state, newSpend]));
 
       return [...state, newSpend];
+    }
+    case SpendActions.DELETE: {
+      const id = action.payload;
+
+      const updatedSpends = state.filter((spend) => spend.id !== id);
+
+      localStorage.setItem("spends", JSON.stringify(updatedSpends));
+
+      return updatedSpends;
     }
     default: {
       throw new Error("Unhandled action");
@@ -28,6 +38,9 @@ export const useSpends = () => {
   const actions = {
     addSpend: (spend: Spend) => {
       dispatch({ type: SpendActions.ADD, payload: spend });
+    },
+    deleteSpend: (spend: string) => {
+      dispatch({ type: SpendActions.DELETE, payload: spend });
     },
   };
 
