@@ -139,6 +139,18 @@ export const theme = extendTheme({
     },
     Button: {
       variants: {
+        primary: {
+          bg: "secondary",
+          color: "primary",
+          fontWeight: "500",
+        },
+        secondary: {
+          bg: "transparent",
+          color: "secondary",
+          fontWeight: "500",
+          paddingInline: 2,
+          _hover: { bg: "primary.600" },
+        },
         add: {
           bg: "primary.600",
           paddingInlineEnd: "0.8rem",

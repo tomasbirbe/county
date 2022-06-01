@@ -1,13 +1,13 @@
 import React from "react";
 import { Container, Stack, Img, Text, Box, Button, Input, Grid, GridItem } from "@chakra-ui/react";
+import moneyFormatter from "src/utils/moneyFormatter";
 
 import ArrowDown from "/Icons/arrow-down.svg";
 import PlusIcon from "/Icons/plus.svg";
 import DeleteIcon from "/Icons/delete.svg";
 
-import moneyFormatter from "src/utils/moneyFormatter";
-
 import { useIncomes } from "./hooks/useIncomes";
+
 export const Incomes: React.FC = () => {
   const { incomes, actions: incomesActions } = useIncomes();
 
