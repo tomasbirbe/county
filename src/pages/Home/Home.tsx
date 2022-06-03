@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Container, Img, Stack, Text } from "@chakra-ui/react";
 
 import ArrowUpIcon from "/Icons/arrow-up.svg";
@@ -6,24 +6,28 @@ import SavingsIcon from "/Icons/savings.svg";
 import ArrowDownIcon from "/Icons/arrow-down.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
+import { useAuthContext } from "src/context/authContext";
+import { Income, Saving, Spend } from "src/types";
 
 export const Home: React.FC = () => {
+  const { auth } = useAuthContext();
+
   function totalSpends() {
     const spends = JSON.parse(localStorage.getItem("spends") || "[]");
 
-    return spends.reduce((acc, spend) => acc + Number(spend.amount), 0);
+    return spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
   }
 
   function totalSavings() {
     const savings = JSON.parse(localStorage.getItem("savings") || "[]");
 
-    return savings.reduce((acc, saving) => acc + Number(saving.amount), 0);
+    return savings.reduce((acc: number, saving: Saving) => acc + Number(saving.amount), 0);
   }
 
   function totalIncomes() {
     const incomes = JSON.parse(localStorage.getItem("incomes") || "[]");
 
-    return incomes.reduce((acc, income) => acc + Number(income.amount), 0);
+    return incomes.reduce((acc: number, income: Income) => acc + Number(income.amount), 0);
   }
 
   return (

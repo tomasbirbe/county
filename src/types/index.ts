@@ -1,2 +1,2 @@
-export type { Spend } from "./types";
+export type { Spend, Saving, Income } from "./types";
 export { KindOfSpend } from "./enums";

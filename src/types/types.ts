@@ -8,3 +8,13 @@ export interface Spend {
   installments: string;
   firstInstallment: string;
 }
+export interface Saving {
+  id: string;
+  description: string;
+  amount: string;
+}
+export interface Income {
+  id: string;
+  description: string;
+  amount: string;
+}

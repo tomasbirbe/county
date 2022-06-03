@@ -11,7 +11,5 @@ export const PrivateRoute: React.FC<Props> = ({ isLogged, children }) => {
     return children;
   }
 
-  console.log(isLogged);
-
   return <Navigate to="/login" />;
 };

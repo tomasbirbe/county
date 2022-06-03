@@ -1,13 +1,25 @@
 import { Box, Button, Container, Input, Link, Stack, Text } from "@chakra-ui/react";
 import React from "react";
+import { useAuthContext } from "src/context/authContext";
 import { signIn } from "src/auth";
+import { useNavigate } from "react-router-dom";
 
 export const Login: React.FC = () => {
-  function logIn(event) {
-    event.preventDefault();
-    const { email, password } = event.target;
+  const { auth, setAuth } = useAuthContext();
+  const navigate = useNavigate();
 
-    signIn(email.value, password.value);
+  function logIn(event: React.FormEvent) {
+    event.preventDefault();
+    const { email, password } = event.target as HTMLFormElement;
+
+    signIn(email.value, password.value)
+      .then((uid) => {
+        setAuth(uid);
+        navigate("/");
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 
   return (

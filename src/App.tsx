@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { addUser, createNewUser } from "src/";
 
 import { Home } from "./pages/Home";
 import { Spends } from "./pages/Spends";
@@ -8,15 +9,21 @@ import { Incomes } from "./pages/Incomes";
 import { Login } from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { Layout } from "./components/Layout";
-import { signIn, signUp, getSession } from "./auth";
+import { getSession } from "./auth";
+import { useAuthContext } from "./context/authContext";
 import { PrivateRoute } from "./PrivateRoute";
 
 export const App: React.FC = () => {
+  const { auth, setAuth } = useAuthContext();
   const [isLogged, setIsLogged] = useState(false);
 
   useEffect(() => {
-    getSession();
-  }, []);
+    const user = getSession();
+
+    if (user) {
+      setIsLogged(true);
+    }
+  }, [auth]);
 
   return (
     <Routes>
