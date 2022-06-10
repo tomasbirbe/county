@@ -1,20 +1,30 @@
-import { Box, Button, Container, Input, Link, Stack, Text } from "@chakra-ui/react";
 import React from "react";
-import { useAuthContext } from "src/context/authContext";
-import { signIn } from "src/auth";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "src/context/authContext";
+
+// Chakra ui
+
+import { Box, Button, Container, Input, Link, Stack, Text } from "@chakra-ui/react";
+
+// Firebase
+
+import { app, auth } from "src/firebase/app";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createNewUser } from "src/firebase/db/User";
 
 export const Login: React.FC = () => {
-  const { auth, setAuth } = useAuthContext();
+  const { setUser } = useAuthContext();
   const navigate = useNavigate();
 
   function logIn(event: React.FormEvent) {
     event.preventDefault();
-    const { email, password } = event.target as HTMLFormElement;
+    const { emailInput, passwordInput } = event.target as HTMLFormElement;
 
-    signIn(email.value, password.value)
-      .then((uid) => {
-        setAuth(uid);
+    // createNewUser(emailInput.value, passwordInput.value);
+
+    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+      .then((userCredentials) => {
+        setUser(userCredentials.user);
         navigate("/");
       })
       .catch((error) => {
@@ -35,13 +45,13 @@ export const Login: React.FC = () => {
         width="300px"
         onSubmit={logIn}
       >
-        <Stack as="label">
+        <Stack as="label" htmlFor="emailInput">
           <Text>Email</Text>
-          <Input name="email" placeholder="tomasespinosa9898@gmail.com" />
+          <Input id="emailInput" placeholder="tomasespinosa9898@gmail.com" />
         </Stack>
-        <Stack as="label">
+        <Stack as="label" htmlFor="passwordInput">
           <Text>Password</Text>
-          <Input name="password" placeholder="***" type="password" />
+          <Input id="passwordInput" placeholder="***" type="password" />
         </Stack>
         <Stack spacing={2}>
           <Button type="submit" variant="primary">

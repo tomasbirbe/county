@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { addUser, createNewUser } from "src/";
+import { auth } from "src/firebase/app";
+import dayjs from "dayjs";
+import { useAuthContext } from "./context/authContext";
+
+// Pages
 
 import { Home } from "./pages/Home";
 import { Spends } from "./pages/Spends";
@@ -8,22 +12,25 @@ import { Savings } from "./pages/Savings";
 import { Incomes } from "./pages/Incomes";
 import { Login } from "./pages/Login";
 import NotFound from "./pages/NotFound";
+
 import { Layout } from "./components/Layout";
-import { getSession } from "./auth";
-import { useAuthContext } from "./context/authContext";
 import { PrivateRoute } from "./PrivateRoute";
 
 export const App: React.FC = () => {
-  const { auth, setAuth } = useAuthContext();
+  const { setUser } = useAuthContext();
+  // const [checkingSession, setCheckingSession] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
 
   useEffect(() => {
-    const user = getSession();
-
-    if (user) {
-      setIsLogged(true);
-    }
-  }, [auth]);
+    // setCheckingSession(true);
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsLogged(true);
+        setUser(user);
+      }
+      // setCheckingSession(false);
+    });
+  }, []);
 
   return (
     <Routes>

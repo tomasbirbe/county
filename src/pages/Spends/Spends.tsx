@@ -11,7 +11,6 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import relativeTime from "dayjs/plugin/relativeTime";
 
 import DeleteIcon from "/Icons/delete.svg";
 import ArrowUp from "/Icons/arrow-up.svg";
@@ -21,9 +20,15 @@ import moneyFormatter from "src/utils/moneyFormatter";
 import { KindOfSpend, Spend } from "src/types";
 import dayjs from "dayjs";
 
+import {
+  addSpend as addSpendToFirebase,
+  deleteSpend as deleteSpendToFirebase,
+} from "src/firebase/db/User";
+import { useAuthContext } from "src/context/authContext";
 import { useSpends } from "./hooks/useSpends";
 
 export const Spends: React.FC = () => {
+  const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
   const { spends, actions: spendActions } = useSpends();
 
@@ -65,7 +70,7 @@ export const Spends: React.FC = () => {
   }
 
   function deleteSpend(spend: Spend) {
-    spendActions.deleteSpend(spend.id);
+    spendActions.deleteSpend(spend);
   }
 
   function totalSpends() {
@@ -78,7 +83,7 @@ export const Spends: React.FC = () => {
       .diff(dayjs(spend.firstInstallment), "month");
 
     if (monthsSinceFirstInstallment > Number(spend.installments)) {
-      spendActions.deleteSpend(spend.id);
+      spendActions.deleteSpend(spend);
     }
 
     return `${monthsSinceFirstInstallment + 1}/${spend.installments}`;

@@ -60,7 +60,7 @@ module.exports = {
             position: "after",
           },
         ],
-        "newlines-between": "always",
+        "newlines-between": "ignore",
       },
     ],
     "react/self-closing-comp": "warn",
