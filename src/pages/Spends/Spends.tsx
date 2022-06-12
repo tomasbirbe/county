@@ -20,17 +20,24 @@ import moneyFormatter from "src/utils/moneyFormatter";
 import { KindOfSpend, Spend } from "src/types";
 import dayjs from "dayjs";
 
-import {
-  addSpend as addSpendToFirebase,
-  deleteSpend as deleteSpendToFirebase,
-} from "src/firebase/db/User";
 import { useAuthContext } from "src/context/authContext";
+import { v4 } from "uuid";
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
+import { app } from "src/firebase/app";
 import { useSpends } from "./hooks/useSpends";
 
-export const Spends: React.FC = () => {
+const db = getFirestore(app);
+
+export const Spends: React.FC = ({ spends, setSpends, date }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
-  const { spends, actions: spendActions } = useSpends();
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -48,29 +55,39 @@ export const Spends: React.FC = () => {
     } = event.target as HTMLFormElement;
 
     const newSpend = {
-      id: (Math.random() * new Date().getTime()).toString(),
+      id: v4(),
       description: description.value,
-      kind: kind.value,
       amount: amount.value,
-      installments: installments?.value ? installments.value : "",
-      firstInstallment:
-        kind.value === KindOfSpend.INSTALLMENTS && installments.value
-          ? dayjs().add(1, "month").set("date", 1).format()
-          : "",
+      kind: kind.value,
+      installments: kind.value !== KindOfSpend.INSTALLMENTS ? "-" : installments?.value,
     };
 
-    spendActions.addSpend(newSpend);
+    setSpends((prevSpends) => [...prevSpends, newSpend]);
+    if (user?.email) {
+      updateDoc(doc(db, "users", user.email, "countyData", date), {
+        spends: arrayUnion(newSpend),
+      });
+    }
 
     description.value = "";
     amount.value = "";
     kind.value = KindOfSpend.NOINSTALLMENTS;
+    setKindOfSpend(KindOfSpend.NOINSTALLMENTS);
     if (installments?.value) {
       installments.value = "";
     }
   }
 
   function deleteSpend(spend: Spend) {
-    spendActions.deleteSpend(spend);
+    if (user?.email) {
+      console.log(spend);
+      updateDoc(doc(db, "users", user.email, "countyData", date), {
+        spends: arrayRemove({ ...spend }),
+      })
+        .then((res) => console.log(res))
+        .catch((error) => console.log(error));
+      setSpends(spends.filter((spendItem) => spendItem.id !== spend.id));
+    }
   }
 
   function totalSpends() {
@@ -83,10 +100,13 @@ export const Spends: React.FC = () => {
       .diff(dayjs(spend.firstInstallment), "month");
 
     if (monthsSinceFirstInstallment > Number(spend.installments)) {
-      spendActions.deleteSpend(spend);
+      // spendActions.deleteSpend(spend);
     }
-
-    return `${monthsSinceFirstInstallment + 1}/${spend.installments}`;
+    if (spend.kind === KindOfSpend.INSTALLMENTS) {
+      return `${monthsSinceFirstInstallment + 1}/${spend.installments}`;
+    } else {
+      return "-";s
+    }
   }
 
   return (

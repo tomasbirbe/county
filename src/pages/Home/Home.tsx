@@ -10,8 +10,6 @@ import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend } from "src/types";
 
 export const Home: React.FC = () => {
-  const { auth } = useAuthContext();
-
   function totalSpends() {
     const spends = JSON.parse(localStorage.getItem("spends") || "[]");
 
