@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { auth } from "src/firebase/app";
-import { useSpends } from "src/pages/Spends/hooks/useSpends";
-import { useCounty } from "src/hooks/useCounty";
-import dayjs from "dayjs";
-import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useAuthContext } from "./context/authContext";
 
 // Pages
