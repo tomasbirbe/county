@@ -5,29 +5,54 @@ import moneyFormatter from "src/utils/moneyFormatter";
 import ArrowDown from "/Icons/arrow-down.svg";
 import PlusIcon from "/Icons/plus.svg";
 import DeleteIcon from "/Icons/delete.svg";
+import { Income } from "src/types";
+import { v4 } from "uuid";
+import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
+import { useAuthContext } from "src/context/authContext";
 
-import { useIncomes } from "./hooks/useIncomes";
+import { app } from "src/firebase/app";
 
-export const Incomes: React.FC = () => {
-  const { incomes, actions: incomesActions } = useIncomes();
+interface Props {
+  incomes: Income[];
+  setIncomes: React.Dispatch<React.SetStateAction<Income[]>>;
+  date: string;
+}
+
+const db = getFirestore(app);
+
+export const Incomes: React.FC<Props> = ({ incomes, setIncomes, date }) => {
+  const { user } = useAuthContext();
 
   function addIncome(event: React.FormEvent) {
     event.preventDefault();
     const { description, amount } = event.target as HTMLFormElement;
 
-    console.log(description, amount);
-    incomesActions.addIncome({
-      id: (new Date().getTime() * Math.random()).toString(),
+    const newIncome: Income = {
+      id: v4(),
       description: description.value,
       amount: amount.value,
-    });
+    };
+
+    if (user?.email) {
+      updateDoc(doc(db, "users", user.email, "countyData", date), {
+        incomes: arrayUnion(newIncome),
+      });
+      setIncomes((prevState: Income[]) => [...prevState, newIncome]);
+    }
 
     description.value = "";
     amount.value = "";
   }
 
-  function deleteIncome(income) {
-    incomesActions.deleteIncome(income.id);
+  function deleteIncome(income: Income) {
+    if (user?.email) {
+      updateDoc(doc(db, "users", user.email, "countyData", date), {
+        incomes: arrayRemove(income),
+      });
+      setIncomes((prevState: Income[]) =>
+        prevState.filter((incomeItem) => incomeItem.id !== income.id),
+      );
+    }
   }
 
   function calculateTotal() {
@@ -93,7 +118,7 @@ export const Incomes: React.FC = () => {
               Gasto
             </GridItem>
           </Grid>
-          {incomes.map((income) => (
+          {incomes.map((income: Income) => (
             <Grid
               key={income.id}
               _hover={{ bg: "primary.700" }}
@@ -111,7 +136,7 @@ export const Incomes: React.FC = () => {
                 <GridItem>{income.description}</GridItem>
                 <GridItem textAlign="center">{moneyFormatter(income.amount)}</GridItem>
                 <GridItem className="deleteButton" justifySelf="center">
-                  <Button variant="icon" onClick={() => addIncome(income)}>
+                  <Button variant="icon" onClick={() => deleteIncome(income)}>
                     <Img height="25px" src={DeleteIcon} width="25px" />
                   </Button>
                 </GridItem>

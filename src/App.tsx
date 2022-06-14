@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 
 import { Layout } from "./components/Layout";
 import { PrivateRoute } from "./PrivateRoute";
-import { Spend, Saving } from "./types";
+import { Spend, Saving, Income } from "./types";
 
 import { app } from "./firebase/app";
 
@@ -32,6 +32,7 @@ export const App: React.FC = () => {
   const [date, setDate] = useState("062022");
   const [spends, setSpends] = useState<Spend[]>([]);
   const [savings, setSavings] = useState<Saving[]>([]);
+  const [incomes, setIncomes] = useState<Income[]>([]);
 
   useEffect(() => {
     // setCheckingSession(true);
@@ -48,10 +49,11 @@ export const App: React.FC = () => {
     if (user?.email) {
       getDoc(doc(db, "users", user.email, "countyData", date)).then((docSnap) => {
         if (docSnap.exists()) {
-          const { spends: docSpends, savings: docSavings } = docSnap.data();
+          const { spends: docSpends, savings: docSavings, incomes: docIncomes } = docSnap.data();
 
           setSpends(docSpends);
           setSavings(docSavings);
+          setIncomes(docIncomes);
         }
       });
     }
@@ -91,7 +93,7 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Incomes />
+              <Incomes date={date} incomes={incomes} setIncomes={setIncomes} />
             </PrivateRoute>
           }
           path="incomes"
