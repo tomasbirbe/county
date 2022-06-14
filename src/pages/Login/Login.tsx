@@ -8,9 +8,8 @@ import { Box, Button, Container, Input, Link, Stack, Text } from "@chakra-ui/rea
 
 // Firebase
 
-import { app, auth } from "src/firebase/app";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { createNewUser } from "src/firebase/db/User";
+import { auth } from "src/firebase/app";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export const Login: React.FC = () => {
   const { setUser } = useAuthContext();
@@ -19,8 +18,6 @@ export const Login: React.FC = () => {
   function logIn(event: React.FormEvent) {
     event.preventDefault();
     const { emailInput, passwordInput } = event.target as HTMLFormElement;
-
-    // createNewUser(emailInput.value, passwordInput.value);
 
     signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
       .then((userCredentials) => {
