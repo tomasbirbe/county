@@ -18,24 +18,21 @@ import PlusIcon from "/Icons/plus.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 import { KindOfSpend, Spend } from "src/types";
-import dayjs from "dayjs";
 
 import { useAuthContext } from "src/context/authContext";
 import { v4 } from "uuid";
-import {
-  arrayRemove,
-  arrayUnion,
-  collection,
-  doc,
-  getFirestore,
-  updateDoc,
-} from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
-import { useSpends } from "./hooks/useSpends";
 
 const db = getFirestore(app);
 
-export const Spends: React.FC = ({ spends, setSpends, date }) => {
+interface Props {
+  spends: Spend[];
+  setSpends: React.Dispatch<React.SetStateAction<Spend[]>>;
+  date: string;
+}
+
+export const Spends: React.FC<Props> = ({ spends, setSpends, date }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
 
@@ -62,7 +59,7 @@ export const Spends: React.FC = ({ spends, setSpends, date }) => {
       installments: kind.value !== KindOfSpend.INSTALLMENTS ? "-" : installments?.value,
     };
 
-    setSpends((prevSpends) => [...prevSpends, newSpend]);
+    setSpends((prevSpends: Spend[]) => [...prevSpends, newSpend]);
     if (user?.email) {
       updateDoc(doc(db, "users", user.email, "countyData", date), {
         spends: arrayUnion(newSpend),
@@ -80,13 +77,12 @@ export const Spends: React.FC = ({ spends, setSpends, date }) => {
 
   function deleteSpend(spend: Spend) {
     if (user?.email) {
-      console.log(spend);
       updateDoc(doc(db, "users", user.email, "countyData", date), {
         spends: arrayRemove({ ...spend }),
-      })
-        .then((res) => console.log(res))
-        .catch((error) => console.log(error));
-      setSpends(spends.filter((spendItem) => spendItem.id !== spend.id));
+      }).catch((error) => {
+        throw new Error(error);
+      });
+      setSpends(spends.filter((spendItem: Spend) => spendItem.id !== spend.id));
     }
   }
 
@@ -95,17 +91,10 @@ export const Spends: React.FC = ({ spends, setSpends, date }) => {
   }
 
   function calculateInstallment(spend: Spend) {
-    const monthsSinceFirstInstallment = dayjs()
-      .set("date", 2)
-      .diff(dayjs(spend.firstInstallment), "month");
-
-    if (monthsSinceFirstInstallment > Number(spend.installments)) {
-      // spendActions.deleteSpend(spend);
-    }
     if (spend.kind === KindOfSpend.INSTALLMENTS) {
-      return `${monthsSinceFirstInstallment + 1}/${spend.installments}`;
+      return `1/${spend.installments}`;
     } else {
-      return "-";s
+      return "-";
     }
   }
 

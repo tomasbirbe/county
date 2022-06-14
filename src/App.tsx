@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 
 import { Layout } from "./components/Layout";
 import { PrivateRoute } from "./PrivateRoute";
-import { Spend } from "./types";
+import { Spend, Saving } from "./types";
 
 import { app } from "./firebase/app";
 
@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   // const { county, getSpends } = useCounty();
   const [date, setDate] = useState("062022");
   const [spends, setSpends] = useState<Spend[]>([]);
+  const [savings, setSavings] = useState<Saving[]>([]);
 
   useEffect(() => {
     // setCheckingSession(true);
@@ -38,7 +39,6 @@ export const App: React.FC = () => {
       if (user) {
         setIsLogged(true);
         setUser(user);
-        // spendsActions.getSpends(user);
       }
       // setCheckingSession(false);
     });
@@ -48,9 +48,10 @@ export const App: React.FC = () => {
     if (user?.email) {
       getDoc(doc(db, "users", user.email, "countyData", date)).then((docSnap) => {
         if (docSnap.exists()) {
-          const { spends: docSpends } = docSnap.data();
+          const { spends: docSpends, savings: docSavings } = docSnap.data();
 
           setSpends(docSpends);
+          setSavings(docSavings);
         }
       });
     }
@@ -74,7 +75,7 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Spends setSpends={setSpends} spends={spends} date={date}/>
+              <Spends date={date} setSpends={setSpends} spends={spends} />
             </PrivateRoute>
           }
           path="spends"
@@ -82,7 +83,7 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Savings />
+              <Savings date={date} savings={savings} setSavings={setSavings} />
             </PrivateRoute>
           }
           path="savings"

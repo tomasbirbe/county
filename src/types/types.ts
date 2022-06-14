@@ -6,7 +6,6 @@ export interface Spend {
   kind: KindOfSpend;
   amount: string;
   installments: string;
-  firstInstallment: string;
 }
 export interface Saving {
   id: string;

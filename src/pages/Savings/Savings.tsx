@@ -7,26 +7,51 @@ import DeleteIcon from "/Icons/delete.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 
-import { useSavings } from "./hooks/useSavings";
-export const Savings: React.FC = () => {
-  const { savings, actions: savingsActions } = useSavings();
+import { v4 } from "uuid";
+import dayjs from "dayjs";
+import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
+import { useAuthContext } from "src/context/authContext";
+import { app } from "src/firebase/app";
+import { Saving } from "src/types";
+
+const db = getFirestore(app);
+
+interface Props {
+  savings: Saving[];
+  setSavings: React.Dispatch<React.SetStateAction<Saving[]>>;
+  date: string;
+}
+
+export const Savings: React.FC<Props> = ({ savings, setSavings, date }) => {
+  const { user } = useAuthContext();
 
   function addSaving(event: React.FormEvent) {
     event.preventDefault();
     const { description, amount } = event.target as HTMLFormElement;
-
-    savingsActions.addSaving({
-      id: (new Date().getTime() * Math.random()).toString(),
+    const newSaving: Saving = {
+      id: v4(),
       description: description.value,
       amount: amount.value,
-    });
+    };
+
+    if (user?.email) {
+      updateDoc(doc(db, "users", user.email, "countyData", date), {
+        savings: arrayUnion(newSaving),
+      });
+      setSavings((prevState: Saving[]) => [...prevState, newSaving]);
+    }
 
     description.value = "";
     amount.value = "";
   }
 
-  function deleteSaving(saving) {
-    savingsActions.deleteSaving(saving.id);
+  function deleteSaving(saving: Saving) {
+    if (user?.email) {
+      updateDoc(doc(db, "users", user.email, "countyData", date), {
+        savings: arrayRemove(saving),
+      });
+      setSavings(savings.filter((savingItem) => savingItem.id !== saving.id));
+    }
   }
 
   function calculateTotal() {
