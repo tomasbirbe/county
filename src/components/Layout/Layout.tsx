@@ -1,11 +1,17 @@
 import { Box, Img, Stack, Text } from "@chakra-ui/react";
 import React from "react";
 import { Outlet } from "react-router-dom";
+import moneyFormatter from "src/utils/moneyFormatter";
 
 import { NavLink } from "./components/NavLink";
 
 import Pocket from "/Icons/pocket.svg";
-export const Layout: React.FC = () => {
+
+interface Props {
+  remaining: number;
+}
+
+export const Layout: React.FC<Props> = ({ remaining }) => {
   return (
     <>
       <Stack
@@ -35,7 +41,7 @@ export const Layout: React.FC = () => {
         </Stack>
         <Stack direction="row" justify="flex-end" width="150px">
           <Img height="30px" loading="eager" src={Pocket} width="30px" />
-          <Text color="secondary.100">$500000</Text>
+          <Text color="secondary.100">{moneyFormatter(remaining)}</Text>
         </Stack>
       </Stack>
       <Outlet />

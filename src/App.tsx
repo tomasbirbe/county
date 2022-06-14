@@ -63,14 +63,28 @@ export const App: React.FC = () => {
     console.log(spends);
   }, [spends]);
 
+  function calculateRemaining() {
+    const totalSpends = spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
+    const totalSavings = savings.reduce(
+      (acc: number, saving: Saving) => acc + Number(saving.amount),
+      0,
+    );
+    const totalIncomes = incomes.reduce(
+      (acc: number, income: Income) => acc + Number(income.amount),
+      0,
+    );
+
+    return totalIncomes - totalSpends - totalSavings;
+  }
+
   return (
     <Routes>
-      <Route element={<Layout />} path="/">
+      <Route element={<Layout remaining={calculateRemaining()} />} path="/">
         <Route
           index
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Home />
+              <Home incomes={incomes} savings={savings} spends={spends} />
             </PrivateRoute>
           }
         />

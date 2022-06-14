@@ -9,22 +9,22 @@ import moneyFormatter from "src/utils/moneyFormatter";
 import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend } from "src/types";
 
-export const Home: React.FC = () => {
-  function totalSpends() {
-    const spends = JSON.parse(localStorage.getItem("spends") || "[]");
+interface Props {
+  spends: Spend[];
+  incomes: Income[];
+  savings: Saving[];
+}
 
+export const Home: React.FC<Props> = ({ spends, incomes, savings }) => {
+  function totalSpends() {
     return spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
   }
 
   function totalSavings() {
-    const savings = JSON.parse(localStorage.getItem("savings") || "[]");
-
     return savings.reduce((acc: number, saving: Saving) => acc + Number(saving.amount), 0);
   }
 
   function totalIncomes() {
-    const incomes = JSON.parse(localStorage.getItem("incomes") || "[]");
-
     return incomes.reduce((acc: number, income: Income) => acc + Number(income.amount), 0);
   }
 
