@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { auth } from "src/firebase/app";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
+import dayjs from "dayjs";
 import { useAuthContext } from "./context/authContext";
 
 // Pages
@@ -26,7 +27,7 @@ export const App: React.FC = () => {
   // const [checkingSession, setCheckingSession] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
   // const { county, getSpends } = useCounty();
-  const [date, setDate] = useState("062022");
+  const [date, setDate] = useState(() => dayjs().format("YYYY-MM"));
   const [spends, setSpends] = useState<Spend[]>([]);
   const [savings, setSavings] = useState<Saving[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
@@ -44,7 +45,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (user?.email) {
-      getDoc(doc(db, "users", user.email, "countyData", date)).then((docSnap) => {
+      const docRef = doc(db, "users", user.email, "countyData", dayjs(date).format("YYYYMM"));
+
+      getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
           const { spends: docSpends, savings: docSavings, incomes: docIncomes } = docSnap.data();
 
@@ -54,11 +57,7 @@ export const App: React.FC = () => {
         }
       });
     }
-  }, [user]);
-
-  useEffect(() => {
-    console.log(spends);
-  }, [spends]);
+  }, [user, date]);
 
   function calculateRemaining() {
     const totalSpends = spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
@@ -76,7 +75,10 @@ export const App: React.FC = () => {
 
   return (
     <Routes>
-      <Route element={<Layout remaining={calculateRemaining()} />} path="/">
+      <Route
+        element={<Layout date={date} remaining={calculateRemaining()} setDate={setDate} />}
+        path="/"
+      >
         <Route
           index
           element={
