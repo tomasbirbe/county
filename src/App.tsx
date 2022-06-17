@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { auth } from "src/firebase/app";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { Loader } from "src/pages/Loader";
 import { useAuthContext } from "./context/authContext";
 
 // Pages
@@ -23,7 +24,7 @@ const db = getFirestore(app);
 
 export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
-  // const [checkingSession, setCheckingSession] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
   // const { county, getSpends } = useCounty();
   const [date, setDate] = useState("062022");
@@ -32,13 +33,13 @@ export const App: React.FC = () => {
   const [incomes, setIncomes] = useState<Income[]>([]);
 
   useEffect(() => {
-    // setCheckingSession(true);
+    setIsLoading(true);
     auth.onAuthStateChanged((user) => {
       if (user) {
         setIsLogged(true);
         setUser(user);
       }
-      // setCheckingSession(false);
+      setIsLoading(false);
     });
   }, []);
 
@@ -72,6 +73,10 @@ export const App: React.FC = () => {
     );
 
     return totalIncomes - totalSpends - totalSavings;
+  }
+
+  if (isLoading) {
+    return <Loader />;
   }
 
   return (

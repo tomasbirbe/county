@@ -29,7 +29,7 @@ export const Home: React.FC<Props> = ({ spends, incomes, savings }) => {
   }
 
   return (
-    <Container as="main" height="calc(100% - 70px)" maxWidth="full" paddingX={0}>
+    <Container as="main" height="calc(100% - 108px)" maxWidth="full" paddingX={0}>
       <Stack as="header" height="full">
         <Stack align="center" as="article" height="40%" justify="center" spacing={0} width="full">
           <Text variant="h3">Gastos</Text>
