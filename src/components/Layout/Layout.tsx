@@ -45,30 +45,19 @@ export const Layout: React.FC<Props> = ({ remaining }) => {
           </Stack>
         </Stack>
         <Divider color="black" />
-        {/* <Stack
-          align="center"
-          direction="row"
-          fontSize={14}
-          justify="space-evenly"
-          paddingBlock={2}
-          width="full"
-        >
-          <Text>Borrar</Text>
-          <Stack direction="row" justify="space-evenly" width="70%">
-            <Text> {"<"} </Text>
-            <Text>Agosto</Text>
-            <Text> {">"} </Text>
-          </Stack>
-          <Text>Agregar</Text>
-        </Stack> */}
       </Stack>
       <Outlet />
       <Stack
         align="center"
+        borderBlockStart="1px solid"
+        borderColor="blackAlpha.200"
+        bottom="0"
+        // boxShadow="0px 0px 23px -3px rgba(0,0,0,0.22)"
         direction="row"
         fontSize={14}
         justify="space-evenly"
         paddingBlock={2}
+        position="fixed"
         width="full"
       >
         <Text>Borrar</Text>
