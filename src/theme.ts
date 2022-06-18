@@ -164,7 +164,7 @@ export const theme = extendTheme({
         },
         icon: {
           bg: "transparent",
-          padding: "0",
+          // padding: "0",
           margin: "0",
           borderRadius: "50%",
           width: "35px",
