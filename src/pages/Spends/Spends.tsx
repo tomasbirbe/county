@@ -17,7 +17,7 @@ import ArrowUp from "/Icons/arrow-up.svg";
 import PlusIcon from "/Icons/plus.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
-import { KindOfSpend, Spend } from "src/types";
+import { Income, KindOfSpend, Saving, Spend } from "src/types";
 
 import { useAuthContext } from "src/context/authContext";
 import { v4 } from "uuid";
@@ -26,13 +26,21 @@ import { app } from "src/firebase/app";
 
 const db = getFirestore(app);
 
-interface Props {
+interface Period {
+  id: string;
   spends: Spend[];
-  setSpends: React.Dispatch<React.SetStateAction<Spend[]>>;
-  date: string;
+  incomes: Income[];
+  savings: Saving[];
+  created_at: string;
 }
 
-export const Spends: React.FC<Props> = ({ spends, setSpends, date }) => {
+interface Props {
+  spends: Spend[] | undefined;
+  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
+  currentPeriod: Period | null;
+}
+
+export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
 
@@ -59,11 +67,22 @@ export const Spends: React.FC<Props> = ({ spends, setSpends, date }) => {
       installments: kind.value !== KindOfSpend.INSTALLMENTS ? "-" : installments?.value,
     };
 
-    setSpends((prevSpends: Spend[]) => [...prevSpends, newSpend]);
-    if (user?.email) {
-      updateDoc(doc(db, "users", user.email, "countyData", date), {
-        spends: arrayUnion(newSpend),
+    if (currentPeriod) {
+      setCurrentPeriod((prevPeriod) => {
+        if (prevPeriod) {
+          return {
+            ...prevPeriod,
+            spends: [...prevPeriod.spends, newSpend],
+          };
+        }
+
+        return null;
       });
+      if (user?.email && currentPeriod) {
+        updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
+          spends: arrayUnion(newSpend),
+        });
+      }
     }
 
     description.value = "";
@@ -76,18 +95,34 @@ export const Spends: React.FC<Props> = ({ spends, setSpends, date }) => {
   }
 
   function deleteSpend(spend: Spend) {
-    if (user?.email) {
-      updateDoc(doc(db, "users", user.email, "countyData", date), {
+    if (user?.email && currentPeriod) {
+      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
         spends: arrayRemove({ ...spend }),
       }).catch((error) => {
         throw new Error(error);
       });
-      setSpends(spends.filter((spendItem: Spend) => spendItem.id !== spend.id));
+      setCurrentPeriod((prevPeriod) => {
+        if (prevPeriod) {
+          return {
+            ...prevPeriod,
+            spends: prevPeriod.spends.filter((spendItem: Spend) => spendItem.id !== spend.id),
+          };
+        }
+
+        return null;
+      });
     }
   }
 
   function totalSpends() {
-    return spends.reduce((acc, spend) => acc + Number(spend.amount), 0);
+    if (currentPeriod) {
+      return currentPeriod.spends.reduce(
+        (acc: number, spend: Spend) => acc + Number(spend.amount),
+        0,
+      );
+    }
+
+    return 0;
   }
 
   function calculateInstallment(spend: Spend) {
@@ -187,7 +222,7 @@ export const Spends: React.FC<Props> = ({ spends, setSpends, date }) => {
               Cuota
             </GridItem>
           </Grid>
-          {spends.map((spend) => (
+          {currentPeriod?.spends.map((spend: Spend) => (
             <Grid
               key={spend.id}
               _hover={{ bg: "primary.700" }}

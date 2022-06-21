@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { auth } from "src/firebase/app";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { Loader } from "src/pages/Loader";
 import { useAuthContext } from "./context/authContext";
 
@@ -22,15 +22,20 @@ import { app } from "./firebase/app";
 
 const db = getFirestore(app);
 
+interface Period {
+  id: string;
+  spends: Spend[];
+  incomes: Income[];
+  savings: Saving[];
+  created_at: string;
+}
+
 export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  // const { county, getSpends } = useCounty();
-  const [date, setDate] = useState("062022");
-  const [spends, setSpends] = useState<Spend[]>([]);
-  const [savings, setSavings] = useState<Saving[]>([]);
-  const [incomes, setIncomes] = useState<Income[]>([]);
+  const [county, setCounty] = useState<Period[]>([]);
+  const [currentPeriod, setCurrentPeriod] = useState<Period | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
@@ -45,35 +50,56 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (user?.email) {
-      getDoc(doc(db, "users", user.email, "countyData", date)).then((docSnap) => {
-        if (docSnap.exists()) {
-          const { spends: docSpends, savings: docSavings, incomes: docIncomes } = docSnap.data();
+      const countyRef = collection(db, "users", user.email, "countyData");
 
-          setSpends(docSpends);
-          setSavings(docSavings);
-          setIncomes(docIncomes);
-        }
+      getDocs(query(countyRef)).then((doc) => {
+        const countyData: Period[] = [];
+
+        doc.forEach((docSnap) => {
+          countyData.push({ ...(docSnap.data() as Period), id: docSnap.id });
+        });
+
+        setCounty(countyData);
+        setCurrentPeriod(countyData[0]);
       });
     }
   }, [user]);
 
-  useEffect(() => {
-    console.log(spends);
-  }, [spends]);
-
   function calculateRemaining() {
-    const totalSpends = spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
-    const totalSavings = savings.reduce(
-      (acc: number, saving: Saving) => acc + Number(saving.amount),
-      0,
-    );
-    const totalIncomes = incomes.reduce(
-      (acc: number, income: Income) => acc + Number(income.amount),
-      0,
-    );
+    if (currentPeriod) {
+      const totalSpends = currentPeriod.spends.reduce(
+        (acc: number, spend: Spend) => acc + Number(spend.amount),
+        0,
+      );
+      const totalSavings = currentPeriod.savings.reduce(
+        (acc: number, saving: Saving) => acc + Number(saving.amount),
+        0,
+      );
+      const totalIncomes = currentPeriod.incomes.reduce(
+        (acc: number, income: Income) => acc + Number(income.amount),
+        0,
+      );
 
-    return totalIncomes - totalSpends - totalSavings;
+      return totalIncomes - totalSpends - totalSavings;
+    }
+
+    return 0;
   }
+
+  useEffect(() => {
+    if (currentPeriod) {
+      const deletedCurrentPeriod = county.filter((period) => period.id !== currentPeriod.id);
+      const sortedPeriods = [...deletedCurrentPeriod, currentPeriod].sort((a, b) => {
+        if (new Date(a.created_at) >= new Date(b.created_at)) {
+          return 1;
+        }
+
+        return -1;
+      });
+
+      setCounty(sortedPeriods);
+    }
+  }, [currentPeriod]);
 
   if (isLoading) {
     return <Loader />;
@@ -81,19 +107,38 @@ export const App: React.FC = () => {
 
   return (
     <Routes>
-      <Route element={<Layout remaining={calculateRemaining()} />} path="/">
+      <Route
+        element={
+          <Layout
+            county={county}
+            currentPeriod={currentPeriod}
+            remaining={calculateRemaining()}
+            setCounty={setCounty}
+            setCurrentPeriod={setCurrentPeriod}
+          />
+        }
+        path="/"
+      >
         <Route
           index
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Home incomes={incomes} savings={savings} spends={spends} />
+              <Home
+                incomes={currentPeriod?.incomes}
+                savings={currentPeriod?.savings}
+                spends={currentPeriod?.spends}
+              />
             </PrivateRoute>
           }
         />
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Spends date={date} setSpends={setSpends} spends={spends} />
+              <Spends
+                currentPeriod={currentPeriod}
+                setCurrentPeriod={setCurrentPeriod}
+                spends={currentPeriod?.spends}
+              />
             </PrivateRoute>
           }
           path="spends"
@@ -101,7 +146,11 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Savings date={date} savings={savings} setSavings={setSavings} />
+              <Savings
+                currentPeriod={currentPeriod}
+                savings={currentPeriod?.savings}
+                setCurrentPeriod={setCurrentPeriod}
+              />
             </PrivateRoute>
           }
           path="savings"
@@ -109,7 +158,11 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Incomes date={date} incomes={incomes} setIncomes={setIncomes} />
+              <Incomes
+                currentPeriod={currentPeriod}
+                incomes={currentPeriod?.incomes}
+                setCurrentPeriod={setCurrentPeriod}
+              />
             </PrivateRoute>
           }
           path="incomes"

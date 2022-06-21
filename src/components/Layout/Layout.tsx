@@ -1,21 +1,61 @@
 import { Box, Button, Divider, Icon, Img, Stack, Text } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import moneyFormatter from "src/utils/moneyFormatter";
 import { BsCalendar } from "react-icons/bs";
-import { NavLink } from "./components/NavLink";
 
 import Pocket from "/Icons/pocket.svg";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
 
 interface Props {
   remaining: number;
+  county: any;
+  currentPeriod: any;
+  setCurrentPeriod: any;
+  setCounty: any;
 }
 
-export const Layout: React.FC<Props> = ({ remaining }) => {
-  const [showPeriods, setPeriods] = useState<boolean>(false);
+import { app } from "src/firebase/app";
+import { useAuthContext } from "src/context/authContext";
+import dayjs from "dayjs";
+import { NavLink } from "./components/NavLink";
+
+const db = getFirestore(app);
+
+export const Layout: React.FC<Props> = ({
+  remaining,
+  county,
+  setCounty,
+  currentPeriod,
+  setCurrentPeriod,
+}) => {
+  const [showPeriods, setShowPeriods] = useState<boolean>(false);
+  const { user } = useAuthContext();
 
   function togglePeriods() {
-    setPeriods((prevState: boolean) => !prevState);
+    setShowPeriods((prevState: boolean) => !prevState);
+  }
+
+  function addPeriod() {
+    if (user?.email) {
+      const countyRef = collection(db, "users", user.email, "countyData");
+
+      const newPeriod = {
+        name: prompt(),
+        spends: [],
+        incomes: [],
+        savings: [],
+        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+      };
+
+      addDoc(countyRef, newPeriod).then((doc) =>
+        setCounty((prevState) => [...prevState, { ...newPeriod, id: doc.id }]),
+      );
+    }
+  }
+
+  function changePeriod(period) {
+    setCurrentPeriod(period);
   }
 
   return (
@@ -44,6 +84,7 @@ export const Layout: React.FC<Props> = ({ remaining }) => {
             <NavLink to="/incomes" underlineColor="income">
               Ingresos
             </NavLink>
+            <Text>{currentPeriod?.name || ""}</Text>
           </Stack>
           <Stack direction="row" justify="flex-end" width="150px">
             <Img height="30px" loading="eager" src={Pocket} width="30px" />
@@ -82,27 +123,16 @@ export const Layout: React.FC<Props> = ({ remaining }) => {
             <Button onClick={togglePeriods}>Atras</Button>
             <Box bg="red" height="100px" width="full" />
             <Stack as="ul" paddingBlock={4} paddingInline={4}>
-              <Text as="li">
-                2022
-                <Stack direction="row" paddingBlock={2} paddingInlineStart={2} spacing={2}>
-                  <Box bg="blackAlpha.300" width="1px" />
-                  <Stack as="ul">
-                    <Text as="li">JAN</Text>
-                    <Text as="li">FEB</Text>
-                    <Text as="li">MAR</Text>
-                    <Text as="li">APR</Text>
-                    <Text as="li">MAY</Text>
-                  </Stack>
-                </Stack>
-              </Text>
-              <Text as="li">2023</Text>
-              <Text as="li">2024</Text>
-              <Text as="li">2025</Text>
-              <Text as="li">2026</Text>
-              <Text as="li">2027</Text>
+              {county.map((period) => (
+                <Button key={period.id} as="li" onClick={() => changePeriod(period)}>
+                  {period.name}
+                </Button>
+              ))}
             </Stack>
           </Stack>
-          <Button variant="unstyled">Agregar</Button>
+          <Button variant="unstyled" onClick={addPeriod}>
+            Agregar
+          </Button>
         </Stack>
       )}
       <Outlet />

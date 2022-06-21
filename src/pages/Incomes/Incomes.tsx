@@ -5,22 +5,29 @@ import moneyFormatter from "src/utils/moneyFormatter";
 import ArrowDown from "/Icons/arrow-down.svg";
 import PlusIcon from "/Icons/plus.svg";
 import DeleteIcon from "/Icons/delete.svg";
-import { Income } from "src/types";
+import { Income, Saving, Spend } from "src/types";
 import { v4 } from "uuid";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuthContext } from "src/context/authContext";
 
 import { app } from "src/firebase/app";
+interface Period {
+  id: string;
+  spends: Spend[];
+  incomes: Income[];
+  savings: Saving[];
+  created_at: string;
+}
 
 interface Props {
-  incomes: Income[];
-  setIncomes: React.Dispatch<React.SetStateAction<Income[]>>;
-  date: string;
+  incomes: Income[] | undefined;
+  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
+  currentPeriod: Period | null;
 }
 
 const db = getFirestore(app);
 
-export const Incomes: React.FC<Props> = ({ incomes, setIncomes, date }) => {
+export const Incomes: React.FC<Props> = ({ incomes, setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
 
   function addIncome(event: React.FormEvent) {
@@ -33,11 +40,20 @@ export const Incomes: React.FC<Props> = ({ incomes, setIncomes, date }) => {
       amount: amount.value,
     };
 
-    if (user?.email) {
-      updateDoc(doc(db, "users", user.email, "countyData", date), {
+    if (user?.email && currentPeriod) {
+      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
         incomes: arrayUnion(newIncome),
       });
-      setIncomes((prevState: Income[]) => [...prevState, newIncome]);
+      setCurrentPeriod((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            incomes: [...prevState.incomes, newIncome],
+          };
+        }
+
+        return null;
+      });
     }
 
     description.value = "";
@@ -45,18 +61,33 @@ export const Incomes: React.FC<Props> = ({ incomes, setIncomes, date }) => {
   }
 
   function deleteIncome(income: Income) {
-    if (user?.email) {
-      updateDoc(doc(db, "users", user.email, "countyData", date), {
+    if (user?.email && currentPeriod) {
+      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
         incomes: arrayRemove(income),
       });
-      setIncomes((prevState: Income[]) =>
-        prevState.filter((incomeItem) => incomeItem.id !== income.id),
-      );
+
+      setCurrentPeriod((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            incomes: prevState.incomes.filter((incomeItem) => incomeItem.id !== income.id),
+          };
+        }
+
+        return null;
+      });
     }
   }
 
   function calculateTotal() {
-    return incomes.reduce((acc, income) => acc + Number(income.amount), 0);
+    if (currentPeriod) {
+      return currentPeriod.incomes.reduce(
+        (acc: number, income: Income) => acc + Number(income.amount),
+        0,
+      );
+    }
+
+    return 0;
   }
 
   return (
@@ -118,7 +149,7 @@ export const Incomes: React.FC<Props> = ({ incomes, setIncomes, date }) => {
               Gasto
             </GridItem>
           </Grid>
-          {incomes.map((income: Income) => (
+          {currentPeriod?.incomes.map((income: Income) => (
             <Grid
               key={income.id}
               _hover={{ bg: "primary.700" }}

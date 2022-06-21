@@ -8,21 +8,28 @@ import DeleteIcon from "/Icons/delete.svg";
 import moneyFormatter from "src/utils/moneyFormatter";
 
 import { v4 } from "uuid";
-import dayjs from "dayjs";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuthContext } from "src/context/authContext";
 import { app } from "src/firebase/app";
-import { Saving } from "src/types";
+import { Income, Saving, Spend } from "src/types";
 
 const db = getFirestore(app);
 
-interface Props {
+interface Period {
+  id: string;
+  spends: Spend[];
+  incomes: Income[];
   savings: Saving[];
-  setSavings: React.Dispatch<React.SetStateAction<Saving[]>>;
-  date: string;
+  created_at: string;
 }
 
-export const Savings: React.FC<Props> = ({ savings, setSavings, date }) => {
+interface Props {
+  savings: Saving[] | undefined;
+  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
+  currentPeriod: Period | null;
+}
+
+export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
 
   function addSaving(event: React.FormEvent) {
@@ -34,11 +41,21 @@ export const Savings: React.FC<Props> = ({ savings, setSavings, date }) => {
       amount: amount.value,
     };
 
-    if (user?.email) {
-      updateDoc(doc(db, "users", user.email, "countyData", date), {
+    if (user?.email && currentPeriod) {
+      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
         savings: arrayUnion(newSaving),
       });
-      setSavings((prevState: Saving[]) => [...prevState, newSaving]);
+
+      setCurrentPeriod((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            savings: [...prevState.savings, newSaving],
+          };
+        }
+
+        return null;
+      });
     }
 
     description.value = "";
@@ -46,16 +63,34 @@ export const Savings: React.FC<Props> = ({ savings, setSavings, date }) => {
   }
 
   function deleteSaving(saving: Saving) {
-    if (user?.email) {
-      updateDoc(doc(db, "users", user.email, "countyData", date), {
+    if (user?.email && currentPeriod) {
+      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
         savings: arrayRemove(saving),
       });
-      setSavings(savings.filter((savingItem) => savingItem.id !== saving.id));
+      if (currentPeriod) {
+        setCurrentPeriod((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              savings: prevState.savings.filter((savingItem) => savingItem.id !== saving.id),
+            };
+          }
+
+          return null;
+        });
+      }
     }
   }
 
   function calculateTotal() {
-    return savings.reduce((acc, saving) => acc + Number(saving.amount), 0);
+    if (currentPeriod) {
+      return currentPeriod.savings.reduce(
+        (acc: number, saving: Saving) => acc + Number(saving.amount),
+        0,
+      );
+    }
+
+    return 0;
   }
 
   return (
@@ -118,7 +153,7 @@ export const Savings: React.FC<Props> = ({ savings, setSavings, date }) => {
               Gasto
             </GridItem>
           </Grid>
-          {savings.map((saving) => (
+          {currentPeriod?.savings.map((saving: Saving) => (
             <Grid
               key={saving.id}
               _hover={{ bg: "primary.700" }}

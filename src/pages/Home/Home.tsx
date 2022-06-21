@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Container, Img, Stack, Text } from "@chakra-ui/react";
 
 import ArrowUpIcon from "/Icons/arrow-up.svg";
@@ -10,22 +10,34 @@ import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend } from "src/types";
 
 interface Props {
-  spends: Spend[];
-  incomes: Income[];
-  savings: Saving[];
+  spends: Spend[] | undefined;
+  incomes: Income[] | undefined;
+  savings: Saving[] | undefined;
 }
 
 export const Home: React.FC<Props> = ({ spends, incomes, savings }) => {
   function totalSpends() {
-    return spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
+    if (spends) {
+      return spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
+    }
+
+    return 0;
   }
 
   function totalSavings() {
-    return savings.reduce((acc: number, saving: Saving) => acc + Number(saving.amount), 0);
+    if (savings) {
+      return savings.reduce((acc: number, saving: Saving) => acc + Number(saving.amount), 0);
+    }
+
+    return 0;
   }
 
   function totalIncomes() {
-    return incomes.reduce((acc: number, income: Income) => acc + Number(income.amount), 0);
+    if (incomes) {
+      return incomes.reduce((acc: number, income: Income) => acc + Number(income.amount), 0);
+    }
+
+    return 0;
   }
 
   return (

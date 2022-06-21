@@ -1,7 +1,7 @@
 export default function moneyFormatter(string: string | number) {
   const value = Number(string);
 
-  if (value >= 0) {
+  if (!Number.isNaN(value)) {
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
       currency: "ARS",
