@@ -3,6 +3,20 @@ import { extendTheme } from "@chakra-ui/react";
 import { cssReset } from "./cssCustomReset";
 
 export const theme = extendTheme({
+  shadows: {
+    "sm-white": `1px 1px 1.9px hsl(0deg 0% 72% / 0.11),
+    1.7px 1.7px 3.2px -0.6px hsl(0deg 0% 72% / 0.2),
+    3.5px 3.5px 6.6px -1.2px hsl(0deg 0% 72% / 0.29);`,
+    // "sm-white":
+    //   "0.3px 0.3px 0.5px hsl(0deg 0% 63% / 0.34), 0.6px 0.5px 0.9px -1.2px hsl(0deg 0% 63% / 0.34), 1.4px 1.2px 2.1px -2.5px hsl(0deg 0% 63% / 0.34);",
+    "md-white": `1px 1px 1.9px hsl(0deg 0% 72% / 0.1),
+    3px 3px 5.6px -0.3px hsl(0deg 0% 72% / 0.14),
+    5.4px 5.4px 10.1px -0.6px hsl(0deg 0% 72% / 0.19),
+    9.6px 9.6px 18px -0.9px hsl(0deg 0% 72% / 0.23),
+    17.3px 17.3px 32.5px -1.2px hsl(0deg 0% 72% / 0.28);`,
+    // "md-white":
+    //   "0.3px 0.3px 0.5px hsl(0deg 0% 63% / 0.29), 0.9px 0.8px 1.4px -0.6px hsl(0deg 0% 63% / 0.29), 1.8px 1.6px 2.7px -1.2px hsl(0deg 0% 63% / 0.29), 3.6px 3.2px 5.4px -1.9px hsl(0deg 0% 63% / 0.29), 6.9px 6.1px 10.4px -2.5px hsl(0deg 0% 63% / 0.29);",
+  },
   colors: {
     spend: {
       100: "#FF9B8E",

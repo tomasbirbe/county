@@ -45,8 +45,8 @@ export const Home: React.FC<Props> = ({ spends, incomes, savings }) => {
       <Stack as="header" height="full">
         <Stack align="center" as="article" height="40%" justify="center" spacing={0} width="full">
           <Text variant="h3">Gastos</Text>
-          <Stack align="center" direction="row">
-            <Img height="55px" src={ArrowUpIcon} width="55px" />
+          <Stack align="center" direction="row" position="relative">
+            <Img height="55px" position="absolute" right="100%" src={ArrowUpIcon} width="55px" />
             <Text variant="h1">{moneyFormatter(totalSpends())}</Text>
           </Stack>
         </Stack>
@@ -54,16 +54,22 @@ export const Home: React.FC<Props> = ({ spends, incomes, savings }) => {
         <Stack align="center" as="article" direction="row" height="50%">
           <Stack align="center" justify="center" spacing={0} width="50%">
             <Text variant="h4">Ahorros</Text>
-            <Stack align="center" direction="row">
-              <Img height="45px" src={SavingsIcon} width="45px" />
+            <Stack align="center" direction="row" position="relative">
+              <Img height="45px" position="absolute" right="100%" src={SavingsIcon} width="45px" />
               <Text variant="h2">{moneyFormatter(totalSavings())}</Text>
             </Stack>
           </Stack>
           <Box bg="blackAlpha.300" height="60%" width="1px" />
           <Stack align="center" justify="center" spacing={0} width="50%">
             <Text variant="h4">Ingresos</Text>
-            <Stack align="center" direction="row">
-              <Img height="45px" src={ArrowDownIcon} width="45px" />
+            <Stack align="center" direction="row" position="relative">
+              <Img
+                height="45px"
+                position="absolute"
+                right="100%"
+                src={ArrowDownIcon}
+                width="45px"
+              />
               <Text variant="h2">{moneyFormatter(totalIncomes())}</Text>
             </Stack>
           </Stack>

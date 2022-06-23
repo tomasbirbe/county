@@ -1,8 +1,10 @@
-import { Box, Button, Divider, Icon, Img, Stack, Text } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { Box, Button, Divider, Icon, IconButton, Img, Input, Stack, Text } from "@chakra-ui/react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import moneyFormatter from "src/utils/moneyFormatter";
 import { BsCalendar } from "react-icons/bs";
+import { AiOutlinePlus } from "react-icons/ai";
+import { IoIosArrowBack } from "react-icons/io";
 
 import Pocket from "/Icons/pocket.svg";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
@@ -18,6 +20,7 @@ interface Props {
 import { app } from "src/firebase/app";
 import { useAuthContext } from "src/context/authContext";
 import dayjs from "dayjs";
+import { v4 } from "uuid";
 import { NavLink } from "./components/NavLink";
 
 const db = getFirestore(app);
@@ -36,21 +39,24 @@ export const Layout: React.FC<Props> = ({
     setShowPeriods((prevState: boolean) => !prevState);
   }
 
-  function addPeriod() {
-    if (user?.email) {
+  function addPeriod(event: React.FormEvent) {
+    event.preventDefault();
+    const { periodInput } = event.target as HTMLFormElement;
+
+    if (user?.email && periodInput.value.trim()) {
       const countyRef = collection(db, "users", user.email, "countyData");
 
       const newPeriod = {
-        name: prompt(),
+        id: v4(),
+        name: periodInput.value.trim(),
         spends: [],
         incomes: [],
         savings: [],
         created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
       };
 
-      addDoc(countyRef, newPeriod).then((doc) =>
-        setCounty((prevState) => [...prevState, { ...newPeriod, id: doc.id }]),
-      );
+      setCounty((prevState) => [...prevState, newPeriod]);
+      addDoc(countyRef, newPeriod);
     }
   }
 
@@ -60,7 +66,7 @@ export const Layout: React.FC<Props> = ({
 
   return (
     <>
-      <Stack align="center" as="nav" boxShadow="lg" spacing={0} width="full">
+      <Stack align="center" as="nav" boxShadow="sm-white" spacing={0} width="full">
         <Stack
           align="center"
           as="nav"
@@ -93,70 +99,95 @@ export const Layout: React.FC<Props> = ({
         </Stack>
         <Divider color="black" />
       </Stack>
-      <Button
+      <IconButton
+        aria-label="Close side menu"
         bg="white"
-        borderRadius="full"
-        boxShadow="lg"
+        borderInlineEndRadius="full"
+        boxShadow="sm-white"
         height="50px"
-        justifyContent="flex-end"
-        left="-20px"
-        paddingInlineEnd={3}
+        icon={<Icon as={BsCalendar} boxSize={5} marginInlineEnd={1} />}
+        left="0px"
+        minWidth="30px"
         position="absolute"
         top="50%"
-        variant="icon"
-        width="60px"
+        width="40px"
         onClick={togglePeriods}
-      >
-        <Icon as={BsCalendar} boxSize={5} />
-      </Button>
+      />
       {showPeriods && (
         <Stack
           bg="white"
+          boxShadow="sm-white"
           height="full"
           justify="space-between"
           left="0"
           position="absolute"
           top="0"
-          width="200px"
+          width="300px"
+          zIndex={9}
         >
-          <Stack>
-            <Button onClick={togglePeriods}>Atras</Button>
-            <Box bg="red" height="100px" width="full" />
-            <Stack as="ul" paddingBlock={4} paddingInline={4}>
-              {county.map((period) => (
-                <Button key={period.id} as="li" onClick={() => changePeriod(period)}>
-                  {period.name}
-                </Button>
-              ))}
+          <Stack height="full" position="relative" spacing={0}>
+            <IconButton
+              aria-label="Close side menu"
+              bg="white"
+              borderInlineEndRadius="full"
+              boxShadow="sm-white"
+              height="50px"
+              icon={<Icon as={IoIosArrowBack} boxSize={5} marginInlineEnd={1} />}
+              minWidth="30px"
+              position="absolute"
+              right="-40px"
+              top="50%"
+              width="40px"
+              onClick={togglePeriods}
+            />
+
+            <Stack align="center" height="full" paddingBlock={4} spacing={0}>
+              <Stack
+                align="center"
+                as="form"
+                borderBlockEnd="1px solid"
+                borderColor="blackAlpha.400"
+                direction="row"
+                width="90%"
+                onSubmit={addPeriod}
+              >
+                <Input border="none" id="periodInput" name="periodInput" placeholder="Abril" />
+                <IconButton
+                  aria-label="Add new period"
+                  bg="transparent"
+                  height="30px"
+                  icon={<AiOutlinePlus />}
+                  minWidth="30px"
+                  type="submit"
+                />
+              </Stack>
+              <Stack
+                as="ul"
+                bg="transparent"
+                height="full"
+                overflow="auto"
+                paddingBlockStart={4}
+                paddingInline={4}
+                spacing={0}
+              >
+                {county.map((period) => (
+                  <Button
+                    key={period.id}
+                    as="li"
+                    bg="transparent"
+                    paddingBlock={4}
+                    onClick={() => changePeriod(period)}
+                  >
+                    {period.name}
+                  </Button>
+                ))}
+              </Stack>
             </Stack>
           </Stack>
-          <Button variant="unstyled" onClick={addPeriod}>
-            Agregar
-          </Button>
         </Stack>
       )}
+
       <Outlet />
-      {/* <Stack
-        align="center"
-        borderBlockStart="1px solid"
-        borderColor="blackAlpha.200"
-        bottom="0"
-        // boxShadow="0px 0px 23px -3px rgba(0,0,0,0.22)"
-        direction="row"
-        fontSize={14}
-        justify="space-evenly"
-        paddingBlock={2}
-        position="fixed"
-        width="full"
-      >
-        <Text>Borrar</Text>
-        <Stack direction="row" justify="space-evenly" width="70%">
-          <Text> {"<"} </Text>
-          <Text>Agosto</Text>
-          <Text> {">"} </Text>
-        </Stack>
-        <Text>Agregar</Text>
-      </Stack> */}
     </>
   );
 };
