@@ -17,3 +17,11 @@ export interface Income {
   description: string;
   amount: string;
 }
+export interface Period {
+  id: string;
+  name: string;
+  spends: Spend[];
+  incomes: Income[];
+  savings: Saving[];
+  created_at: string;
+}

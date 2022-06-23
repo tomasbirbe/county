@@ -17,7 +17,7 @@ import ArrowUp from "/Icons/arrow-up.svg";
 import PlusIcon from "/Icons/plus.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
-import { Income, KindOfSpend, Saving, Spend } from "src/types";
+import { KindOfSpend, Spend, Period } from "src/types";
 
 import { useAuthContext } from "src/context/authContext";
 import { v4 } from "uuid";
@@ -26,16 +26,7 @@ import { app } from "src/firebase/app";
 
 const db = getFirestore(app);
 
-interface Period {
-  id: string;
-  spends: Spend[];
-  incomes: Income[];
-  savings: Saving[];
-  created_at: string;
-}
-
 interface Props {
-  spends: Spend[] | undefined;
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
 }

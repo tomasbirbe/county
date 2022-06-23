@@ -11,20 +11,11 @@ import { v4 } from "uuid";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuthContext } from "src/context/authContext";
 import { app } from "src/firebase/app";
-import { Income, Saving, Spend } from "src/types";
+import { Saving, Period } from "src/types";
 
 const db = getFirestore(app);
 
-interface Period {
-  id: string;
-  spends: Spend[];
-  incomes: Income[];
-  savings: Saving[];
-  created_at: string;
-}
-
 interface Props {
-  savings: Saving[] | undefined;
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
 }

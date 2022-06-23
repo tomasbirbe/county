@@ -7,23 +7,22 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { IoIosArrowBack } from "react-icons/io";
 
 import Pocket from "/Icons/pocket.svg";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
-
-const db = getFirestore(app);
-
-interface Props {
-  remaining: number;
-  county: any;
-  currentPeriod: any;
-  setCurrentPeriod: any;
-  setCounty: any;
-}
+import { addDoc, collection, doc, getFirestore, setDoc } from "firebase/firestore";
 
 import { app } from "src/firebase/app";
 import { useAuthContext } from "src/context/authContext";
 import dayjs from "dayjs";
 import { v4 } from "uuid";
+import { Period } from "src/types";
 import { NavLink } from "./components/NavLink";
+
+interface Props {
+  remaining: number;
+  county: Period[];
+  currentPeriod: Period | null;
+  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
+  setCounty: React.Dispatch<React.SetStateAction<Period[]>>;
+}
 
 const db = getFirestore(app);
 
@@ -46,10 +45,11 @@ export const Layout: React.FC<Props> = ({
     const { periodInput } = event.target as HTMLFormElement;
 
     if (user?.email && periodInput.value.trim()) {
-      const countyRef = collection(db, "users", user.email, "countyData");
+      const id = v4();
+      const docRef = doc(db, "users", user.email, "countyData", id);
 
       const newPeriod = {
-        id: v4(),
+        id,
         name: periodInput.value.trim(),
         spends: [],
         incomes: [],
@@ -58,12 +58,13 @@ export const Layout: React.FC<Props> = ({
       };
 
       setCounty((prevState) => [...prevState, newPeriod]);
-      addDoc(countyRef, newPeriod);
+      setDoc(docRef, newPeriod);
     }
   }
 
-  function changePeriod(period) {
+  function changePeriod(period: Period) {
     setCurrentPeriod(period);
+    setShowPeriods(false);
   }
 
   return (
@@ -113,6 +114,7 @@ export const Layout: React.FC<Props> = ({
         position="absolute"
         top="50%"
         width="40px"
+        zIndex={2}
         onClick={togglePeriods}
       />
       {showPeriods && (
@@ -125,7 +127,7 @@ export const Layout: React.FC<Props> = ({
           position="absolute"
           top="0"
           width="300px"
-          zIndex={9}
+          zIndex={2}
         >
           <Stack height="full" position="relative" spacing={0}>
             <IconButton

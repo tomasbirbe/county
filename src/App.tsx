@@ -16,19 +16,11 @@ import NotFound from "./pages/NotFound";
 
 import { Layout } from "./components/Layout";
 import { PrivateRoute } from "./PrivateRoute";
-import { Spend, Saving, Income } from "./types";
+import { Spend, Saving, Income, Period } from "./types";
 
 import { app } from "./firebase/app";
 
 const db = getFirestore(app);
-
-interface Period {
-  id: string;
-  spends: Spend[];
-  incomes: Income[];
-  savings: Saving[];
-  created_at: string;
-}
 
 export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
@@ -56,7 +48,7 @@ export const App: React.FC = () => {
         const countyData: Period[] = [];
 
         doc.forEach((docSnap) => {
-          countyData.push({ ...(docSnap.data() as Period), id: docSnap.id });
+          countyData.push(docSnap.data() as Period);
         });
 
         setCounty(countyData);
@@ -124,8 +116,12 @@ export const App: React.FC = () => {
           element={
             <PrivateRoute isLogged={isLogged}>
               <Home
+                county={county}
+                currentPeriod={currentPeriod}
                 incomes={currentPeriod?.incomes}
                 savings={currentPeriod?.savings}
+                setCounty={setCounty}
+                setCurrentPeriod={setCurrentPeriod}
                 spends={currentPeriod?.spends}
               />
             </PrivateRoute>
@@ -134,11 +130,7 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Spends
-                currentPeriod={currentPeriod}
-                setCurrentPeriod={setCurrentPeriod}
-                spends={currentPeriod?.spends}
-              />
+              <Spends currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
             </PrivateRoute>
           }
           path="spends"
@@ -146,11 +138,7 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Savings
-                currentPeriod={currentPeriod}
-                savings={currentPeriod?.savings}
-                setCurrentPeriod={setCurrentPeriod}
-              />
+              <Savings currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
             </PrivateRoute>
           }
           path="savings"
@@ -158,11 +146,7 @@ export const App: React.FC = () => {
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Incomes
-                currentPeriod={currentPeriod}
-                incomes={currentPeriod?.incomes}
-                setCurrentPeriod={setCurrentPeriod}
-              />
+              <Incomes currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
             </PrivateRoute>
           }
           path="incomes"

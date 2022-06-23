@@ -1,21 +1,41 @@
 import React from "react";
-import { Box, Container, Img, Stack, Text } from "@chakra-ui/react";
+import { Box, Container, Icon, IconButton, Img, Stack, Text } from "@chakra-ui/react";
 
 import ArrowUpIcon from "/Icons/arrow-up.svg";
 import SavingsIcon from "/Icons/savings.svg";
 import ArrowDownIcon from "/Icons/arrow-down.svg";
 
+import { AiFillDelete } from "react-icons/ai";
+
 import moneyFormatter from "src/utils/moneyFormatter";
 import { useAuthContext } from "src/context/authContext";
-import { Income, Saving, Spend } from "src/types";
+import { Income, Saving, Spend, Period } from "src/types";
+import { collection, deleteDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { app } from "src/firebase/app";
 
 interface Props {
   spends: Spend[] | undefined;
   incomes: Income[] | undefined;
   savings: Saving[] | undefined;
+  county: Period[];
+  setCounty: React.Dispatch<React.SetStateAction<Period[]>>;
+  currentPeriod: Period | null;
+  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
 }
 
-export const Home: React.FC<Props> = ({ spends, incomes, savings }) => {
+const db = getFirestore(app);
+
+export const Home: React.FC<Props> = ({
+  spends,
+  incomes,
+  savings,
+  county,
+  setCounty,
+  currentPeriod,
+  setCurrentPeriod,
+}) => {
+  const { user } = useAuthContext();
+
   function totalSpends() {
     if (spends) {
       return spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
@@ -40,8 +60,43 @@ export const Home: React.FC<Props> = ({ spends, incomes, savings }) => {
     return 0;
   }
 
+  function deletePeriod() {
+    if (currentPeriod && user?.email) {
+      const updatedCounty = county.filter((period) => period.id !== currentPeriod.id);
+      const id = currentPeriod.id;
+
+      setCounty(updatedCounty);
+      setCurrentPeriod(updatedCounty[updatedCounty.length - 1]);
+      const countyRef = collection(db, "users", user.email, "countyData");
+
+      getDocs(query(countyRef, where("id", "==", id))).then((docs) => {
+        if (docs.size === 1) {
+          docs.forEach((doc) => {
+            deleteDoc(doc.ref);
+          });
+        }
+      });
+    }
+  }
+
   return (
-    <Container as="main" height="calc(100% - 71px)" maxWidth="full" paddingX={0}>
+    <Container
+      as="main"
+      height="calc(100% - 71px)"
+      maxWidth="full"
+      paddingX={0}
+      position="relative"
+    >
+      <Stack position="absolute" right="20px" top="15px" zIndex={1}>
+        <IconButton
+          aria-label="Delete period"
+          bg="transparent"
+          height="50px"
+          icon={<Icon as={AiFillDelete} boxSize={8} color="blackAlpha.600" />}
+          width="50px"
+          onClick={deletePeriod}
+        />
+      </Stack>
       <Stack as="header" height="full">
         <Stack align="center" as="article" height="40%" justify="center" spacing={0} width="full">
           <Text variant="h3">Gastos</Text>

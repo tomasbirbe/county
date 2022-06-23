@@ -5,29 +5,20 @@ import moneyFormatter from "src/utils/moneyFormatter";
 import ArrowDown from "/Icons/arrow-down.svg";
 import PlusIcon from "/Icons/plus.svg";
 import DeleteIcon from "/Icons/delete.svg";
-import { Income, Saving, Spend } from "src/types";
+import { Income, Period } from "src/types";
 import { v4 } from "uuid";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuthContext } from "src/context/authContext";
 
 import { app } from "src/firebase/app";
-interface Period {
-  id: string;
-  spends: Spend[];
-  incomes: Income[];
-  savings: Saving[];
-  created_at: string;
-}
-
 interface Props {
-  incomes: Income[] | undefined;
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
 }
 
 const db = getFirestore(app);
 
-export const Incomes: React.FC<Props> = ({ incomes, setCurrentPeriod, currentPeriod }) => {
+export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
 
   function addIncome(event: React.FormEvent) {
