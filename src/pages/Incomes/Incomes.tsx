@@ -11,6 +11,7 @@ import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/
 import { useAuthContext } from "src/context/authContext";
 
 import { app } from "src/firebase/app";
+import dayjs from "dayjs";
 interface Props {
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
@@ -29,6 +30,7 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
       id: v4(),
       description: description.value,
       amount: amount.value,
+      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
     };
 
     if (user?.email && currentPeriod) {

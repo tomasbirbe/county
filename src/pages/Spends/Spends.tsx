@@ -23,6 +23,7 @@ import { useAuthContext } from "src/context/authContext";
 import { v4 } from "uuid";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
+import dayjs from "dayjs";
 
 const db = getFirestore(app);
 
@@ -55,7 +56,9 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
       description: description.value,
       amount: amount.value,
       kind: kind.value,
-      installments: kind.value !== KindOfSpend.INSTALLMENTS ? "-" : installments?.value,
+      totalInstallments: kind.value !== KindOfSpend.INSTALLMENTS ? null : installments?.value,
+      currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : "1",
+      created_at: dayjs().format("YYYY/MM/DDD hh:mm:ss"),
     };
 
     if (currentPeriod) {
@@ -114,14 +117,6 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     }
 
     return 0;
-  }
-
-  function calculateInstallment(spend: Spend) {
-    if (spend.kind === KindOfSpend.INSTALLMENTS) {
-      return `1/${spend.installments}`;
-    } else {
-      return "-";
-    }
   }
 
   return (
@@ -201,15 +196,15 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
             marginBlockEnd={2}
             paddingBlockEnd={2}
             paddingInline={2}
-            templateColumns="6fr 3fr 1fr 0.5fr"
+            templateColumns="repeat(12, 1fr)"
           >
-            <GridItem color="gray.500" fontWeight="600">
+            <GridItem colSpan={7} color="gray.500" fontWeight="600">
               Descripcion
             </GridItem>
-            <GridItem color="gray.500" fontWeight="600" textAlign="center">
+            <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
               Gasto
             </GridItem>
-            <GridItem color="gray.500" fontWeight="600" textAlign="center">
+            <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
               Cuota
             </GridItem>
           </Grid>
@@ -225,18 +220,48 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
               className="tableRow"
               paddingBlock={4}
               paddingInline={2}
-              templateColumns="6fr 3fr 1fr 0.5fr "
+              templateColumns="repeat(12, 1fr)"
             >
               <>
-                <GridItem>{spend.description}</GridItem>
-                <GridItem textAlign="center">{moneyFormatter(spend.amount)}</GridItem>
-                <GridItem textAlign="center">
-                  {spend?.installments ? calculateInstallment(spend) : "-"}
+                <GridItem colSpan={7}>{spend.description}</GridItem>
+                <GridItem colSpan={2} textAlign="center">
+                  <Stack align="center">
+                    <Text textAlign="center">{moneyFormatter(spend.amount)}</Text>
+                  </Stack>
                 </GridItem>
-                <GridItem className="deleteButton" justifySelf="center">
-                  <Button variant="icon" onClick={() => deleteSpend(spend)}>
-                    <Img height="25px" src={DeleteIcon} width="25px" />
-                  </Button>
+                <GridItem colSpan={2} textAlign="center">
+                  {spend.kind === KindOfSpend.INSTALLMENTS ? (
+                    <Stack align="center" direction="row" justify="center">
+                      <Button
+                        bg="transparent"
+                        borderRadius="full"
+                        height="32px"
+                        minWidth="25px"
+                        width="32px"
+                      >
+                        -
+                      </Button>
+                      <Text>{`${spend.currentInstallment}/${spend.totalInstallments}`}</Text>
+                      <Button
+                        bg="transparent"
+                        borderRadius="full"
+                        height="32px"
+                        minWidth="25px"
+                        width="32px"
+                      >
+                        +
+                      </Button>
+                    </Stack>
+                  ) : (
+                    "-"
+                  )}
+                </GridItem>
+                <GridItem className="deleteButton" colSpan={1}>
+                  <Stack align="center">
+                    <Button variant="icon" onClick={() => deleteSpend(spend)}>
+                      <Img height="25px" src={DeleteIcon} width="25px" />
+                    </Button>
+                  </Stack>
                 </GridItem>
               </>
             </Grid>
@@ -246,4 +271,3 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     </Container>
   );
 };
-1;

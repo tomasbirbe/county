@@ -5,17 +5,22 @@ export interface Spend {
   description: string;
   kind: KindOfSpend;
   amount: string;
-  installments: string;
+  currentInstallment: string | null;
+  totalInstallments: string | null;
+  created_at: string;
 }
 export interface Saving {
   id: string;
   description: string;
   amount: string;
+  created_at: string;
+  goal: string;
 }
 export interface Income {
   id: string;
   description: string;
   amount: string;
+  created_at: string;
 }
 export interface Period {
   id: string;
