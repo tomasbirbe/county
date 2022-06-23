@@ -9,6 +9,8 @@ import { IoIosArrowBack } from "react-icons/io";
 import Pocket from "/Icons/pocket.svg";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 
+const db = getFirestore(app);
+
 interface Props {
   remaining: number;
   county: any;
