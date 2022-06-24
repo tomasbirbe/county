@@ -78,6 +78,7 @@ export const App: React.FC = () => {
     return 0;
   }
 
+  // This is for every time that currentPeriod is modified
   useEffect(() => {
     if (currentPeriod) {
       const deletedCurrentPeriod = county.filter((period) => period.id !== currentPeriod.id);

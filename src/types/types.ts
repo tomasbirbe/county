@@ -5,8 +5,8 @@ export interface Spend {
   description: string;
   kind: KindOfSpend;
   amount: string;
-  currentInstallment: string | null;
-  totalInstallments: string | null;
+  currentInstallment: number | null;
+  totalInstallments: number | null;
   created_at: string;
 }
 export interface Saving {

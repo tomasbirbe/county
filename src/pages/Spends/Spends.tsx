@@ -21,11 +21,23 @@ import { KindOfSpend, Spend, Period } from "src/types";
 
 import { useAuthContext } from "src/context/authContext";
 import { v4 } from "uuid";
-import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { app } from "src/firebase/app";
 import dayjs from "dayjs";
 
 const db = getFirestore(app);
+let timer: string | number | NodeJS.Timeout | undefined;
 
 interface Props {
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
@@ -51,14 +63,15 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
       installments,
     } = event.target as HTMLFormElement;
 
-    const newSpend = {
+    const newSpend: Spend = {
       id: v4(),
       description: description.value,
       amount: amount.value,
       kind: kind.value,
-      totalInstallments: kind.value !== KindOfSpend.INSTALLMENTS ? null : installments?.value,
-      currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : "1",
-      created_at: dayjs().format("YYYY/MM/DDD hh:mm:ss"),
+      totalInstallments:
+        kind.value !== KindOfSpend.INSTALLMENTS ? null : Number(installments?.value),
+      currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : 1,
+      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
     };
 
     if (currentPeriod) {
@@ -105,6 +118,96 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
 
         return null;
       });
+    }
+  }
+
+  function incrementInstallment(spend: Spend) {
+    clearTimeout(timer);
+    if (currentPeriod?.spends && spend.currentInstallment && spend.totalInstallments) {
+      const updateSpend: Spend = {
+        ...spend,
+        currentInstallment:
+          spend.currentInstallment < spend.totalInstallments
+            ? spend.currentInstallment + 1
+            : spend.currentInstallment,
+      };
+
+      const updatedSpends: Spend[] = [
+        ...currentPeriod.spends.filter((spendItem) => spendItem.id !== spend.id),
+        updateSpend,
+      ];
+
+      const sortedSpends = updatedSpends.sort((a, b) => {
+        if (new Date(a.created_at) >= new Date(b.created_at)) {
+          return 1;
+        }
+
+        return -1;
+      });
+
+      setCurrentPeriod((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            spends: sortedSpends,
+          };
+        }
+
+        return null;
+      });
+      if (user?.email) {
+        const docRef = doc(db, "users", user.email, "countyData", currentPeriod.id);
+
+        timer = setTimeout(() => {
+          updateDoc(docRef, {
+            spends: sortedSpends,
+          });
+        }, 1000);
+      }
+    }
+  }
+
+  function decrementInstallment(spend: Spend) {
+    clearTimeout(timer);
+    if (currentPeriod?.spends && spend.currentInstallment && spend.totalInstallments) {
+      const updateSpend: Spend = {
+        ...spend,
+        currentInstallment:
+          spend.currentInstallment > 1 ? spend.currentInstallment - 1 : spend.currentInstallment,
+      };
+
+      const updatedSpends: Spend[] = [
+        ...currentPeriod.spends.filter((spendItem) => spendItem.id !== spend.id),
+        updateSpend,
+      ];
+
+      const sortedSpends = updatedSpends.sort((a, b) => {
+        if (new Date(a.created_at) >= new Date(b.created_at)) {
+          return 1;
+        }
+
+        return -1;
+      });
+
+      setCurrentPeriod((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            spends: sortedSpends,
+          };
+        }
+
+        return null;
+      });
+      if (user?.email) {
+        const docRef = doc(db, "users", user.email, "countyData", currentPeriod.id);
+
+        timer = setTimeout(() => {
+          updateDoc(docRef, {
+            spends: sortedSpends,
+          });
+        }, 1000);
+      }
     }
   }
 
@@ -238,6 +341,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
                         height="32px"
                         minWidth="25px"
                         width="32px"
+                        onClick={() => decrementInstallment(spend)}
                       >
                         -
                       </Button>
@@ -248,6 +352,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
                         height="32px"
                         minWidth="25px"
                         width="32px"
+                        onClick={() => incrementInstallment(spend)}
                       >
                         +
                       </Button>
@@ -258,7 +363,12 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
                 </GridItem>
                 <GridItem className="deleteButton" colSpan={1}>
                   <Stack align="center">
-                    <Button variant="icon" onClick={() => deleteSpend(spend)}>
+                    <Button
+                      _active={{ bg: "transparent" }}
+                      _hover={{ bg: "white" }}
+                      variant="icon"
+                      onClick={() => deleteSpend(spend)}
+                    >
                       <Img height="25px" src={DeleteIcon} width="25px" />
                     </Button>
                   </Stack>
