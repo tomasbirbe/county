@@ -24,10 +24,7 @@ import { v4 } from "uuid";
 import {
   arrayRemove,
   arrayUnion,
-  collection,
   doc,
-  getDoc,
-  getDocs,
   getFirestore,
   query,
   updateDoc,
@@ -47,6 +44,7 @@ interface Props {
 export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
+  const [newSpendAmount, setNewSpendAmount] = useState("");
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -235,23 +233,22 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
         <Stack as="form" marginInlineStart={6} paddingBlock={10} onSubmit={addSpend}>
           <Stack align="flex-start" direction="row" justify="space-around">
-            <Stack as="label" htmlFor="description" spacing={5}>
+            <Stack as="label" htmlFor="description" spacing={2}>
               <Text>Descripcion</Text>
               <Input autoFocus required name="description" placeholder="Notebook" width="400px" />
             </Stack>
-            <Stack as="label" htmlFor="amount" spacing={5}>
+            <Stack as="label" htmlFor="amount" spacing={2}>
               <Text>Gasto</Text>
               <Stack direction="row" spacing={1}>
-                <Text>$</Text>
                 <Input
                   required
                   marginBlockStart={4}
                   min={1}
                   name="amount"
                   placeholder="50000"
-                  step="any"
-                  type="number"
+                  value={newSpendAmount}
                   width="70px"
+                  onChange={(e) => setNewSpendAmount(moneyFormatter(e.target.value))}
                 />
               </Stack>
             </Stack>
@@ -266,7 +263,6 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
               >
                 <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
                 <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
-                <option value={KindOfSpend.RECURRENT}>Recurrente</option>
               </Select>
             </Stack>
             {kindOfSpend === KindOfSpend.INSTALLMENTS && (

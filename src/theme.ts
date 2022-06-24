@@ -138,10 +138,10 @@ export const theme = extendTheme({
         base: {
           field: {
             background: "transparent",
-            borderBlockEnd: "1px solid",
-            borderColor: "secondary",
-            borderRadius: "0",
-            padding: "0",
+            border: "1px solid",
+            borderColor: "blackAlpha.600",
+            borderRadius: "4px",
+            padding: 2,
             height: "fit-content",
             width: "full",
           },
