@@ -101,22 +101,19 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
             justify="space-around"
             onSubmit={addIncome}
           >
-            <Stack as="label" htmlFor="description" spacing={5}>
+            <Stack as="label" htmlFor="description" spacing={2}>
               <Text>Descripcion</Text>
               <Input autoFocus name="description" placeholder="Notebook" width="400px" />
             </Stack>
-            <Stack as="label" htmlFor="amount" spacing={5}>
+            <Stack as="label" htmlFor="amount" spacing={2}>
               <Text>Ingreso</Text>
-              <Stack direction="row" spacing={1}>
-                <Text>$</Text>
-                <Input
-                  marginBlockStart={4}
-                  name="amount"
-                  placeholder="50000"
-                  type="number"
-                  width="70px"
-                />
-              </Stack>
+              <Input
+                marginBlockStart={4}
+                name="amount"
+                placeholder="50000"
+                type="number"
+                width="70px"
+              />
             </Stack>
 
             <Button alignSelf="flex-end" type="submit" variant="add">

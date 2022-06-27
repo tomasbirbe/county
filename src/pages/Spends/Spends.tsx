@@ -21,15 +21,7 @@ import { KindOfSpend, Spend, Period } from "src/types";
 
 import { useAuthContext } from "src/context/authContext";
 import { v4 } from "uuid";
-import {
-  arrayRemove,
-  arrayUnion,
-  doc,
-  getFirestore,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
 import dayjs from "dayjs";
 
@@ -44,7 +36,7 @@ interface Props {
 export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
-  const [newSpendAmount, setNewSpendAmount] = useState("");
+  const [newSpendAmount, setNewSpendAmount] = useState<string>("");
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -237,18 +229,16 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
               <Text>Descripcion</Text>
               <Input autoFocus required name="description" placeholder="Notebook" width="400px" />
             </Stack>
-            <Stack as="label" htmlFor="amount" spacing={2}>
+            <Stack as="label" htmlFor="amount" position="relative" spacing={2}>
               <Text>Gasto</Text>
               <Stack direction="row" spacing={1}>
                 <Input
                   required
-                  marginBlockStart={4}
                   min={1}
                   name="amount"
                   placeholder="50000"
-                  value={newSpendAmount}
-                  width="70px"
-                  onChange={(e) => setNewSpendAmount(moneyFormatter(e.target.value))}
+                  type="number"
+                  width="120px"
                 />
               </Stack>
             </Stack>
@@ -257,6 +247,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
               <Select
                 border="1px solid"
                 borderColor="primary.900"
+                height="42px"
                 name="kind_of_spend"
                 width="200px"
                 onChange={handleSelect}
@@ -266,18 +257,16 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
               </Select>
             </Stack>
             {kindOfSpend === KindOfSpend.INSTALLMENTS && (
-              <Stack align="center" as="label" htmlFor="installments" spacing={5}>
+              <Stack align="center" as="label" htmlFor="installments" spacing={2}>
                 <Text>Cuotas</Text>
                 <Input
                   required
-                  marginBlockStart={4}
-                  max={99}
                   min={0}
                   name="installments"
                   placeholder="1"
                   textAlign="center"
                   type="number"
-                  width="30px"
+                  width="70px"
                 />
               </Stack>
             )}
