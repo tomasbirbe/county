@@ -1,18 +1,29 @@
 import React from "react";
-import { Box, chakra, Icon, IconButton, Img, Stack, Text } from "@chakra-ui/react";
+import { Box, chakra, Icon, IconButton, Img, Input, Stack, Text } from "@chakra-ui/react";
 
 import ArrowUpIcon from "/Icons/arrow-up.svg";
 import SavingsIcon from "/Icons/savings.svg";
 import ArrowDownIcon from "/Icons/arrow-down.svg";
 
-import { AiFillDelete } from "react-icons/ai";
+import { AiFillDelete, AiOutlinePlus } from "react-icons/ai";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend, Period } from "src/types";
-import { collection, deleteDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { app } from "src/firebase/app";
 import { isValidMotionProp, motion } from "framer-motion";
+import { v4 } from "uuid";
+import dayjs from "dayjs";
 
 interface Props {
   spends: Spend[] | undefined;
@@ -23,6 +34,10 @@ interface Props {
   currentPeriod: Period | null;
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
 }
+
+const Container = chakra(motion.main, {
+  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+});
 
 const db = getFirestore(app);
 
@@ -80,13 +95,84 @@ export const Home: React.FC<Props> = ({
     }
   }
 
-  const Container = chakra(motion.main, {
-    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
-  });
+  function addPeriod(event: React.FormEvent) {
+    event.preventDefault();
+    const { periodInput } = event.target as HTMLFormElement;
+
+    if (user?.email && periodInput.value.trim()) {
+      const id = v4();
+      const docRef = doc(db, "users", user.email, "countyData", id);
+
+      const newPeriod = {
+        id,
+        name: periodInput.value.trim(),
+        spends: [],
+        incomes: [],
+        savings: [],
+        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+      };
+
+      setCounty((prevState) => [...prevState, newPeriod]);
+      setCurrentPeriod(newPeriod);
+      setDoc(docRef, newPeriod);
+    }
+  }
+
+  if (!currentPeriod) {
+    return (
+      <Container
+        animate={{ y: 0, opacity: 1 }}
+        height="calc(100% - 81px)"
+        initial={{ y: "10px", opacity: 0 }}
+        maxWidth="full"
+        paddingBlockStart={10}
+        paddingX={0}
+        position="relative"
+        transition={{ ease: "easeInOut" }}
+      >
+        <Stack
+          align="center"
+          margin="auto"
+          paddingBlockStart="120px"
+          spacing={6}
+          textAlign="center"
+          width="500px"
+        >
+          <Text fontSize={40} fontWeight="bold" lineHeight={0.5}>
+            Hola!
+          </Text>
+          <Text>Probá crear una nueva pagina para utilizar County</Text>
+          <Stack
+            align="center"
+            as="form"
+            border="1px solid"
+            borderColor="blackAlpha.400"
+            borderRadius="4px"
+            direction="row"
+            paddingInline={1}
+            width="40%"
+            onSubmit={addPeriod}
+          >
+            <Input border="none" name="periodInput" placeholder="Abril" />
+            <IconButton
+              aria-label="Add new period"
+              bg="transparent"
+              height="30px"
+              icon={<AiOutlinePlus />}
+              minWidth="30px"
+              type="submit"
+            />
+          </Stack>
+        </Stack>
+      </Container>
+    );
+  }
 
   return (
     <Container
+      key={currentPeriod.id}
       animate={{ y: 0, opacity: 1 }}
+      as={motion.div}
       height="calc(100% - 81px)"
       initial={{ y: "10px", opacity: 0 }}
       maxWidth="full"

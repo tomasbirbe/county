@@ -18,6 +18,10 @@ interface Props {
   currentPeriod: Period | null;
 }
 
+const Container = chakra(motion.main, {
+  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+});
+
 const db = getFirestore(app);
 
 export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
@@ -83,10 +87,6 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
 
     return 0;
   }
-
-  const Container = chakra(motion.main, {
-    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
-  });
 
   return (
     <Container

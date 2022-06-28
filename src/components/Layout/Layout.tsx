@@ -74,6 +74,7 @@ export const Layout: React.FC<Props> = ({
       };
 
       setCounty((prevState) => [...prevState, newPeriod]);
+      setCurrentPeriod(newPeriod);
       setDoc(docRef, newPeriod);
     }
   }
@@ -167,9 +168,6 @@ export const Layout: React.FC<Props> = ({
               />
 
               <Stack align="center" height="full" paddingBlock={4} spacing={3}>
-                {/* <Box alignSelf="flex-start" as="label" fontSize={16} paddingInlineStart={4}>
-                  Nueva pagina
-                </Box> */}
                 <Stack
                   align="center"
                   as="form"

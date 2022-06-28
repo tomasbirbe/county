@@ -24,7 +24,8 @@ import { v4 } from "uuid";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
 import dayjs from "dayjs";
-import { isValidMotionProp, motion } from "framer-motion";
+import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
+// import { Container } from "./Test";
 
 const db = getFirestore(app);
 let timer: string | number | NodeJS.Timeout | undefined;
@@ -33,6 +34,10 @@ interface Props {
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
 }
+
+export const Container = chakra(motion.div, {
+  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+});
 
 export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
@@ -212,168 +217,166 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     return 0;
   }
 
-  const Container = chakra(motion.div, {
-    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
-  });
-
   return (
-    <Container
-      animate={{ y: 0, opacity: 1 }}
-      initial={{ y: "10px", opacity: 0 }}
-      maxWidth="full"
-      paddingBlockStart={6}
-      paddingX={0}
-      transition={{ ease: "easeInOut" }}
-    >
-      <Stack align="center" spacing={6}>
-        <Stack align="center" spacing={0}>
-          <Img height="50px" src={ArrowUp} width="50px" />
-          <Text variant="h1/2">{moneyFormatter(totalSpends())}</Text>
-        </Stack>
-        <Box bg="spend" height="1px" width="40%" />
-      </Stack>
-
-      <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Stack as="form" marginInlineStart={6} paddingBlock={10} onSubmit={addSpend}>
-          <Stack align="flex-start" direction="row" justify="space-around">
-            <Stack as="label" htmlFor="description" spacing={2}>
-              <Text>Descripcion</Text>
-              <Input autoFocus required name="description" placeholder="Notebook" width="400px" />
-            </Stack>
-            <Stack as="label" htmlFor="amount" position="relative" spacing={2}>
-              <Text>Gasto</Text>
-              <Stack direction="row" spacing={1}>
-                <Input
-                  required
-                  min={1}
-                  name="amount"
-                  placeholder="50000"
-                  type="number"
-                  width="120px"
-                />
-              </Stack>
-            </Stack>
-            <Stack as="label" htmlFor="kind_of_spend">
-              <Text>Tipo de compra</Text>
-              <Select
-                border="1px solid"
-                borderColor="primary.900"
-                height="42px"
-                name="kind_of_spend"
-                width="200px"
-                onChange={handleSelect}
-              >
-                <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
-                <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
-              </Select>
-            </Stack>
-            {kindOfSpend === KindOfSpend.INSTALLMENTS && (
-              <Stack align="center" as="label" htmlFor="installments" spacing={2}>
-                <Text>Cuotas</Text>
-                <Input
-                  required
-                  min={0}
-                  name="installments"
-                  placeholder="1"
-                  textAlign="center"
-                  type="number"
-                  width="70px"
-                />
-              </Stack>
-            )}
-            <Button alignSelf="flex-end" type="submit" variant="add">
-              <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
-              <Text>Agregar gasto</Text>
-            </Button>
+    <AnimatePresence>
+      <Container
+        animate={{ y: 0, opacity: 1 }}
+        initial={{ y: "10px", opacity: 0 }}
+        maxWidth="full"
+        paddingBlockStart={6}
+        paddingX={0}
+        transition={{ ease: "easeInOut" }}
+      >
+        <Stack align="center" spacing={6}>
+          <Stack align="center" spacing={0}>
+            <Img height="50px" src={ArrowUp} width="50px" />
+            <Text variant="h1/2">{moneyFormatter(totalSpends())}</Text>
           </Stack>
+          <Box bg="spend" height="1px" width="40%" />
         </Stack>
 
-        <Stack spacing={0}>
-          <Grid
-            borderBlockEnd="1px solid"
-            borderColor="primary.600"
-            marginBlockEnd={2}
-            paddingBlockEnd={2}
-            paddingInline={2}
-            templateColumns="repeat(12, 1fr)"
-          >
-            <GridItem colSpan={7} color="gray.500" fontWeight="600">
-              Descripcion
-            </GridItem>
-            <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
-              Gasto
-            </GridItem>
-            <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
-              Cuota
-            </GridItem>
-          </Grid>
-          {currentPeriod?.spends.map((spend: Spend) => (
+        <Box marginInline="auto" paddingBlockStart={8} width="80%">
+          <Stack as="form" marginInlineStart={6} paddingBlock={10} onSubmit={addSpend}>
+            <Stack align="flex-start" direction="row" justify="space-around">
+              <Stack as="label" htmlFor="description" spacing={2}>
+                <Text>Descripcion</Text>
+                <Input autoFocus required name="description" placeholder="Notebook" width="400px" />
+              </Stack>
+              <Stack as="label" htmlFor="amount" position="relative" spacing={2}>
+                <Text>Gasto</Text>
+                <Stack direction="row" spacing={1}>
+                  <Input
+                    required
+                    min={1}
+                    name="amount"
+                    placeholder="50000"
+                    type="number"
+                    width="120px"
+                  />
+                </Stack>
+              </Stack>
+              <Stack as="label" htmlFor="kind_of_spend">
+                <Text>Tipo de compra</Text>
+                <Select
+                  border="1px solid"
+                  borderColor="primary.900"
+                  height="42px"
+                  name="kind_of_spend"
+                  width="200px"
+                  onChange={handleSelect}
+                >
+                  <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
+                  <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
+                </Select>
+              </Stack>
+              {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+                <Stack align="center" as="label" htmlFor="installments" spacing={2}>
+                  <Text>Cuotas</Text>
+                  <Input
+                    required
+                    min={0}
+                    name="installments"
+                    placeholder="1"
+                    textAlign="center"
+                    type="number"
+                    width="70px"
+                  />
+                </Stack>
+              )}
+              <Button alignSelf="flex-end" type="submit" variant="add">
+                <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+                <Text>Agregar gasto</Text>
+              </Button>
+            </Stack>
+          </Stack>
+
+          <Stack spacing={0}>
             <Grid
-              key={spend.id}
-              _hover={{ bg: "primary.700" }}
-              alignItems="center"
-              as="form"
-              borderBlockEnd="1px solid black"
+              borderBlockEnd="1px solid"
               borderColor="primary.600"
-              borderRadius="15px"
-              className="tableRow"
-              paddingBlock={4}
+              marginBlockEnd={2}
+              paddingBlockEnd={2}
               paddingInline={2}
               templateColumns="repeat(12, 1fr)"
             >
-              <>
-                <GridItem colSpan={7}>{spend.description}</GridItem>
-                <GridItem colSpan={2} textAlign="center">
-                  <Stack align="center">
-                    <Text textAlign="center">{moneyFormatter(spend.amount)}</Text>
-                  </Stack>
-                </GridItem>
-                <GridItem colSpan={2} textAlign="center">
-                  {spend.kind === KindOfSpend.INSTALLMENTS ? (
-                    <Stack align="center" direction="row" justify="center">
+              <GridItem colSpan={7} color="gray.500" fontWeight="600">
+                Descripcion
+              </GridItem>
+              <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
+                Gasto
+              </GridItem>
+              <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
+                Cuota
+              </GridItem>
+            </Grid>
+            {currentPeriod?.spends.map((spend: Spend) => (
+              <Grid
+                key={spend.id}
+                _hover={{ bg: "primary.700" }}
+                alignItems="center"
+                as="form"
+                borderBlockEnd="1px solid black"
+                borderColor="primary.600"
+                borderRadius="15px"
+                className="tableRow"
+                paddingBlock={4}
+                paddingInline={2}
+                templateColumns="repeat(12, 1fr)"
+              >
+                <>
+                  <GridItem colSpan={7}>{spend.description}</GridItem>
+                  <GridItem colSpan={2} textAlign="center">
+                    <Stack align="center">
+                      <Text textAlign="center">{moneyFormatter(spend.amount)}</Text>
+                    </Stack>
+                  </GridItem>
+                  <GridItem colSpan={2} textAlign="center">
+                    {spend.kind === KindOfSpend.INSTALLMENTS ? (
+                      <Stack align="center" direction="row" justify="center">
+                        <Button
+                          bg="transparent"
+                          borderRadius="full"
+                          height="32px"
+                          minWidth="25px"
+                          width="32px"
+                          onClick={() => decrementInstallment(spend)}
+                        >
+                          -
+                        </Button>
+                        <Text>{`${spend.currentInstallment}/${spend.totalInstallments}`}</Text>
+                        <Button
+                          bg="transparent"
+                          borderRadius="full"
+                          height="32px"
+                          minWidth="25px"
+                          width="32px"
+                          onClick={() => incrementInstallment(spend)}
+                        >
+                          +
+                        </Button>
+                      </Stack>
+                    ) : (
+                      "-"
+                    )}
+                  </GridItem>
+                  <GridItem className="deleteButton" colSpan={1}>
+                    <Stack align="center">
                       <Button
-                        bg="transparent"
-                        borderRadius="full"
-                        height="32px"
-                        minWidth="25px"
-                        width="32px"
-                        onClick={() => decrementInstallment(spend)}
+                        _active={{ bg: "transparent" }}
+                        _hover={{ bg: "white" }}
+                        variant="icon"
+                        onClick={() => deleteSpend(spend)}
                       >
-                        -
-                      </Button>
-                      <Text>{`${spend.currentInstallment}/${spend.totalInstallments}`}</Text>
-                      <Button
-                        bg="transparent"
-                        borderRadius="full"
-                        height="32px"
-                        minWidth="25px"
-                        width="32px"
-                        onClick={() => incrementInstallment(spend)}
-                      >
-                        +
+                        <Img height="25px" src={DeleteIcon} width="25px" />
                       </Button>
                     </Stack>
-                  ) : (
-                    "-"
-                  )}
-                </GridItem>
-                <GridItem className="deleteButton" colSpan={1}>
-                  <Stack align="center">
-                    <Button
-                      _active={{ bg: "transparent" }}
-                      _hover={{ bg: "white" }}
-                      variant="icon"
-                      onClick={() => deleteSpend(spend)}
-                    >
-                      <Img height="25px" src={DeleteIcon} width="25px" />
-                    </Button>
-                  </Stack>
-                </GridItem>
-              </>
-            </Grid>
-          ))}
-        </Stack>
-      </Box>
-    </Container>
+                  </GridItem>
+                </>
+              </Grid>
+            ))}
+          </Stack>
+        </Box>
+      </Container>
+    </AnimatePresence>
   );
 };

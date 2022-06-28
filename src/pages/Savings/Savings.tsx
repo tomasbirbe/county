@@ -22,6 +22,10 @@ interface Props {
   currentPeriod: Period | null;
 }
 
+const Container = chakra(motion.div, {
+  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+});
+
 export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
 
@@ -86,10 +90,6 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
 
     return 0;
   }
-
-  const Container = chakra(motion.div, {
-    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
-  });
 
   return (
     <Container
