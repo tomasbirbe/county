@@ -119,21 +119,24 @@ export const Layout: React.FC<Props> = ({
         </Stack>
         <Divider color="black" />
       </Stack>
-      <IconButton
-        aria-label="Close side menu"
-        bg="white"
-        borderInlineEndRadius="full"
-        boxShadow="sm-white"
-        height="50px"
-        icon={<Icon as={BsCalendar} boxSize={5} marginInlineEnd={1} />}
-        left="0px"
-        minWidth="30px"
-        position="absolute"
-        top="50%"
-        width="40px"
-        zIndex={2}
-        onClick={togglePeriods}
-      />
+      {currentPeriod && (
+        <IconButton
+          aria-label="Close side menu"
+          bg="white"
+          borderInlineEndRadius="full"
+          boxShadow="sm-white"
+          height="50px"
+          icon={<Icon as={BsCalendar} boxSize={5} marginInlineEnd={1} />}
+          left="0px"
+          minWidth="30px"
+          position="absolute"
+          top="50%"
+          width="40px"
+          zIndex={2}
+          onClick={togglePeriods}
+        />
+      )}
+
       <AnimatePresence>
         {showPeriods && (
           <SideMenu
