@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Container,
   Stack,
   Img,
   Text,
@@ -10,6 +9,7 @@ import {
   Select,
   Grid,
   GridItem,
+  chakra,
 } from "@chakra-ui/react";
 
 import DeleteIcon from "/Icons/delete.svg";
@@ -24,6 +24,7 @@ import { v4 } from "uuid";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
 import dayjs from "dayjs";
+import { isValidMotionProp, motion } from "framer-motion";
 
 const db = getFirestore(app);
 let timer: string | number | NodeJS.Timeout | undefined;
@@ -36,7 +37,6 @@ interface Props {
 export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
-  const [newSpendAmount, setNewSpendAmount] = useState<string>("");
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -212,8 +212,19 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     return 0;
   }
 
+  const Container = chakra(motion.div, {
+    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+  });
+
   return (
-    <Container maxWidth="full" paddingBlockStart={6} paddingX={0}>
+    <Container
+      animate={{ y: 0, opacity: 1 }}
+      initial={{ y: "10px", opacity: 0 }}
+      maxWidth="full"
+      paddingBlockStart={6}
+      paddingX={0}
+      transition={{ ease: "easeInOut" }}
+    >
       <Stack align="center" spacing={6}>
         <Stack align="center" spacing={0}>
           <Img height="50px" src={ArrowUp} width="50px" />

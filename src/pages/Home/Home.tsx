@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Container, Icon, IconButton, Img, Stack, Text } from "@chakra-ui/react";
+import { Box, chakra, Icon, IconButton, Img, Stack, Text } from "@chakra-ui/react";
 
 import ArrowUpIcon from "/Icons/arrow-up.svg";
 import SavingsIcon from "/Icons/savings.svg";
@@ -12,6 +12,7 @@ import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend, Period } from "src/types";
 import { collection, deleteDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { app } from "src/firebase/app";
+import { isValidMotionProp, motion } from "framer-motion";
 
 interface Props {
   spends: Spend[] | undefined;
@@ -79,13 +80,20 @@ export const Home: React.FC<Props> = ({
     }
   }
 
+  const Container = chakra(motion.main, {
+    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+  });
+
   return (
     <Container
-      as="main"
-      height="calc(100% - 71px)"
+      animate={{ y: 0, opacity: 1 }}
+      height="calc(100% - 81px)"
+      initial={{ y: "10px", opacity: 0 }}
       maxWidth="full"
+      paddingBlockStart={10}
       paddingX={0}
       position="relative"
+      transition={{ ease: "easeInOut" }}
     >
       <Stack position="absolute" right="20px" top="15px" zIndex={1}>
         <IconButton

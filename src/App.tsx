@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { auth } from "src/firebase/app";
 import { collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { Loader } from "src/pages/Loader";
+import { AnimatePresence } from "framer-motion";
 import { useAuthContext } from "./context/authContext";
 
 // Pages
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
   const [isLogged, setIsLogged] = useState(false);
   const [county, setCounty] = useState<Period[]>([]);
   const [currentPeriod, setCurrentPeriod] = useState<Period | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
     setIsLoading(true);

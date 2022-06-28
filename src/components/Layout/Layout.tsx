@@ -1,4 +1,15 @@
-import { Box, Button, Divider, Icon, IconButton, Img, Input, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  chakra,
+  Divider,
+  Icon,
+  IconButton,
+  Img,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import moneyFormatter from "src/utils/moneyFormatter";
@@ -7,13 +18,14 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { IoIosArrowBack } from "react-icons/io";
 
 import Pocket from "/Icons/pocket.svg";
-import { addDoc, collection, doc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 import { app } from "src/firebase/app";
 import { useAuthContext } from "src/context/authContext";
 import dayjs from "dayjs";
 import { v4 } from "uuid";
 import { Period } from "src/types";
+import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
 import { NavLink } from "./components/NavLink";
 
 interface Props {
@@ -25,6 +37,10 @@ interface Props {
 }
 
 const db = getFirestore(app);
+
+const SideMenu = chakra(motion.div, {
+  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+});
 
 export const Layout: React.FC<Props> = ({
   remaining,
@@ -117,79 +133,92 @@ export const Layout: React.FC<Props> = ({
         zIndex={2}
         onClick={togglePeriods}
       />
-      {showPeriods && (
-        <Stack
-          bg="white"
-          boxShadow="sm-white"
-          height="full"
-          justify="space-between"
-          left="0"
-          position="absolute"
-          top="0"
-          width="300px"
-          zIndex={2}
-        >
-          <Stack height="full" position="relative" spacing={0}>
-            <IconButton
-              aria-label="Close side menu"
-              bg="white"
-              borderInlineEndRadius="full"
-              boxShadow="sm-white"
-              height="50px"
-              icon={<Icon as={IoIosArrowBack} boxSize={5} marginInlineEnd={1} />}
-              minWidth="30px"
-              position="absolute"
-              right="-40px"
-              top="50%"
-              width="40px"
-              onClick={togglePeriods}
-            />
+      <AnimatePresence>
+        {showPeriods && (
+          <SideMenu
+            animate={{ x: "0px" }}
+            bg="white"
+            boxShadow="sm-white"
+            exit={{ x: "-340px" }}
+            height="full"
+            initial={{ x: "-300px" }}
+            justifyContent="space-between"
+            left="0"
+            position="absolute"
+            top="0"
+            transition={{ ease: "easeInOut", duration: "0.3" }}
+            width="300px"
+            zIndex={2}
+          >
+            <Stack height="full" position="relative" spacing={0}>
+              <IconButton
+                aria-label="Close side menu"
+                bg="white"
+                borderInlineEndRadius="full"
+                boxShadow="sm-white"
+                height="50px"
+                icon={<Icon as={IoIosArrowBack} boxSize={5} marginInlineEnd={1} />}
+                minWidth="30px"
+                position="absolute"
+                right="-40px"
+                top="50%"
+                width="40px"
+                onClick={togglePeriods}
+              />
 
-            <Stack align="center" height="full" paddingBlock={4} spacing={0}>
-              <Stack
-                align="center"
-                as="form"
-                borderBlockEnd="1px solid"
-                borderColor="blackAlpha.400"
-                direction="row"
-                width="90%"
-                onSubmit={addPeriod}
-              >
-                <Input border="none" id="periodInput" name="periodInput" placeholder="Abril" />
-                <IconButton
-                  aria-label="Add new period"
-                  bg="transparent"
-                  height="30px"
-                  icon={<AiOutlinePlus />}
-                  minWidth="30px"
-                  type="submit"
-                />
-              </Stack>
-              <Stack
-                as="ul"
-                bg="transparent"
-                height="full"
-                overflow="auto"
-                paddingBlockStart={4}
-                paddingInline={4}
-                spacing={0}
-              >
-                {county.map((period) => (
-                  <Button
-                    key={period.id}
-                    as="li"
+              <Stack align="center" height="full" paddingBlock={4} spacing={3}>
+                {/* <Box alignSelf="flex-start" as="label" fontSize={16} paddingInlineStart={4}>
+                  Nueva pagina
+                </Box> */}
+                <Stack
+                  align="center"
+                  as="form"
+                  border="1px solid"
+                  borderColor="blackAlpha.400"
+                  borderRadius="4px"
+                  direction="row"
+                  width="90%"
+                  onSubmit={addPeriod}
+                >
+                  <Input border="none" id="periodInput" name="periodInput" placeholder="Abril" />
+                  <IconButton
+                    aria-label="Add new period"
                     bg="transparent"
-                    paddingBlock={4}
-                    onClick={() => changePeriod(period)}
-                  >
-                    {period.name}
-                  </Button>
-                ))}
+                    height="30px"
+                    icon={<AiOutlinePlus />}
+                    minWidth="30px"
+                    type="submit"
+                  />
+                </Stack>
+                <Box bg="blackAlpha.400" height="1px" width="90%" />
+                <Stack
+                  align="center"
+                  as="ul"
+                  bg="transparent"
+                  height="full"
+                  overflow="auto"
+                  paddingInline={4}
+                  spacing={2}
+                  width="full"
+                >
+                  {county.map((period) => (
+                    <Button
+                      key={period.id}
+                      as="li"
+                      bg="transparent"
+                      paddingBlock={4}
+                      width="90%"
+                      onClick={() => changePeriod(period)}
+                    >
+                      {period.name}
+                    </Button>
+                  ))}
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
-        </Stack>
-      )}
+          </SideMenu>
+        )}
+      </AnimatePresence>
 
       <Outlet />
     </>

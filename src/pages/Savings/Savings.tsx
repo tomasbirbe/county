@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Stack, Img, Text, Box, Button, Input, Grid, GridItem } from "@chakra-ui/react";
+import { Stack, Img, Text, Box, Button, Input, Grid, GridItem, chakra } from "@chakra-ui/react";
 
 import SavingIcon from "/Icons/savings.svg";
 import PlusIcon from "/Icons/plus.svg";
@@ -12,6 +12,8 @@ import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/
 import { useAuthContext } from "src/context/authContext";
 import { app } from "src/firebase/app";
 import { Saving, Period } from "src/types";
+import { isValidMotionProp, motion } from "framer-motion";
+import dayjs from "dayjs";
 
 const db = getFirestore(app);
 
@@ -30,6 +32,7 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
       id: v4(),
       description: description.value,
       amount: amount.value,
+      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
     };
 
     if (user?.email && currentPeriod) {
@@ -84,8 +87,19 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
     return 0;
   }
 
+  const Container = chakra(motion.div, {
+    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+  });
+
   return (
-    <Container maxWidth="full" paddingBlockStart={6} paddingX={0}>
+    <Container
+      animate={{ y: 0, opacity: 1 }}
+      initial={{ y: "10px", opacity: 0 }}
+      maxWidth="full"
+      paddingBlockStart={6}
+      paddingX={0}
+      transition={{ ease: "easeInOut" }}
+    >
       <Stack align="center" spacing={6}>
         <Stack align="center" spacing={0}>
           <Img height="50px" src={SavingIcon} width="50px" />

@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Stack, Img, Text, Box, Button, Input, Grid, GridItem } from "@chakra-ui/react";
+import { Stack, Img, Text, Box, Button, Input, Grid, GridItem, chakra } from "@chakra-ui/react";
 import moneyFormatter from "src/utils/moneyFormatter";
 
 import ArrowDown from "/Icons/arrow-down.svg";
@@ -12,6 +12,7 @@ import { useAuthContext } from "src/context/authContext";
 
 import { app } from "src/firebase/app";
 import dayjs from "dayjs";
+import { isValidMotionProp, motion } from "framer-motion";
 interface Props {
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
@@ -83,8 +84,19 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
     return 0;
   }
 
+  const Container = chakra(motion.main, {
+    shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+  });
+
   return (
-    <Container maxWidth="full" paddingBlockStart={6} paddingX={0}>
+    <Container
+      animate={{ y: 0, opacity: 1 }}
+      initial={{ y: "10px", opacity: 0 }}
+      maxWidth="full"
+      paddingBlockStart={6}
+      paddingX={0}
+      transition={{ ease: "easeInOut" }}
+    >
       <Stack align="center" spacing={6}>
         <Stack align="center" spacing={0}>
           <Img height="50px" src={ArrowDown} width="50px" />
