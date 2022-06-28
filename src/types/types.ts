@@ -14,7 +14,8 @@ export interface Saving {
   description: string;
   amount: string;
   created_at: string;
-  goal: string;
+  // Goal is a future feauture
+  // goal: string;
 }
 export interface Income {
   id: string;
