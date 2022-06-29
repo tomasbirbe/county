@@ -146,6 +146,17 @@ export const theme = extendTheme({
             width: "full",
           },
         },
+        invalid: {
+          field: {
+            border: "1px solid",
+            background: "transparent",
+            borderColor: "red.400",
+            borderRadius: "4px",
+            padding: 2,
+            height: "fit-content",
+            width: "full",
+          },
+        },
       },
       defaultProps: {
         variant: "base",
@@ -221,6 +232,9 @@ export const theme = extendTheme({
       },
       ".tableRow:hover > .deleteButton": {
         visibility: "visible",
+      },
+      "#portal": {
+        isolation: "isolate",
       },
     },
   },

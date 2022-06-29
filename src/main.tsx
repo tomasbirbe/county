@@ -14,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <Router>
           <App />
+          <div id="portal" />
         </Router>
       </AuthProvider>
     </ChakraProvider>
