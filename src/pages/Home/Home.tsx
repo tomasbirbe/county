@@ -132,8 +132,9 @@ export const Home: React.FC<Props> = ({
       >
         <Stack
           align="center"
+          height="full"
+          justify="center"
           margin="auto"
-          paddingBlockStart="120px"
           spacing={6}
           textAlign="center"
           width="500px"
@@ -141,7 +142,7 @@ export const Home: React.FC<Props> = ({
           <Text fontSize={40} fontWeight="bold" lineHeight={0.5}>
             Hola!
           </Text>
-          <Text>Probá crear una nueva pagina para utilizar County</Text>
+          <Text>Probá crear una nueva hoja para utilizar County</Text>
           <Stack
             align="center"
             as="form"

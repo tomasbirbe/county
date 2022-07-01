@@ -84,9 +84,13 @@ export const Layout: React.FC<Props> = ({
     setShowPeriods(false);
   }
 
+  if (county.length === 0) {
+    return <Outlet />;
+  }
+
   return (
     <>
-      <Stack align="center" as="nav" boxShadow="sm-white" spacing={0} width="full">
+      <Stack align="center" as="nav" spacing={0} width="full">
         <Stack
           align="center"
           as="nav"
