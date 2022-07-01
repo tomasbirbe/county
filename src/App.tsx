@@ -38,7 +38,9 @@ export const App: React.FC = () => {
         setIsLogged(true);
         setUser(user);
       }
-      setIsLoading(false);
+      if (county.length) {
+        setIsLoading(false);
+      }
     });
   }, []);
 
@@ -46,6 +48,7 @@ export const App: React.FC = () => {
     if (user?.email) {
       const countyRef = collection(db, "users", user.email, "countyData");
 
+      setIsLoading(true);
       getDocs(query(countyRef)).then((doc) => {
         const countyData: Period[] = [];
 
@@ -55,6 +58,9 @@ export const App: React.FC = () => {
 
         setCounty(countyData);
         setCurrentPeriod(countyData[0]);
+        if (user) {
+          setIsLoading(false);
+        }
       });
     }
   }, [user]);
