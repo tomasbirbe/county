@@ -206,6 +206,7 @@ export const theme = extendTheme({
         fontSize: "1.125rem",
         color: "fontPrimary",
         fontFamily: "Inter, Roboto, system-ui,sans-serif",
+        // overflow: "hidden",
       },
       ul: {
         listStyle: "none",

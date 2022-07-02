@@ -90,6 +90,7 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
 
   return (
     <Container
+      key={currentPeriod?.id}
       animate={{ y: 0, opacity: 1 }}
       initial={{ y: "10px", opacity: 0 }}
       maxWidth="full"

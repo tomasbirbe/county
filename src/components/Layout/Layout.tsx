@@ -114,7 +114,6 @@ export const Layout: React.FC<Props> = ({
             <NavLink to="/incomes" underlineColor="income">
               Ingresos
             </NavLink>
-            <Text>{currentPeriod?.name || ""}</Text>
           </Stack>
           <Stack direction="row" justify="flex-end" width="150px">
             <Img height="30px" loading="eager" src={Pocket} width="30px" />
@@ -122,6 +121,14 @@ export const Layout: React.FC<Props> = ({
           </Stack>
         </Stack>
         <Divider color="black" />
+        {currentPeriod && (
+          <>
+            <Stack align="center" height="35px" justify="center" width="full">
+              <Text>{currentPeriod.name}</Text>
+            </Stack>
+            <Divider color="black" />
+          </>
+        )}
       </Stack>
       {currentPeriod && (
         <IconButton
@@ -133,13 +140,15 @@ export const Layout: React.FC<Props> = ({
           icon={<Icon as={BsCalendar} boxSize={5} marginInlineEnd={1} />}
           left="0px"
           minWidth="30px"
-          position="absolute"
+          position="fixed"
           top="50%"
           width="40px"
           zIndex={2}
           onClick={togglePeriods}
         />
       )}
+
+      {/* -------------------------------- Side menu ------------------------------- */}
 
       <AnimatePresence>
         {showPeriods && (
@@ -152,7 +161,7 @@ export const Layout: React.FC<Props> = ({
             initial={{ x: "-300px" }}
             justifyContent="space-between"
             left="0"
-            position="absolute"
+            position="fixed"
             top="0"
             transition={{ ease: "easeInOut", duration: "0.3" }}
             width="300px"
@@ -224,7 +233,6 @@ export const Layout: React.FC<Props> = ({
           </SideMenu>
         )}
       </AnimatePresence>
-
       <Outlet />
     </>
   );
