@@ -38,9 +38,7 @@ export const App: React.FC = () => {
         setIsLogged(true);
         setUser(user);
       }
-      if (county.length) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     });
   }, []);
 
@@ -58,9 +56,7 @@ export const App: React.FC = () => {
 
         setCounty(countyData);
         setCurrentPeriod(countyData[0]);
-        if (user) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       });
     }
   }, [user]);
