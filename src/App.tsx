@@ -29,34 +29,30 @@ export const App: React.FC = () => {
   const [isLogged, setIsLogged] = useState(false);
   const [county, setCounty] = useState<Period[]>([]);
   const [currentPeriod, setCurrentPeriod] = useState<Period | null>(null);
-  const location = useLocation();
 
   useEffect(() => {
     setIsLoading(true);
     auth.onAuthStateChanged((user) => {
-      if (user) {
-        setIsLogged(true);
-        setUser(user);
-      }
-      setIsLoading(false);
-    });
-  }, []);
+      if (user?.email) {
+        const countyRef = collection(db, "users", user.email, "countyData");
 
-  useEffect(() => {
-    if (user?.email) {
-      const countyRef = collection(db, "users", user.email, "countyData");
+        getDocs(query(countyRef)).then((doc) => {
+          const countyData: Period[] = [];
 
-      getDocs(query(countyRef)).then((doc) => {
-        const countyData: Period[] = [];
+          doc.forEach((docSnap) => {
+            countyData.push(docSnap.data() as Period);
+          });
 
-        doc.forEach((docSnap) => {
-          countyData.push(docSnap.data() as Period);
+          setCounty(countyData);
+          setCurrentPeriod(countyData[0]);
+          setIsLogged(true);
+          setUser(user);
+          setIsLoading(false);
         });
-
-        setCounty(countyData);
-        setCurrentPeriod(countyData[0]);
-      });
-    }
+      } else {
+        setIsLoading(false);
+      }
+    });
   }, [user]);
 
   function calculateRemaining() {
