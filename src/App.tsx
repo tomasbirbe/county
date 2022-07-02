@@ -128,25 +128,37 @@ export const App: React.FC = () => {
         />
         <Route
           element={
-            <PrivateRoute isLogged={isLogged}>
-              <Spends currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
-            </PrivateRoute>
+            county.length ? (
+              <PrivateRoute isLogged={isLogged}>
+                <Spends currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
+              </PrivateRoute>
+            ) : (
+              <NotFound />
+            )
           }
           path="spends"
         />
         <Route
           element={
-            <PrivateRoute isLogged={isLogged}>
-              <Savings currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
-            </PrivateRoute>
+            county.length ? (
+              <PrivateRoute isLogged={isLogged}>
+                <Savings currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
+              </PrivateRoute>
+            ) : (
+              <NotFound />
+            )
           }
           path="savings"
         />
         <Route
           element={
-            <PrivateRoute isLogged={isLogged}>
-              <Incomes currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
-            </PrivateRoute>
+            county.length ? (
+              <PrivateRoute isLogged={isLogged}>
+                <Incomes currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
+              </PrivateRoute>
+            ) : (
+              <NotFound />
+            )
           }
           path="incomes"
         />

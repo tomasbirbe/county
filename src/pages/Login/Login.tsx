@@ -92,7 +92,13 @@ export const Login: React.FC = () => {
         </Stack>
         <Stack as="label" htmlFor="passwordInput">
           <Text>Password</Text>
-          <Input id="passwordInput" minLength={6} placeholder="*******" type="password" />
+          <Input
+            id="passwordInput"
+            minLength={6}
+            placeholder="*******"
+            type="password"
+            variant={passwordError ? "invalid" : "base"}
+          />
           {passwordError && (
             <Text color="red.600" fontSize={14} lineHeight={1}>
               {errorMessage}
@@ -130,7 +136,7 @@ export const Login: React.FC = () => {
             intentos fallidos
           </Text>
           <Text> Volve a intentarlo mas tarde</Text>
-          <Button type="button" onClick={closeAlert} variant='primary'>
+          <Button type="button" variant="primary" onClick={closeAlert}>
             Aceptar
           </Button>
         </Stack>

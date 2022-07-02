@@ -132,8 +132,9 @@ export const Home: React.FC<Props> = ({
       >
         <Stack
           align="center"
+          height="full"
+          justify="center"
           margin="auto"
-          paddingBlockStart="120px"
           spacing={6}
           textAlign="center"
           width="500px"
@@ -141,7 +142,7 @@ export const Home: React.FC<Props> = ({
           <Text fontSize={40} fontWeight="bold" lineHeight={0.5}>
             Hola!
           </Text>
-          <Text>Probá crear una nueva pagina para utilizar County</Text>
+          <Text>Probá crear una nueva hoja para utilizar County</Text>
           <Stack
             align="center"
             as="form"
@@ -173,9 +174,10 @@ export const Home: React.FC<Props> = ({
       key={currentPeriod.id}
       animate={{ y: 0, opacity: 1 }}
       as={motion.div}
-      height="calc(100% - 81px)"
+      height="calc(100% - 125px)"
       initial={{ y: "10px", opacity: 0 }}
       maxWidth="full"
+      overflow="hidden"
       paddingBlockStart={10}
       paddingX={0}
       position="relative"
