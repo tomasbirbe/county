@@ -10,6 +10,8 @@ import {
   Grid,
   GridItem,
   chakra,
+  IconButton,
+  Icon,
 } from "@chakra-ui/react";
 
 import DeleteIcon from "/Icons/delete.svg";
@@ -25,7 +27,7 @@ import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/
 import { app } from "src/firebase/app";
 import dayjs from "dayjs";
 import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
-// import { Container } from "./Test";
+import { AiOutlineArrowRight } from "react-icons/ai";
 
 const db = getFirestore(app);
 let timer: string | number | NodeJS.Timeout | undefined;
@@ -39,9 +41,19 @@ export const Container = chakra(motion.div, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
 });
 
+export const FormStep = chakra(motion.div, {
+  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
+});
+
 export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
+  const [newDescription, setNewDescription] = useState("");
+  const [newAmount, setNewAmount] = useState(0);
+  const [newInstallments, setNewInstallments] = useState(1);
+  const [showForm, setShowForm] = useState(false);
+  const [isLastStep, setIsLastStep] = useState(false);
+  const [stepForm, setStepForm] = useState(1);
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -217,6 +229,26 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     return 0;
   }
 
+  function toggleForm() {
+    setShowForm((prevState) => !prevState);
+  }
+
+  function nextStep() {
+    if (stepForm === 3 && kindOfSpend === KindOfSpend.NOINSTALLMENTS) {
+      setIsLastStep(true);
+    } else if (stepForm === 4) {
+      setIsLastStep(true);
+    } else {
+      setStepForm((prevState) => prevState + 1);
+    }
+  }
+
+  function previousStep() {
+    if (stepForm > 1) {
+      setStepForm((prevState) => prevState - 1);
+    }
+  }
+
   return (
     <Container
       key={currentPeriod?.id}
@@ -237,56 +269,113 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
       </Stack>
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Stack as="form" marginInlineStart={6} paddingBlock={10} onSubmit={addSpend}>
-          <Stack align="flex-start" direction="row" justify="space-around">
-            <Stack as="label" htmlFor="description" spacing={2}>
-              <Text>Descripcion</Text>
-              <Input autoFocus required name="description" placeholder="Notebook" width="400px" />
-            </Stack>
-            <Stack as="label" htmlFor="amount" position="relative" spacing={2}>
-              <Text>Gasto</Text>
-              <Stack direction="row" spacing={1}>
-                <Input
-                  required
-                  min={1}
-                  name="amount"
-                  placeholder="50000"
-                  type="number"
-                  width="120px"
-                />
-              </Stack>
-            </Stack>
-            <Stack as="label" htmlFor="kind_of_spend">
-              <Text>Tipo de compra</Text>
-              <Select
-                border="1px solid"
-                borderColor="primary.900"
-                height="42px"
-                name="kind_of_spend"
-                width="200px"
-                onChange={handleSelect}
-              >
-                <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
-                <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
-              </Select>
-            </Stack>
-            {kindOfSpend === KindOfSpend.INSTALLMENTS && (
-              <Stack align="center" as="label" htmlFor="installments" spacing={2}>
-                <Text>Cuotas</Text>
-                <Input
-                  required
-                  min={0}
-                  name="installments"
-                  placeholder="1"
-                  textAlign="center"
-                  type="number"
-                  width="70px"
-                />
-              </Stack>
-            )}
-            <Button alignSelf="flex-end" type="submit" variant="add">
-              <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
-              <Text>Agregar gasto</Text>
+        <Stack align="center">
+          <Button
+            _active={{ bg: "secondary.900" }}
+            _hover={{ bg: "secondary.500" }}
+            bg="secondary.300"
+            type="submit"
+            variant="add"
+          >
+            <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+            <Text color="white">Nuevo gasto</Text>
+          </Button>
+          <Stack
+            align="center"
+            as="form"
+            border="1px solid black"
+            marginInlineStart={6}
+            paddingBlock={10}
+            width="400px"
+            onSubmit={addSpend}
+          >
+            <AnimatePresence>
+              {stepForm === 1 && (
+                <FormStep
+                  alignItems="flex-end"
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: "-50px", opacity: 0 }}
+                  id="step-1"
+                  initial={{ x: "50px", opacity: 0 }}
+                >
+                  <Stack as="label" htmlFor="description" spacing={2}>
+                    <Text>Descripcion</Text>
+                  </Stack>
+                  <Input
+                    autoFocus
+                    required
+                    name="description"
+                    placeholder="Notebook"
+                    width="400px"
+                  />
+                </FormStep>
+              )}
+              {stepForm === 2 && (
+                <Stack id="step-2">
+                  <Stack as="label" htmlFor="amount" position="relative" spacing={2}>
+                    <Text>Gasto</Text>
+                    <Stack direction="row" spacing={1}>
+                      <Input
+                        required
+                        min={1}
+                        name="amount"
+                        placeholder="50000"
+                        step="0.01"
+                        type="number"
+                        width="120px"
+                      />
+                    </Stack>
+                  </Stack>
+                </Stack>
+              )}
+              {stepForm === 3 && (
+                <Box id="step-3">
+                  <Stack as="label" htmlFor="kind_of_spend">
+                    <Text>Tipo de compra</Text>
+                    <Select
+                      border="1px solid"
+                      borderColor="primary.900"
+                      height="42px"
+                      name="kind_of_spend"
+                      width="200px"
+                      onChange={handleSelect}
+                    >
+                      <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
+                      <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
+                    </Select>
+                  </Stack>
+                </Box>
+              )}
+              {stepForm === 4 && (
+                <Box id="step-4">
+                  {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+                    <Stack align="center" as="label" htmlFor="installments" spacing={2}>
+                      <Text>Cuotas</Text>
+                      <Input
+                        required
+                        min={0}
+                        name="installments"
+                        placeholder="1"
+                        textAlign="center"
+                        type="number"
+                        width="70px"
+                      />
+                    </Stack>
+                  )}
+                </Box>
+              )}
+            </AnimatePresence>
+            <Button
+              _active={{ bg: "secondary.900" }}
+              _hover={{ bg: "secondary.500" }}
+              alignSelf="flex-end"
+              bg="secondary.300"
+              color="white"
+              type="button"
+              width="30%"
+              onClick={nextStep}
+            >
+              {isLastStep ? "Finalizar" : <Icon as={AiOutlineArrowRight} />}
             </Button>
           </Stack>
         </Stack>
