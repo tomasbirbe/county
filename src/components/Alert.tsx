@@ -2,6 +2,7 @@ import { Box, chakra, Icon, Stack, Text } from "@chakra-ui/react";
 import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
 import React from "react";
 import { AiOutlineWarning } from "react-icons/ai";
+import { Overlay } from "./Overlay";
 import { Portal } from "./Portal";
 
 interface Props {
@@ -16,22 +17,14 @@ const AlertContainer = chakra(motion.div, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
 });
 
-export const Alert: React.FC<Props> = ({ children, isOpen, onClose, type, size }) => {
+export const Alert: React.FC<Props> = ({ children, isOpen, onClose }) => {
   if (!isOpen) {
     return <></>;
   }
 
   return (
     <Portal>
-      <Box
-        bg="blackAlpha.300"
-        height="100vh"
-        left="0"
-        position="absolute"
-        top="0"
-        width="100vw"
-        onClick={onClose}
-      />
+      <Overlay onClose={onClose} />
       <AlertContainer
         animate={{ y: 0, opacity: 1 }}
         bg="white"

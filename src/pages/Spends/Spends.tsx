@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Stack,
   Img,
@@ -12,6 +12,7 @@ import {
   chakra,
   IconButton,
   Icon,
+  Divider,
 } from "@chakra-ui/react";
 
 import DeleteIcon from "/Icons/delete.svg";
@@ -49,11 +50,22 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
   const [newDescription, setNewDescription] = useState("");
-  const [newAmount, setNewAmount] = useState(0);
-  const [newInstallments, setNewInstallments] = useState(1);
+  const [newAmount, setNewAmount] = useState("");
+  const [newInstallments, setNewInstallments] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
   const [isLastStep, setIsLastStep] = useState(false);
   const [stepForm, setStepForm] = useState(1);
+
+  useEffect(() => {
+    if (stepForm === 3 && kindOfSpend === KindOfSpend.NOINSTALLMENTS) {
+      setIsLastStep(true);
+    } else if (stepForm === 4) {
+      setIsLastStep(true);
+    } else {
+      setIsLastStep(false);
+    }
+  }, [stepForm, kindOfSpend]);
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -61,51 +73,61 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     setKindOfSpend(value);
   }
 
-  function addSpend(event: React.FormEvent) {
-    event.preventDefault();
-    const {
-      description,
-      amount,
-      kind_of_spend: kind,
-      installments,
-    } = event.target as HTMLFormElement;
+  // function addSpend(event: React.FormEvent) {
+  //   event.preventDefault();
+  //   const {
+  //     description,
+  //     amount,
+  //     kind_of_spend: kind,
+  //     installments,
+  //   } = event.target as HTMLFormElement;
 
-    const newSpend: Spend = {
-      id: v4(),
-      description: description.value,
-      amount: amount.value,
-      kind: kind.value,
-      totalInstallments:
-        kind.value !== KindOfSpend.INSTALLMENTS ? null : Number(installments?.value),
-      currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : 1,
-      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-    };
+  //   const newSpend: Spend = {
+  //     id: v4(),
+  //     description: description.value,
+  //     amount: amount.value,
+  //     kind: kind.value,
+  //     totalInstallments:
+  //       kind.value !== KindOfSpend.INSTALLMENTS ? null : Number(installments?.value),
+  //     currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : 1,
+  //     created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+  //   };
 
-    if (currentPeriod) {
-      setCurrentPeriod((prevPeriod) => {
-        if (prevPeriod) {
-          return {
-            ...prevPeriod,
-            spends: [...prevPeriod.spends, newSpend],
-          };
-        }
+  //   if (currentPeriod) {
+  //     setCurrentPeriod((prevPeriod) => {
+  //       if (prevPeriod) {
+  //         return {
+  //           ...prevPeriod,
+  //           spends: [...prevPeriod.spends, newSpend],
+  //         };
+  //       }
 
-        return null;
-      });
-      if (user?.email && currentPeriod) {
-        updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-          spends: arrayUnion(newSpend),
-        });
-      }
-    }
+  //       return null;
+  //     });
+  //     if (user?.email && currentPeriod) {
+  //       updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
+  //         spends: arrayUnion(newSpend),
+  //       });
+  //     }
+  //   }
 
-    description.value = "";
-    amount.value = "";
-    kind.value = KindOfSpend.NOINSTALLMENTS;
+  //   description.value = "";
+  //   amount.value = "";
+  //   kind.value = KindOfSpend.NOINSTALLMENTS;
+  //   setKindOfSpend(KindOfSpend.NOINSTALLMENTS);
+  //   if (installments?.value) {
+  //     installments.value = "";
+  //   }
+  // }
+
+  function addSpend(e) {
+    e.preventDefault();
+    setIsAdded(true);
+    setNewDescription("");
+    setNewAmount("");
+    setNewInstallments(null);
     setKindOfSpend(KindOfSpend.NOINSTALLMENTS);
-    if (installments?.value) {
-      installments.value = "";
-    }
+    setStepForm(1);
   }
 
   function deleteSpend(spend: Spend) {
@@ -233,12 +255,9 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     setShowForm((prevState) => !prevState);
   }
 
-  function nextStep() {
-    if (stepForm === 3 && kindOfSpend === KindOfSpend.NOINSTALLMENTS) {
-      setIsLastStep(true);
-    } else if (stepForm === 4) {
-      setIsLastStep(true);
-    } else {
+  function nextStep(e) {
+    e.preventDefault();
+    if (stepForm >= 1 && stepForm < 4) {
       setStepForm((prevState) => prevState + 1);
     }
   }
@@ -269,7 +288,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
       </Stack>
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Stack align="center">
+        <Stack align="center" position="relative">
           <Button
             _active={{ bg: "secondary.900" }}
             _hover={{ bg: "secondary.500" }}
@@ -280,142 +299,126 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
             <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
             <Text color="white">Nuevo gasto</Text>
           </Button>
-          <Stack
-            align="center"
-            as="form"
-            border="1px solid black"
-            marginInlineStart={6}
-            paddingBlock={10}
-            width="400px"
-            onSubmit={addSpend}
-          >
-            <AnimatePresence>
-              {stepForm === 1 && (
-                <FormStep
-                  alignItems="flex-end"
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: "-50px", opacity: 0 }}
-                  id="step-1"
-                  initial={{ x: "50px", opacity: 0 }}
-                >
-                  <Stack as="label" htmlFor="description" spacing={2}>
-                    <Text>Descripcion</Text>
-                  </Stack>
-                  <Input
-                    autoFocus
-                    required
-                    name="description"
-                    placeholder="Notebook"
-                    width="400px"
-                  />
-                </FormStep>
-              )}
-              {stepForm === 2 && (
-                <Stack id="step-2">
-                  <Stack as="label" htmlFor="amount" position="relative" spacing={2}>
-                    <Text>Gasto</Text>
-                    <Stack direction="row" spacing={1}>
-                      <Input
-                        required
-                        min={1}
-                        name="amount"
-                        placeholder="50000"
-                        step="0.01"
-                        type="number"
-                        width="120px"
-                      />
-                    </Stack>
-                  </Stack>
+          <Stack as="form" spacing={4}>
+            <Box>
+              <Stack as="label" htmlFor="description" spacing={2}>
+                <Text>Descripcion</Text>
+              </Stack>
+              <Input
+                autoFocus
+                required
+                name="description"
+                placeholder="Notebook"
+                value={newDescription}
+                width="280px"
+                onChange={(e) => setNewDescription(e.target.value)}
+              />
+            </Box>
+            <Box>
+              <Box as="label" htmlFor="amount">
+                <Text>Gasto</Text>
+              </Box>
+
+              <Input
+                autoFocus
+                required
+                min={1}
+                name="amount"
+                placeholder="50000"
+                step="0.01"
+                type="number"
+                value={newAmount}
+                width="200px"
+                onChange={(e) => setNewAmount(e.target.value)}
+              />
+            </Box>
+            <Stack direction="row">
+              <Box>
+                <Stack as="label" htmlFor="kind_of_spend">
+                  <Text>Tipo de compra</Text>
                 </Stack>
-              )}
-              {stepForm === 3 && (
-                <Box id="step-3">
-                  <Stack as="label" htmlFor="kind_of_spend">
-                    <Text>Tipo de compra</Text>
-                    <Select
-                      border="1px solid"
-                      borderColor="primary.900"
-                      height="42px"
-                      name="kind_of_spend"
-                      width="200px"
-                      onChange={handleSelect}
-                    >
-                      <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
-                      <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
-                    </Select>
-                  </Stack>
-                </Box>
-              )}
-              {stepForm === 4 && (
-                <Box id="step-4">
-                  {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+                <Select
+                  autoFocus
+                  border="1px solid"
+                  borderColor="primary.900"
+                  height="42px"
+                  name="kind_of_spend"
+                  width="200px"
+                  onChange={handleSelect}
+                >
+                  <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
+                  <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
+                </Select>
+              </Box>
+              <Box>
+                {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+                  <>
                     <Stack align="center" as="label" htmlFor="installments" spacing={2}>
                       <Text>Cuotas</Text>
-                      <Input
-                        required
-                        min={0}
-                        name="installments"
-                        placeholder="1"
-                        textAlign="center"
-                        type="number"
-                        width="70px"
-                      />
                     </Stack>
-                  )}
-                </Box>
-              )}
-            </AnimatePresence>
+                    <Input
+                      autoFocus
+                      required
+                      min={0}
+                      name="installments"
+                      placeholder="1"
+                      textAlign="center"
+                      type="number"
+                      width="70px"
+                      onChange={(e) => setNewInstallments(e.target.value)}
+                    />
+                  </>
+                )}
+              </Box>
+            </Stack>
             <Button
               _active={{ bg: "secondary.900" }}
+              _focus={{}}
               _hover={{ bg: "secondary.500" }}
-              alignSelf="flex-end"
               bg="secondary.300"
               color="white"
-              type="button"
-              width="30%"
-              onClick={nextStep}
+              fontWeight="regular"
             >
-              {isLastStep ? "Finalizar" : <Icon as={AiOutlineArrowRight} />}
+              Agregar
             </Button>
           </Stack>
         </Stack>
-
-        <Stack spacing={0}>
-          <Grid
-            borderBlockEnd="1px solid"
-            borderColor="primary.600"
-            marginBlockEnd={2}
-            paddingBlockEnd={2}
-            paddingInline={2}
-            templateColumns="repeat(12, 1fr)"
-          >
-            <GridItem colSpan={7} color="gray.500" fontWeight="600">
-              Descripcion
-            </GridItem>
-            <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
-              Gasto
-            </GridItem>
-            <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
-              Cuota
-            </GridItem>
-          </Grid>
-          {currentPeriod?.spends.map((spend: Spend) => (
+        <Stack direction="row" spacing={10}>
+          <Stack spacing={0} width="full">
             <Grid
-              key={spend.id}
-              _hover={{ bg: "primary.700" }}
-              alignItems="center"
-              as="form"
-              borderBlockEnd="1px solid black"
+              borderBlockEnd="1px solid"
               borderColor="primary.600"
-              borderRadius="15px"
-              className="tableRow"
-              paddingBlock={4}
+              marginBlockEnd={2}
+              paddingBlockEnd={2}
               paddingInline={2}
               templateColumns="repeat(12, 1fr)"
             >
-              <>
-                <GridItem colSpan={7}>{spend.description}</GridItem>
-                <GridItem colSpan={2} textAlign="center">
+              <GridItem colSpan={6} color="gray.500" fontWeight="600">
+                Descripcion
+              </GridItem>
+              <GridItem colSpan={3} color="gray.500" fontWeight="600" textAlign="center">
+                Gasto
+              </GridItem>
+              <GridItem colSpan={2} color="gray.500" fontWeight="600" textAlign="center">
+                Cuota
+              </GridItem>
+            </Grid>
+            {currentPeriod?.spends.map((spend: Spend) => (
+              <Grid
+                key={spend.id}
+                _hover={{ bg: "primary.700" }}
+                alignItems="center"
+                as="form"
+                borderBlockEnd="1px solid black"
+                borderColor="primary.600"
+                borderRadius="15px"
+                className="tableRow"
+                paddingBlock={4}
+                paddingInline={2}
+                templateColumns="repeat(12, 1fr)"
+              >
+                <GridItem colSpan={6}>{spend.description}</GridItem>
+                <GridItem colSpan={3} textAlign="center">
                   <Stack align="center">
                     <Text textAlign="center">{moneyFormatter(spend.amount)}</Text>
                   </Stack>
@@ -461,9 +464,9 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
                     </Button>
                   </Stack>
                 </GridItem>
-              </>
-            </Grid>
-          ))}
+              </Grid>
+            ))}
+          </Stack>
         </Stack>
       </Box>
     </Container>
