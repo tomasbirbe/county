@@ -7,7 +7,6 @@ import { Portal } from "./Portal";
 
 interface Props {
   children: React.ReactNode;
-  isOpen: boolean;
   onClose?: () => void;
   type?: string;
   size?: string;
@@ -17,11 +16,7 @@ const AlertContainer = chakra(motion.div, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
 });
 
-export const Alert: React.FC<Props> = ({ children, isOpen, onClose }) => {
-  if (!isOpen) {
-    return <></>;
-  }
-
+export const Alert: React.FC<Props> = ({ children, onClose }) => {
   return (
     <Portal>
       <Overlay onClose={onClose} />

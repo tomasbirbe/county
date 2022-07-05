@@ -29,6 +29,7 @@ import { app } from "src/firebase/app";
 import dayjs from "dayjs";
 import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
 import { AiOutlineArrowRight } from "react-icons/ai";
+import { Modal } from "src/components/Modal";
 
 const db = getFirestore(app);
 let timer: string | number | NodeJS.Timeout | undefined;
@@ -49,23 +50,8 @@ export const FormStep = chakra(motion.div, {
 export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
-  const [newDescription, setNewDescription] = useState("");
-  const [newAmount, setNewAmount] = useState("");
-  const [newInstallments, setNewInstallments] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
-  const [isLastStep, setIsLastStep] = useState(false);
-  const [stepForm, setStepForm] = useState(1);
 
-  useEffect(() => {
-    if (stepForm === 3 && kindOfSpend === KindOfSpend.NOINSTALLMENTS) {
-      setIsLastStep(true);
-    } else if (stepForm === 4) {
-      setIsLastStep(true);
-    } else {
-      setIsLastStep(false);
-    }
-  }, [stepForm, kindOfSpend]);
+  const [showForm, setShowForm] = useState(false);
 
   function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value as KindOfSpend;
@@ -73,61 +59,52 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     setKindOfSpend(value);
   }
 
-  // function addSpend(event: React.FormEvent) {
-  //   event.preventDefault();
-  //   const {
-  //     description,
-  //     amount,
-  //     kind_of_spend: kind,
-  //     installments,
-  //   } = event.target as HTMLFormElement;
+  function addSpend(event: React.FormEvent) {
+    event.preventDefault();
+    const {
+      description,
+      amount,
+      kind_of_spend: kind,
+      installments,
+    } = event.target as HTMLFormElement;
 
-  //   const newSpend: Spend = {
-  //     id: v4(),
-  //     description: description.value,
-  //     amount: amount.value,
-  //     kind: kind.value,
-  //     totalInstallments:
-  //       kind.value !== KindOfSpend.INSTALLMENTS ? null : Number(installments?.value),
-  //     currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : 1,
-  //     created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-  //   };
+    const newSpend: Spend = {
+      id: v4(),
+      description: description.value,
+      amount: amount.value,
+      kind: kind.value,
+      totalInstallments:
+        kind.value !== KindOfSpend.INSTALLMENTS ? null : Number(installments?.value),
+      currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : 1,
+      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+    };
 
-  //   if (currentPeriod) {
-  //     setCurrentPeriod((prevPeriod) => {
-  //       if (prevPeriod) {
-  //         return {
-  //           ...prevPeriod,
-  //           spends: [...prevPeriod.spends, newSpend],
-  //         };
-  //       }
+    if (currentPeriod) {
+      setCurrentPeriod((prevPeriod) => {
+        if (prevPeriod) {
+          return {
+            ...prevPeriod,
+            spends: [...prevPeriod.spends, newSpend],
+          };
+        }
 
-  //       return null;
-  //     });
-  //     if (user?.email && currentPeriod) {
-  //       updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-  //         spends: arrayUnion(newSpend),
-  //       });
-  //     }
-  //   }
+        return null;
+      });
+      if (user?.email && currentPeriod) {
+        updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
+          spends: arrayUnion(newSpend),
+        });
+      }
+    }
 
-  //   description.value = "";
-  //   amount.value = "";
-  //   kind.value = KindOfSpend.NOINSTALLMENTS;
-  //   setKindOfSpend(KindOfSpend.NOINSTALLMENTS);
-  //   if (installments?.value) {
-  //     installments.value = "";
-  //   }
-  // }
-
-  function addSpend(e) {
-    e.preventDefault();
-    setIsAdded(true);
-    setNewDescription("");
-    setNewAmount("");
-    setNewInstallments(null);
+    description.value = "";
+    amount.value = "";
+    kind.value = KindOfSpend.NOINSTALLMENTS;
     setKindOfSpend(KindOfSpend.NOINSTALLMENTS);
-    setStepForm(1);
+    if (installments?.value) {
+      installments.value = "";
+    }
+    setShowForm(false);
   }
 
   function deleteSpend(spend: Spend) {
@@ -251,21 +228,12 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     return 0;
   }
 
-  function toggleForm() {
-    setShowForm((prevState) => !prevState);
+  function openForm() {
+    setShowForm(true);
   }
 
-  function nextStep(e) {
-    e.preventDefault();
-    if (stepForm >= 1 && stepForm < 4) {
-      setStepForm((prevState) => prevState + 1);
-    }
-  }
-
-  function previousStep() {
-    if (stepForm > 1) {
-      setStepForm((prevState) => prevState - 1);
-    }
+  function closeForm() {
+    setShowForm(false);
   }
 
   return (
@@ -288,100 +256,99 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
       </Stack>
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Stack align="center" position="relative">
+        <Stack align="center">
           <Button
             _active={{ bg: "secondary.900" }}
             _hover={{ bg: "secondary.500" }}
             bg="secondary.300"
+            marginBlockEnd={10}
             type="submit"
             variant="add"
+            onClick={openForm}
           >
             <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
             <Text color="white">Nuevo gasto</Text>
           </Button>
-          <Stack as="form" spacing={4}>
-            <Box>
-              <Stack as="label" htmlFor="description" spacing={2}>
-                <Text>Descripcion</Text>
-              </Stack>
-              <Input
-                autoFocus
-                required
-                name="description"
-                placeholder="Notebook"
-                value={newDescription}
-                width="280px"
-                onChange={(e) => setNewDescription(e.target.value)}
-              />
-            </Box>
-            <Box>
-              <Box as="label" htmlFor="amount">
-                <Text>Gasto</Text>
-              </Box>
+          {showForm && (
+            <Modal onClose={closeForm}>
+              <Stack as="form" spacing={8} onSubmit={addSpend}>
+                <Box>
+                  <Stack as="label" htmlFor="description" spacing={2}>
+                    <Text>Descripcion</Text>
+                  </Stack>
+                  <Input
+                    autoFocus
+                    required
+                    name="description"
+                    placeholder="Notebook"
+                    width="280px"
+                  />
+                </Box>
+                <Box>
+                  <Box as="label" htmlFor="amount">
+                    <Text>Gasto</Text>
+                  </Box>
 
-              <Input
-                autoFocus
-                required
-                min={1}
-                name="amount"
-                placeholder="50000"
-                step="0.01"
-                type="number"
-                value={newAmount}
-                width="200px"
-                onChange={(e) => setNewAmount(e.target.value)}
-              />
-            </Box>
-            <Stack direction="row">
-              <Box>
-                <Stack as="label" htmlFor="kind_of_spend">
-                  <Text>Tipo de compra</Text>
-                </Stack>
-                <Select
-                  autoFocus
-                  border="1px solid"
-                  borderColor="primary.900"
-                  height="42px"
-                  name="kind_of_spend"
-                  width="200px"
-                  onChange={handleSelect}
-                >
-                  <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
-                  <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
-                </Select>
-              </Box>
-              <Box>
-                {kindOfSpend === KindOfSpend.INSTALLMENTS && (
-                  <>
-                    <Stack align="center" as="label" htmlFor="installments" spacing={2}>
-                      <Text>Cuotas</Text>
+                  <Input
+                    required
+                    min={1}
+                    name="amount"
+                    placeholder="50000"
+                    step="0.01"
+                    type="number"
+                    width="200px"
+                  />
+                </Box>
+                <Stack direction="row">
+                  <Box>
+                    <Stack as="label" htmlFor="kind_of_spend">
+                      <Text>Tipo de compra</Text>
                     </Stack>
-                    <Input
-                      autoFocus
-                      required
-                      min={0}
-                      name="installments"
-                      placeholder="1"
-                      textAlign="center"
-                      type="number"
-                      width="70px"
-                      onChange={(e) => setNewInstallments(e.target.value)}
-                    />
-                  </>
-                )}
-              </Box>
-            </Stack>
-            <Button
-              _active={{ bg: "secondary.900" }}
-              _focus={{}}
-              _hover={{ bg: "secondary.500" }}
-              bg="secondary.300"
-              color="white"
-              fontWeight="regular"
-            >
-              Agregar
-            </Button>
-          </Stack>
+                    <Select
+                      border="1px solid"
+                      borderColor="primary.900"
+                      height="42px"
+                      name="kind_of_spend"
+                      width="200px"
+                      onChange={handleSelect}
+                    >
+                      <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
+                      <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
+                    </Select>
+                  </Box>
+                  <Box>
+                    {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+                      <>
+                        <Stack align="center" as="label" htmlFor="installments" spacing={2}>
+                          <Text>Cuotas</Text>
+                        </Stack>
+                        <Input
+                          required
+                          min={0}
+                          name="installments"
+                          placeholder="1"
+                          textAlign="center"
+                          type="number"
+                          width="70px"
+                        />
+                      </>
+                    )}
+                  </Box>
+                </Stack>
+                <Button
+                  _active={{ bg: "secondary.900" }}
+                  _focus={{}}
+                  _hover={{ bg: "secondary.500" }}
+                  bg="secondary.300"
+                  color="white"
+                  fontWeight="regular"
+                  type="submit"
+                >
+                  Agregar
+                </Button>
+              </Stack>
+            </Modal>
+          )}
         </Stack>
         <Stack direction="row" spacing={10}>
           <Stack spacing={0} width="full">

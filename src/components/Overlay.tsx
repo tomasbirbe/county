@@ -9,11 +9,12 @@ export const Overlay: React.FC<Props> = ({ onClose }) => {
   return (
     <Box
       bg="blackAlpha.300"
-      height="100vh"
+      height="full"
       left="0"
       position="absolute"
       top="0"
-      width="100vw"
+      width="full"
+      zIndex={1}
       onClick={onClose}
     />
   );

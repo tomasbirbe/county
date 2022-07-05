@@ -123,24 +123,26 @@ export const Login: React.FC = () => {
           </Box>
         </Stack>
       </Stack>
-      <Alert isOpen={isAlertOpen} onClose={closeAlert}>
-        <Stack
-          height="full"
-          justify="space-between"
-          paddingBlockEnd={4}
-          paddingBlockStart={2}
-          paddingInline={6}
-        >
-          <Text>
-            La cuenta a la que estas intentado acceder fue bloqueada temporalmente debido a varios
-            intentos fallidos
-          </Text>
-          <Text> Volve a intentarlo mas tarde</Text>
-          <Button type="button" variant="primary" onClick={closeAlert}>
-            Aceptar
-          </Button>
-        </Stack>
-      </Alert>
+      {isAlertOpen && (
+        <Alert onClose={closeAlert}>
+          <Stack
+            height="full"
+            justify="space-between"
+            paddingBlockEnd={4}
+            paddingBlockStart={2}
+            paddingInline={6}
+          >
+            <Text>
+              La cuenta a la que estas intentado acceder fue bloqueada temporalmente debido a varios
+              intentos fallidos
+            </Text>
+            <Text> Volve a intentarlo mas tarde</Text>
+            <Button type="button" variant="primary" onClick={closeAlert}>
+              Aceptar
+            </Button>
+          </Stack>
+        </Alert>
+      )}
     </Container>
   );
 };

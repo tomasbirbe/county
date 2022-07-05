@@ -90,7 +90,7 @@ export const Layout: React.FC<Props> = ({
 
   return (
     <>
-      <Stack align="center" as="nav" spacing={0} width="full">
+      <Stack align="center" as="nav" bg="white" position="sticky" spacing={0} top="0" width="full">
         <Stack
           align="center"
           as="nav"
@@ -143,7 +143,6 @@ export const Layout: React.FC<Props> = ({
           position="fixed"
           top="50%"
           width="40px"
-          zIndex={2}
           onClick={togglePeriods}
         />
       )}
