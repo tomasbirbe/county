@@ -14,7 +14,7 @@ import { app } from "src/firebase/app";
 import { Saving, Period } from "src/types";
 import { isValidMotionProp, motion } from "framer-motion";
 import dayjs from "dayjs";
-import { Modal } from "src/components/Modal";
+import { FormModal } from "src/components/Modal";
 
 const db = getFirestore(app);
 
@@ -60,6 +60,8 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
 
     description.value = "";
     amount.value = "";
+
+    setShowForm(false);
   }
 
   function deleteSaving(saving: Saving) {
@@ -93,6 +95,14 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
     return 0;
   }
 
+  function openForm() {
+    setShowForm(true);
+  }
+
+  function closeForm() {
+    setShowForm(false);
+  }
+
   return (
     <Container
       key={currentPeriod?.id}
@@ -112,43 +122,46 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
       </Stack>
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Button
-          _active={{ bg: "secondary.900" }}
-          _hover={{ bg: "secondary.500" }}
-          bg="secondary.300"
-          marginBlockEnd={10}
-          type="submit"
-          variant="add"
-          onClick={openForm}
-        >
-          <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
-          <Text color="white">Nuevo ahorro </Text>
-        </Button>
-        {showForm && (
-          <Modal>
-            <Stack
-              align="flex-start"
-              as="form"
-              direction="row"
-              justify="space-around"
-              onSubmit={addSaving}
-            >
-              <Stack as="label" htmlFor="description" spacing={2}>
-                <Text>Descripcion</Text>
-                <Input autoFocus name="description" placeholder="Notebook" width="400px" />
-              </Stack>
-              <Stack as="label" htmlFor="amount" spacing={2}>
-                <Text>Ahorro</Text>
-                <Input name="amount" placeholder="50000" type="number" width="70px" />
-              </Stack>
+        <Stack align="center">
+          <Button
+            _active={{ bg: "secondary.900" }}
+            _hover={{ bg: "secondary.500" }}
+            bg="secondary.300"
+            marginBlockEnd={10}
+            type="submit"
+            variant="add"
+            onClick={openForm}
+          >
+            <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+            <Text color="white">Nuevo ahorro </Text>
+          </Button>
+          {showForm && (
+            <FormModal title="Agrega un nuevo ahorro!" onClose={closeForm}>
+              <Stack as="form" spacing={8} onSubmit={addSaving}>
+                <Stack as="label" htmlFor="description" spacing={2}>
+                  <Text>Descripcion</Text>
+                  <Input autoFocus name="description" placeholder="Notebook" width="280px" />
+                </Stack>
+                <Stack as="label" htmlFor="amount" spacing={2}>
+                  <Text>Ahorro</Text>
+                  <Input name="amount" placeholder="50000" type="number" width="200px" />
+                </Stack>
 
-              <Button alignSelf="flex-end" type="submit" variant="add">
-                <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />
-                <Text>Agregar ahorro</Text>
-              </Button>
-            </Stack>
-          </Modal>
-        )}
+                <Button
+                  _active={{ bg: "secondary.900" }}
+                  _focus={{}}
+                  _hover={{ bg: "secondary.500" }}
+                  bg="secondary.300"
+                  color="white"
+                  fontWeight="regular"
+                  type="submit"
+                >
+                  Agregar
+                </Button>
+              </Stack>
+            </FormModal>
+          )}
+        </Stack>
 
         <Stack spacing={0}>
           <Grid

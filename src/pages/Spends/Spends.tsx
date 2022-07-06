@@ -29,7 +29,7 @@ import { app } from "src/firebase/app";
 import dayjs from "dayjs";
 import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
 import { AiOutlineArrowRight } from "react-icons/ai";
-import { Modal } from "src/components/Modal";
+import { FormModal } from "src/components/Modal";
 
 const db = getFirestore(app);
 let timer: string | number | NodeJS.Timeout | undefined;
@@ -270,7 +270,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
             <Text color="white">Nuevo gasto</Text>
           </Button>
           {showForm && (
-            <Modal onClose={closeForm}>
+            <FormModal title="Agrega un nuevo gasto!" onClose={closeForm}>
               <Stack as="form" spacing={8} onSubmit={addSpend}>
                 <Box>
                   <Stack as="label" htmlFor="description" spacing={2}>
@@ -347,7 +347,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
                   Agregar
                 </Button>
               </Stack>
-            </Modal>
+            </FormModal>
           )}
         </Stack>
         <Stack direction="row" spacing={10}>

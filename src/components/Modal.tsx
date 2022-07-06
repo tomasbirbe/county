@@ -1,11 +1,12 @@
 import React from "react";
-import { chakra, Divider, Grid, Stack, Text } from "@chakra-ui/react";
+import { chakra, Divider, Grid, Text } from "@chakra-ui/react";
 import { isValidMotionProp, motion } from "framer-motion";
 import { Overlay } from "./Overlay";
 import { Portal } from "./Portal";
 
 interface Props {
   children: React.ReactNode;
+  title: string;
   onClose?: () => void;
 }
 
@@ -13,7 +14,7 @@ const ModalContainer = chakra(motion.div, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
 });
 
-export const Modal: React.FC<Props> = ({ children, onClose }) => {
+export const FormModal: React.FC<Props> = ({ children, onClose, title }) => {
   return (
     <Portal>
       <Grid height="full" left="0" placeItems="center" position="fixed" top="0" width="full">
@@ -32,10 +33,14 @@ export const Modal: React.FC<Props> = ({ children, onClose }) => {
           width="fit-content"
           zIndex={2}
         >
-          <Text fontSize={20} fontWeight="bold">
-            Agrega un gasto nuevo
-          </Text>
-          <Divider />
+          {title && (
+            <>
+              <Text fontSize={20} fontWeight="bold">
+                {title}
+              </Text>
+              <Divider />
+            </>
+          )}
           {children}
         </ModalContainer>
       </Grid>
