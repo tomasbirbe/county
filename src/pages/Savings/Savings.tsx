@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Stack, Img, Text, Box, Button, Input, Grid, GridItem, chakra } from "@chakra-ui/react";
 
 import SavingIcon from "/Icons/savings.svg";
@@ -14,6 +14,7 @@ import { app } from "src/firebase/app";
 import { Saving, Period } from "src/types";
 import { isValidMotionProp, motion } from "framer-motion";
 import dayjs from "dayjs";
+import { Modal } from "src/components/Modal";
 
 const db = getFirestore(app);
 
@@ -28,6 +29,7 @@ const Container = chakra(motion.div, {
 
 export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
+  const [showForm, setShowForm] = useState(false);
 
   function addSaving(event: React.FormEvent) {
     event.preventDefault();
@@ -110,29 +112,43 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
       </Stack>
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Stack marginInline="auto" paddingBlock={10} width="70%">
-          <Stack
-            align="flex-start"
-            as="form"
-            direction="row"
-            justify="space-around"
-            onSubmit={addSaving}
-          >
-            <Stack as="label" htmlFor="description" spacing={2}>
-              <Text>Descripcion</Text>
-              <Input autoFocus name="description" placeholder="Notebook" width="400px" />
-            </Stack>
-            <Stack as="label" htmlFor="amount" spacing={2}>
-              <Text>Ahorro</Text>
-              <Input name="amount" placeholder="50000" type="number" width="70px" />
-            </Stack>
+        <Button
+          _active={{ bg: "secondary.900" }}
+          _hover={{ bg: "secondary.500" }}
+          bg="secondary.300"
+          marginBlockEnd={10}
+          type="submit"
+          variant="add"
+          onClick={openForm}
+        >
+          <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+          <Text color="white">Nuevo ahorro </Text>
+        </Button>
+        {showForm && (
+          <Modal>
+            <Stack
+              align="flex-start"
+              as="form"
+              direction="row"
+              justify="space-around"
+              onSubmit={addSaving}
+            >
+              <Stack as="label" htmlFor="description" spacing={2}>
+                <Text>Descripcion</Text>
+                <Input autoFocus name="description" placeholder="Notebook" width="400px" />
+              </Stack>
+              <Stack as="label" htmlFor="amount" spacing={2}>
+                <Text>Ahorro</Text>
+                <Input name="amount" placeholder="50000" type="number" width="70px" />
+              </Stack>
 
-            <Button alignSelf="flex-end" type="submit" variant="add">
-              <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />
-              <Text>Agregar ahorro</Text>
-            </Button>
-          </Stack>
-        </Stack>
+              <Button alignSelf="flex-end" type="submit" variant="add">
+                <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />
+                <Text>Agregar ahorro</Text>
+              </Button>
+            </Stack>
+          </Modal>
+        )}
 
         <Stack spacing={0}>
           <Grid
@@ -155,7 +171,6 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
               key={saving.id}
               _hover={{ bg: "primary.700" }}
               alignItems="center"
-              as="form"
               borderBlockEnd="1px solid black"
               borderColor="primary.600"
               borderRadius="15px"
