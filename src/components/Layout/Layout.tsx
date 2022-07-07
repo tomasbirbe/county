@@ -26,6 +26,7 @@ import dayjs from "dayjs";
 import { v4 } from "uuid";
 import { Period } from "src/types";
 import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
+import { Portal } from "src/components/Portal";
 import { NavLink } from "./components/NavLink";
 
 interface Props {
@@ -130,108 +131,110 @@ export const Layout: React.FC<Props> = ({
           </>
         )}
       </Stack>
-      {currentPeriod && (
-        <IconButton
-          aria-label="Close side menu"
-          bg="white"
-          borderInlineEndRadius="full"
-          boxShadow="sm-white"
-          height="50px"
-          icon={<Icon as={BsCalendar} boxSize={5} marginInlineEnd={1} />}
-          left="0px"
-          minWidth="30px"
-          position="fixed"
-          top="50%"
-          width="40px"
-          onClick={togglePeriods}
-        />
-      )}
+      <Portal>
+        {currentPeriod && (
+          <IconButton
+            aria-label="Close side menu"
+            bg="white"
+            borderInlineEndRadius="full"
+            boxShadow="sm-white"
+            height="50px"
+            icon={<Icon as={BsCalendar} boxSize={5} marginInlineEnd={1} />}
+            left="0px"
+            minWidth="30px"
+            position="fixed"
+            top="50%"
+            width="40px"
+            onClick={togglePeriods}
+          />
+        )}
+      </Portal>
 
       {/* -------------------------------- Side menu ------------------------------- */}
+      <Portal>
+        <AnimatePresence>
+          {showPeriods && (
+            <SideMenu
+              animate={{ x: "0px" }}
+              bg="white"
+              boxShadow="sm-white"
+              exit={{ x: "-340px" }}
+              height="full"
+              initial={{ x: "-300px" }}
+              justifyContent="space-between"
+              left="0"
+              position="fixed"
+              top="0"
+              transition={{ ease: "easeInOut", duration: "0.3" }}
+              width="300px"
+            >
+              <Stack height="full" position="relative" spacing={0}>
+                <IconButton
+                  aria-label="Close side menu"
+                  bg="white"
+                  borderInlineEndRadius="full"
+                  boxShadow="sm-white"
+                  height="50px"
+                  icon={<Icon as={IoIosArrowBack} boxSize={5} marginInlineEnd={1} />}
+                  minWidth="30px"
+                  position="absolute"
+                  right="-40px"
+                  top="50%"
+                  width="40px"
+                  onClick={togglePeriods}
+                />
 
-      <AnimatePresence>
-        {showPeriods && (
-          <SideMenu
-            animate={{ x: "0px" }}
-            bg="white"
-            boxShadow="sm-white"
-            exit={{ x: "-340px" }}
-            height="full"
-            initial={{ x: "-300px" }}
-            justifyContent="space-between"
-            left="0"
-            position="fixed"
-            top="0"
-            transition={{ ease: "easeInOut", duration: "0.3" }}
-            width="300px"
-            zIndex={2}
-          >
-            <Stack height="full" position="relative" spacing={0}>
-              <IconButton
-                aria-label="Close side menu"
-                bg="white"
-                borderInlineEndRadius="full"
-                boxShadow="sm-white"
-                height="50px"
-                icon={<Icon as={IoIosArrowBack} boxSize={5} marginInlineEnd={1} />}
-                minWidth="30px"
-                position="absolute"
-                right="-40px"
-                top="50%"
-                width="40px"
-                onClick={togglePeriods}
-              />
-
-              <Stack align="center" height="full" paddingBlock={4} spacing={3}>
-                <Stack
-                  align="center"
-                  as="form"
-                  border="1px solid"
-                  borderColor="blackAlpha.400"
-                  borderRadius="4px"
-                  direction="row"
-                  width="90%"
-                  onSubmit={addPeriod}
-                >
-                  <Input border="none" id="periodInput" name="periodInput" placeholder="Abril" />
-                  <IconButton
-                    aria-label="Add new period"
-                    bg="transparent"
-                    height="30px"
-                    icon={<AiOutlinePlus />}
-                    minWidth="30px"
-                    type="submit"
-                  />
-                </Stack>
-                <Box bg="blackAlpha.400" height="1px" width="90%" />
-                <Stack
-                  align="center"
-                  as="ul"
-                  bg="transparent"
-                  height="full"
-                  overflow="auto"
-                  paddingInline={4}
-                  spacing={2}
-                  width="full"
-                >
-                  {county.map((period) => (
-                    <Button
-                      key={period.id}
-                      as="li"
+                <Stack align="center" height="full" paddingBlock={4} spacing={3}>
+                  <Stack
+                    align="center"
+                    as="form"
+                    border="1px solid"
+                    borderColor="blackAlpha.400"
+                    borderRadius="4px"
+                    direction="row"
+                    width="90%"
+                    onSubmit={addPeriod}
+                  >
+                    <Input border="none" id="periodInput" name="periodInput" placeholder="Abril" />
+                    <IconButton
+                      aria-label="Add new period"
                       bg="transparent"
-                      paddingBlock={4}
-                      width="90%"
-                      onClick={() => changePeriod(period)}
-                    >
-                      {period.name}
-                    </Button>
-                  ))}
+                      height="30px"
+                      icon={<AiOutlinePlus />}
+                      minWidth="30px"
+                      type="submit"
+                    />
+                  </Stack>
+                  <Box bg="blackAlpha.400" height="1px" width="90%" />
+                  <Stack
+                    align="center"
+                    as="ul"
+                    bg="transparent"
+                    height="full"
+                    overflow="auto"
+                    paddingInline={4}
+                    spacing={2}
+                    width="full"
+                  >
+                    {county.map((period) => (
+                      <Button
+                        key={period.id}
+                        as="li"
+                        bg="transparent"
+                        paddingBlock={4}
+                        width="90%"
+                        onClick={() => changePeriod(period)}
+                      >
+                        {period.name}
+                      </Button>
+                    ))}
+                  </Stack>
                 </Stack>
               </Stack>
-            </Stack>
-          </SideMenu>
-        )}
-      </AnimatePresence>
+            </SideMenu>
+          )}
+        </AnimatePresence>
+      </Portal>
       <Outlet />
     </>
   );

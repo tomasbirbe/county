@@ -183,7 +183,7 @@ export const Home: React.FC<Props> = ({
       position="relative"
       transition={{ ease: "easeInOut" }}
     >
-      <Stack position="absolute" right="20px" top="15px" zIndex={1}>
+      <Stack position="absolute" right="20px" top="15px">
         <IconButton
           aria-label="Delete period"
           bg="transparent"
