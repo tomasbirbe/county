@@ -163,47 +163,53 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
           )}
         </Stack>
 
-        <Stack spacing={0}>
-          <Grid
-            borderBlockEnd="1px solid"
-            borderColor="primary.600"
-            marginBlockEnd={2}
-            paddingBlockEnd={2}
-            paddingInline={2}
-            templateColumns="7fr 2fr 1fr"
-          >
-            <GridItem color="gray.500" fontWeight="600">
-              Descripcion
-            </GridItem>
-            <GridItem color="gray.500" fontWeight="600" textAlign="center">
-              Gasto
-            </GridItem>
-          </Grid>
-          {currentPeriod?.savings.map((saving: Saving) => (
+        {currentPeriod?.savings.length ? (
+          <Stack spacing={0}>
             <Grid
-              key={saving.id}
-              _hover={{ bg: "primary.700" }}
-              alignItems="center"
-              borderBlockEnd="1px solid black"
+              borderBlockEnd="1px solid"
               borderColor="primary.600"
-              borderRadius="15px"
-              className="tableRow"
-              paddingBlock={4}
+              marginBlockEnd={2}
+              paddingBlockEnd={2}
               paddingInline={2}
-              templateColumns="7fr 2fr 1fr "
+              templateColumns="7fr 2fr 1fr"
             >
-              <>
-                <GridItem>{saving.description}</GridItem>
-                <GridItem textAlign="center">{moneyFormatter(saving.amount)}</GridItem>
-                <GridItem className="deleteButton" justifySelf="center">
-                  <Button variant="icon" onClick={() => deleteSaving(saving)}>
-                    <Img height="25px" src={DeleteIcon} width="25px" />
-                  </Button>
-                </GridItem>
-              </>
+              <GridItem color="gray.500" fontWeight="600">
+                Descripcion
+              </GridItem>
+              <GridItem color="gray.500" fontWeight="600" textAlign="center">
+                Gasto
+              </GridItem>
             </Grid>
-          ))}
-        </Stack>
+            {currentPeriod?.savings.map((saving: Saving) => (
+              <Grid
+                key={saving.id}
+                _hover={{ bg: "primary.700" }}
+                alignItems="center"
+                borderBlockEnd="1px solid black"
+                borderColor="primary.600"
+                borderRadius="15px"
+                className="tableRow"
+                paddingBlock={4}
+                paddingInline={2}
+                templateColumns="7fr 2fr 1fr "
+              >
+                <>
+                  <GridItem>{saving.description}</GridItem>
+                  <GridItem textAlign="center">{moneyFormatter(saving.amount)}</GridItem>
+                  <GridItem className="deleteButton" justifySelf="center">
+                    <Button variant="icon" onClick={() => deleteSaving(saving)}>
+                      <Img height="25px" src={DeleteIcon} width="25px" />
+                    </Button>
+                  </GridItem>
+                </>
+              </Grid>
+            ))}
+          </Stack>
+        ) : (
+          <Stack align="center" paddingBlockStart={6} width="full">
+            <Text>Todavia no tenes ningun ahorro. Probá crear uno nuevo!</Text>
+          </Stack>
+        )}
       </Box>
     </Container>
   );

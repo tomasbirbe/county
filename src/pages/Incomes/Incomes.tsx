@@ -157,49 +157,54 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
             </FormModal>
           )}
         </Stack>
-
-        <Stack spacing={0}>
-          <Grid
-            borderBlockEnd="1px solid"
-            borderColor="primary.600"
-            marginBlockEnd={2}
-            paddingBlockEnd={2}
-            paddingInline={2}
-            templateColumns="7fr 2fr 1fr"
-          >
-            <GridItem color="gray.500" fontWeight="600">
-              Descripcion
-            </GridItem>
-            <GridItem color="gray.500" fontWeight="600" textAlign="center">
-              Gasto
-            </GridItem>
-          </Grid>
-          {currentPeriod?.incomes.map((income: Income) => (
+        {currentPeriod?.incomes.length ? (
+          <Stack spacing={0}>
             <Grid
-              key={income.id}
-              _hover={{ bg: "primary.700" }}
-              alignItems="center"
-              as="form"
-              borderBlockEnd="1px solid black"
+              borderBlockEnd="1px solid"
               borderColor="primary.600"
-              borderRadius="15px"
-              className="tableRow"
-              paddingBlock={4}
+              marginBlockEnd={2}
+              paddingBlockEnd={2}
               paddingInline={2}
-              templateColumns="7fr 2fr 1fr "
+              templateColumns="7fr 2fr 1fr"
             >
-              <>
-                <GridItem>{income.description}</GridItem>
-                <GridItem textAlign="center">{moneyFormatter(income.amount)}</GridItem>
-                <GridItem className="deleteButton" justifySelf="center">
-                  <Button variant="icon" onClick={() => deleteIncome(income)}>
-                    <Img height="25px" src={DeleteIcon} width="25px" />
-                  </Button>
-                </GridItem>
-              </>
+              <GridItem color="gray.500" fontWeight="600">
+                Descripcion
+              </GridItem>
+              <GridItem color="gray.500" fontWeight="600" textAlign="center">
+                Gasto
+              </GridItem>
             </Grid>
-          ))}
-        </Stack>
+            {currentPeriod?.incomes.map((income: Income) => (
+              <Grid
+                key={income.id}
+                _hover={{ bg: "primary.700" }}
+                alignItems="center"
+                as="form"
+                borderBlockEnd="1px solid black"
+                borderColor="primary.600"
+                borderRadius="15px"
+                className="tableRow"
+                paddingBlock={4}
+                paddingInline={2}
+                templateColumns="7fr 2fr 1fr "
+              >
+                <>
+                  <GridItem>{income.description}</GridItem>
+                  <GridItem textAlign="center">{moneyFormatter(income.amount)}</GridItem>
+                  <GridItem className="deleteButton" justifySelf="center">
+                    <Button variant="icon" onClick={() => deleteIncome(income)}>
+                      <Img height="25px" src={DeleteIcon} width="25px" />
+                    </Button>
+                  </GridItem>
+                </>
+              </Grid>
+            ))}
+          </Stack>
+        ) : (
+          <Stack align="center" paddingBlockStart={6} width="full">
+            <Text>Todavia no tenes ningun ingreso. Probá crear uno nuevo!</Text>
+          </Stack>
+        )}
       </Box>
     </Container>
   );
