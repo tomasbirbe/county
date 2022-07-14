@@ -121,47 +121,46 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
         <Box bg="saving" height="1px" width="40%" />
       </Stack>
 
-      <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Stack align="center">
-          <Button
-            _active={{ bg: "secondary.900" }}
-            _hover={{ bg: "secondary.500" }}
-            bg="secondary.300"
-            marginBlockEnd={10}
-            type="submit"
-            variant="add"
-            onClick={openForm}
-          >
-            <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
-            <Text color="white">Nuevo ahorro </Text>
-          </Button>
-          {showForm && (
-            <FormModal title="Agrega un nuevo ahorro!" onClose={closeForm}>
-              <Stack as="form" spacing={8} onSubmit={addSaving}>
-                <Stack as="label" htmlFor="description" spacing={2}>
-                  <Text>Descripcion</Text>
-                  <Input autoFocus name="description" placeholder="Notebook" width="280px" />
-                </Stack>
-                <Stack as="label" htmlFor="amount" spacing={2}>
-                  <Text>Ahorro</Text>
-                  <Input name="amount" placeholder="50000" type="number" width="200px" />
-                </Stack>
+      <Stack align="center" justify="center" paddingBlock={6} position="sticky" top="-5px">
+        <Button
+          _active={{ bg: "secondary.900" }}
+          _hover={{ bg: "secondary.500" }}
+          bg="secondary.300"
+          type="submit"
+          onClick={openForm}
+        >
+          <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+          <Text color="white">Nuevo ahorro </Text>
+        </Button>
+      </Stack>
 
-                <Button
-                  _active={{ bg: "secondary.900" }}
-                  _focus={{}}
-                  _hover={{ bg: "secondary.500" }}
-                  bg="secondary.300"
-                  color="white"
-                  fontWeight="regular"
-                  type="submit"
-                >
-                  Agregar
-                </Button>
+      <Box marginInline="auto" paddingBlockStart={8} width="80%">
+        {showForm && (
+          <FormModal title="Agrega un nuevo ahorro!" onClose={closeForm}>
+            <Stack as="form" spacing={8} onSubmit={addSaving}>
+              <Stack as="label" htmlFor="description" spacing={2}>
+                <Text>Descripcion</Text>
+                <Input autoFocus name="description" placeholder="Notebook" width="280px" />
               </Stack>
-            </FormModal>
-          )}
-        </Stack>
+              <Stack as="label" htmlFor="amount" spacing={2}>
+                <Text>Ahorro</Text>
+                <Input name="amount" placeholder="50000" type="number" width="200px" />
+              </Stack>
+
+              <Button
+                _active={{ bg: "secondary.900" }}
+                _focus={{}}
+                _hover={{ bg: "secondary.500" }}
+                bg="secondary.300"
+                color="white"
+                fontWeight="regular"
+                type="submit"
+              >
+                Agregar
+              </Button>
+            </Stack>
+          </FormModal>
+        )}
 
         {currentPeriod?.savings.length ? (
           <Stack spacing={0}>

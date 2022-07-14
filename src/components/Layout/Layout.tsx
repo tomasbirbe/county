@@ -91,10 +91,9 @@ export const Layout: React.FC<Props> = ({
 
   return (
     <>
-      <Stack align="center" as="nav" bg="white" position="sticky" spacing={0} top="0" width="full">
+      <Stack align="center" as="nav" bg="white" spacing={0} width="full">
         <Stack
           align="center"
-          as="nav"
           direction="row"
           height="70px"
           justify="space-between"

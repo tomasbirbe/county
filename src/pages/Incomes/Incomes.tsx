@@ -116,20 +116,22 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
         </Stack>
         <Box bg="income" height="1px" width="40%" />
       </Stack>
+
+      <Stack align="center" justify="center" paddingBlock={6} position="sticky" top="-5px">
+        <Button
+          _active={{ bg: "secondary.900" }}
+          _hover={{ bg: "secondary.500" }}
+          bg="secondary.300"
+          type="submit"
+          onClick={openForm}
+        >
+          <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+          <Text color="white">Nuevo ingreso </Text>
+        </Button>
+      </Stack>
+
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
         <Stack align="center">
-          <Button
-            _active={{ bg: "secondary.900" }}
-            _hover={{ bg: "secondary.500" }}
-            bg="secondary.300"
-            marginBlockEnd={10}
-            type="submit"
-            variant="add"
-            onClick={openForm}
-          >
-            <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
-            <Text color="white">Nuevo ingreso </Text>
-          </Button>
           {showForm && (
             <FormModal title="Agrega un nuevo ingreso!" onClose={closeForm}>
               <Stack as="form" spacing={8} onSubmit={addIncome}>

@@ -242,8 +242,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
       animate={{ y: 0, opacity: 1 }}
       initial={{ y: "10px", opacity: 0 }}
       maxWidth="full"
-      paddingBlockEnd={4}
-      paddingBlockStart={6}
+      paddingBlock={6}
       paddingX={0}
       transition={{ ease: "easeInOut" }}
     >
@@ -254,102 +253,94 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
         </Stack>
         <Box bg="spend" height="1px" width="40%" />
       </Stack>
+      <Stack align="center" justify="center" paddingBlock={6} position="sticky" top="-5px">
+        <Button
+          _active={{ bg: "secondary.900" }}
+          _hover={{ bg: "secondary.500" }}
+          bg="secondary.300"
+          type="submit"
+          onClick={openForm}
+        >
+          <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
+          <Text color="white">Nuevo gasto</Text>
+        </Button>
+      </Stack>
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
-        <Stack align="center">
-          <Button
-            _active={{ bg: "secondary.900" }}
-            _hover={{ bg: "secondary.500" }}
-            bg="secondary.300"
-            marginBlockEnd={10}
-            type="submit"
-            variant="add"
-            onClick={openForm}
-          >
-            <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
-            <Text color="white">Nuevo gasto</Text>
-          </Button>
-          {showForm && (
-            <FormModal title="Agrega un nuevo gasto!" onClose={closeForm}>
-              <Stack as="form" spacing={8} onSubmit={addSpend}>
-                <Box>
-                  <Stack as="label" htmlFor="description" spacing={2}>
-                    <Text>Descripcion</Text>
-                  </Stack>
-                  <Input
-                    autoFocus
-                    required
-                    name="description"
-                    placeholder="Notebook"
-                    width="280px"
-                  />
-                </Box>
-                <Box>
-                  <Box as="label" htmlFor="amount">
-                    <Text>Gasto</Text>
-                  </Box>
-
-                  <Input
-                    required
-                    min={1}
-                    name="amount"
-                    placeholder="50000"
-                    step="0.01"
-                    type="number"
-                    width="200px"
-                  />
-                </Box>
-                <Stack direction="row">
-                  <Box>
-                    <Stack as="label" htmlFor="kind_of_spend">
-                      <Text>Tipo de compra</Text>
-                    </Stack>
-                    <Select
-                      border="1px solid"
-                      borderColor="primary.900"
-                      height="42px"
-                      name="kind_of_spend"
-                      width="200px"
-                      onChange={handleSelect}
-                    >
-                      <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
-                      <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
-                    </Select>
-                  </Box>
-                  <Box>
-                    {kindOfSpend === KindOfSpend.INSTALLMENTS && (
-                      <>
-                        <Stack align="center" as="label" htmlFor="installments" spacing={2}>
-                          <Text>Cuotas</Text>
-                        </Stack>
-                        <Input
-                          required
-                          min={0}
-                          name="installments"
-                          placeholder="1"
-                          textAlign="center"
-                          type="number"
-                          width="70px"
-                        />
-                      </>
-                    )}
-                  </Box>
+        {showForm && (
+          <FormModal title="Agrega un nuevo gasto!" onClose={closeForm}>
+            <Stack as="form" spacing={8} onSubmit={addSpend}>
+              <Box>
+                <Stack as="label" htmlFor="description" spacing={2}>
+                  <Text>Descripcion</Text>
                 </Stack>
-                <Button
-                  _active={{ bg: "secondary.900" }}
-                  _focus={{}}
-                  _hover={{ bg: "secondary.500" }}
-                  bg="secondary.300"
-                  color="white"
-                  fontWeight="regular"
-                  type="submit"
-                >
-                  Agregar
-                </Button>
+                <Input autoFocus required name="description" placeholder="Notebook" width="280px" />
+              </Box>
+              <Box>
+                <Box as="label" htmlFor="amount">
+                  <Text>Gasto</Text>
+                </Box>
+
+                <Input
+                  required
+                  min={1}
+                  name="amount"
+                  placeholder="50000"
+                  step="0.01"
+                  type="number"
+                  width="200px"
+                />
+              </Box>
+              <Stack direction="row">
+                <Box>
+                  <Stack as="label" htmlFor="kind_of_spend">
+                    <Text>Tipo de compra</Text>
+                  </Stack>
+                  <Select
+                    border="1px solid"
+                    borderColor="primary.900"
+                    height="42px"
+                    name="kind_of_spend"
+                    width="200px"
+                    onChange={handleSelect}
+                  >
+                    <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
+                    <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
+                  </Select>
+                </Box>
+                <Box>
+                  {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+                    <>
+                      <Stack align="center" as="label" htmlFor="installments" spacing={2}>
+                        <Text>Cuotas</Text>
+                      </Stack>
+                      <Input
+                        required
+                        min={0}
+                        name="installments"
+                        placeholder="1"
+                        textAlign="center"
+                        type="number"
+                        width="70px"
+                      />
+                    </>
+                  )}
+                </Box>
               </Stack>
-            </FormModal>
-          )}
-        </Stack>
+              <Button
+                _active={{ bg: "secondary.900" }}
+                _focus={{}}
+                _hover={{ bg: "secondary.500" }}
+                bg="secondary.300"
+                color="white"
+                fontWeight="regular"
+                type="submit"
+              >
+                Agregar
+              </Button>
+            </Stack>
+          </FormModal>
+        )}
         {currentPeriod?.spends.length ? (
           <Stack direction="row" spacing={10}>
             <Stack spacing={0} width="full">
