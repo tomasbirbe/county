@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { auth } from "src/firebase/app";
 import { collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { Loader } from "src/pages/Loader";
-import { AnimatePresence } from "framer-motion";
 import { useAuthContext } from "./context/authContext";
 
 // Pages
@@ -13,6 +12,7 @@ import { Spends } from "./pages/Spends";
 import { Savings } from "./pages/Savings";
 import { Incomes } from "./pages/Incomes";
 import { Login } from "./pages/Login";
+import { Register } from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 import { Layout } from "./components/Layout";
@@ -171,6 +171,8 @@ export const App: React.FC = () => {
           path="*"
         />
       </Route>
+
+      <Route element={isLogged ? <Navigate to="/" /> : <Register />} path="register" />
       <Route element={isLogged ? <Navigate to="/" /> : <Login />} path="login" />
     </Routes>
   );

@@ -5,20 +5,21 @@ import { PuffLoader } from "react-spinners";
 import { Alert } from "src/components/Alert";
 // Chakra ui
 
-import { Box, Button, Container, Input, Link, Stack, Text } from "@chakra-ui/react";
+import { Button, Container, Input, Stack, Text } from "@chakra-ui/react";
 
 // Firebase
 
 import { auth } from "src/firebase/app";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
-export const Login: React.FC = () => {
+export const Register: React.FC = () => {
   const { setUser } = useAuthContext();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [passwordConfirmError, setPasswordConfirmError] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   function logIn(event: React.FormEvent) {
@@ -29,7 +30,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     const { emailInput, passwordInput } = event.target as HTMLFormElement;
 
-    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+    createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
       .then((userCredentials) => {
         setIsLoading(false);
         setUser(userCredentials.user);
@@ -37,23 +38,17 @@ export const Login: React.FC = () => {
       })
       .catch((error) => {
         setIsLoading(false);
+        console.log(error);
         const msg = error.message as string;
 
-        if (msg.includes("invalid-email") || msg.includes("user-not-found")) {
+        if (msg.includes("invalid-email")) {
           setEmailError(true);
-          setErrorMessage("El correo electronico es incorrecto");
+          setErrorMessage("El correo electronico es invalido");
         }
 
-        if (msg.includes("wrong-password")) {
-          setPasswordError(true);
-          setErrorMessage("La contraseña es incorrecta");
-        }
-
-        if (msg.includes("too-many-request")) {
-          setIsAlertOpen(true);
-          setErrorMessage(
-            "La cuenta a la que estas intentado acceder fue bloqueada temporalmente por la cantidad de intentos de acceso fallidos",
-          );
+        if (msg.includes("email-already-in-use")) {
+          setEmailError(true);
+          setErrorMessage("El correo electronico es invalido");
         }
       });
   }
@@ -65,7 +60,7 @@ export const Login: React.FC = () => {
   return (
     <Container centerContent height="full" maxWidth="full" paddingBlockStart={20} paddingX={0}>
       <Text alignSelf="center" marginBlockEnd={8} variant="h1/2">
-        County
+        Únete!
       </Text>
       <Stack
         as="form"
@@ -76,12 +71,12 @@ export const Login: React.FC = () => {
         onSubmit={logIn}
       >
         <Stack as="label" htmlFor="emailInput" spacing={2}>
-          <Text>Email</Text>
+          <Text>Correo electronico</Text>
           <Input
             id="emailInput"
             minLength={3}
             placeholder="county@gmail.com"
-            type="email"
+            // type="email"
             variant={emailError ? "invalid" : "base"}
           />
           {emailError && (
@@ -91,7 +86,7 @@ export const Login: React.FC = () => {
           )}
         </Stack>
         <Stack as="label" htmlFor="passwordInput">
-          <Text>Password</Text>
+          <Text>Clave</Text>
           <Input
             id="passwordInput"
             minLength={6}
@@ -105,22 +100,28 @@ export const Login: React.FC = () => {
             </Text>
           )}
         </Stack>
+        <Stack as="label" htmlFor="passwordConfirmInput">
+          <Text>Confirmar clave</Text>
+          <Input
+            id="passwordConfirmInput"
+            minLength={6}
+            placeholder="*******"
+            type="password"
+            variant={passwordConfirmError ? "invalid" : "base"}
+          />
+          {passwordConfirmError && (
+            <Text color="red.600" fontSize={14} lineHeight={1}>
+              {errorMessage}
+            </Text>
+          )}
+        </Stack>
         <Stack spacing={2}>
           <Button type="submit" variant="primary">
-            {isLoading ? <PuffLoader color="white" size={70} /> : "Entrar"}
+            {isLoading ? <PuffLoader color="white" size={70} /> : "Crear cuenta!"}
           </Button>
-          <Button as="a" cursor="pointer" href="register" variant="secondary">
-            Registrate!
+          <Button type="button" variant="secondary">
+            Volver
           </Button>
-
-          <Box textAlign="center">
-            <Text display="inline" fontSize={14}>
-              Did you forget your password? Try with
-            </Text>
-            <Link color="blue.500" fontSize={14} paddingInlineStart={1}>
-              recover your password
-            </Link>
-          </Box>
         </Stack>
       </Stack>
       {isAlertOpen && (
