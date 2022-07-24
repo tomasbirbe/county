@@ -38,7 +38,6 @@ export const Register: React.FC = () => {
       })
       .catch((error) => {
         setIsLoading(false);
-        console.log(error);
         const msg = error.message as string;
 
         if (msg.includes("invalid-email")) {

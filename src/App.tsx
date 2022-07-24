@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { auth } from "src/firebase/app";
 import { collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { Loader } from "src/pages/Loader";
@@ -50,6 +50,7 @@ export const App: React.FC = () => {
           setIsLoading(false);
         });
       } else {
+        setIsLogged(false);
         setIsLoading(false);
       }
     });

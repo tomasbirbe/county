@@ -6,6 +6,7 @@ import SavingsIcon from "/Icons/savings.svg";
 import ArrowDownIcon from "/Icons/arrow-down.svg";
 
 import { AiFillDelete, AiOutlinePlus } from "react-icons/ai";
+import { BiExit } from "react-icons/bi";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 import { useAuthContext } from "src/context/authContext";
@@ -24,7 +25,8 @@ import { app } from "src/firebase/app";
 import { isValidMotionProp, motion } from "framer-motion";
 import { v4 } from "uuid";
 import dayjs from "dayjs";
-
+import { auth } from "src/firebase/app";
+import { useNavigate } from "react-router-dom";
 interface Props {
   spends: Spend[] | undefined;
   incomes: Income[] | undefined;
@@ -50,7 +52,8 @@ export const Home: React.FC<Props> = ({
   currentPeriod,
   setCurrentPeriod,
 }) => {
-  const { user } = useAuthContext();
+  const { user, setUser } = useAuthContext();
+  const navigate = useNavigate();
 
   function totalSpends() {
     if (spends) {
@@ -116,6 +119,12 @@ export const Home: React.FC<Props> = ({
       setCurrentPeriod(newPeriod);
       setDoc(docRef, newPeriod);
     }
+  }
+
+  function signOut() {
+    auth.signOut().then(() => {
+      setUser(null);
+    });
   }
 
   if (!currentPeriod) {
@@ -191,6 +200,14 @@ export const Home: React.FC<Props> = ({
           icon={<Icon as={AiFillDelete} boxSize={8} color="blackAlpha.600" />}
           width="50px"
           onClick={deletePeriod}
+        />
+        <IconButton
+          aria-label="Delete period"
+          bg="transparent"
+          height="50px"
+          icon={<Icon as={BiExit} boxSize={8} color="blackAlpha.600" />}
+          width="50px"
+          onClick={signOut}
         />
       </Stack>
       <Stack as="header" height="full">
