@@ -1,14 +1,8 @@
 import React from "react";
-import { Box, chakra, Icon, IconButton, Img, Input, Stack, Text } from "@chakra-ui/react";
-
-import ArrowUpIcon from "/Icons/arrow-up.svg";
-import SavingsIcon from "/Icons/savings.svg";
-import ArrowDownIcon from "/Icons/arrow-down.svg";
-
-import { AiFillDelete, AiOutlinePlus } from "react-icons/ai";
+import { Box, Icon, IconButton, Stack } from "@chakra-ui/react";
+import { AiFillDelete } from "react-icons/ai";
 import { BiExit } from "react-icons/bi";
 
-import moneyFormatter from "src/utils/moneyFormatter";
 import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend, Period } from "src/types";
 import {
@@ -22,11 +16,18 @@ import {
   where,
 } from "firebase/firestore";
 import { app } from "src/firebase/app";
-import { isValidMotionProp, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import dayjs from "dayjs";
 import { auth } from "src/firebase/app";
-import { useNavigate } from "react-router-dom";
+import { Container } from "./components/Container";
+
+/* ------------------------------- Components ------------------------------- */
+
+import { FirstTime } from "./components/FirstTime";
+import { SpendsSummary } from "./components/SpendsSummary";
+import { SavingsSummary } from "./components/SavingsSummary";
+import { IncomesSummary } from "./components/IncomesSummary";
 interface Props {
   spends: Spend[] | undefined;
   incomes: Income[] | undefined;
@@ -36,10 +37,6 @@ interface Props {
   currentPeriod: Period | null;
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
 }
-
-const Container = chakra(motion.main, {
-  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
-});
 
 const db = getFirestore(app);
 
@@ -53,7 +50,6 @@ export const Home: React.FC<Props> = ({
   setCurrentPeriod,
 }) => {
   const { user, setUser } = useAuthContext();
-  const navigate = useNavigate();
 
   function totalSpends() {
     if (spends) {
@@ -98,7 +94,7 @@ export const Home: React.FC<Props> = ({
     }
   }
 
-  function addPeriod(event: React.FormEvent) {
+  function addPeriod(event: React.FormEvent): void {
     event.preventDefault();
     const { periodInput } = event.target as HTMLFormElement;
 
@@ -128,54 +124,7 @@ export const Home: React.FC<Props> = ({
   }
 
   if (!currentPeriod) {
-    return (
-      <Container
-        animate={{ y: 0, opacity: 1 }}
-        height="calc(100% - 81px)"
-        initial={{ y: "10px", opacity: 0 }}
-        maxWidth="full"
-        paddingBlockStart={10}
-        paddingX={0}
-        position="relative"
-        transition={{ ease: "easeInOut" }}
-      >
-        <Stack
-          align="center"
-          height="full"
-          justify="center"
-          margin="auto"
-          spacing={6}
-          textAlign="center"
-          width="500px"
-        >
-          <Text fontSize={40} fontWeight="bold" lineHeight={0.5}>
-            Hola!
-          </Text>
-          <Text>Probá crear una nueva hoja para utilizar County</Text>
-          <Stack
-            align="center"
-            as="form"
-            border="1px solid"
-            borderColor="blackAlpha.400"
-            borderRadius="4px"
-            direction="row"
-            paddingInline={1}
-            width="40%"
-            onSubmit={addPeriod}
-          >
-            <Input border="none" name="periodInput" placeholder="Abril" />
-            <IconButton
-              aria-label="Add new period"
-              bg="transparent"
-              height="30px"
-              icon={<AiOutlinePlus />}
-              minWidth="30px"
-              type="submit"
-            />
-          </Stack>
-        </Stack>
-      </Container>
-    );
+    return <FirstTime addPeriod={addPeriod} />;
   }
 
   return (
@@ -211,36 +160,12 @@ export const Home: React.FC<Props> = ({
         />
       </Stack>
       <Stack as="header" height="full">
-        <Stack align="center" as="article" height="40%" justify="center" spacing={0} width="full">
-          <Text variant="h3">Gastos</Text>
-          <Stack align="center" direction="row" position="relative">
-            <Img height="55px" position="absolute" right="100%" src={ArrowUpIcon} width="55px" />
-            <Text variant="h1">{moneyFormatter(totalSpends())}</Text>
-          </Stack>
-        </Stack>
+        <SpendsSummary totalSpends={totalSpends()} />
 
         <Stack align="center" as="article" direction="row" height="50%">
-          <Stack align="center" justify="center" spacing={0} width="50%">
-            <Text variant="h4">Ahorros</Text>
-            <Stack align="center" direction="row" position="relative">
-              <Img height="45px" position="absolute" right="100%" src={SavingsIcon} width="45px" />
-              <Text variant="h2">{moneyFormatter(totalSavings())}</Text>
-            </Stack>
-          </Stack>
+          <SavingsSummary totalSavings={totalSavings()} />
           <Box bg="blackAlpha.300" height="60%" width="1px" />
-          <Stack align="center" justify="center" spacing={0} width="50%">
-            <Text variant="h4">Ingresos</Text>
-            <Stack align="center" direction="row" position="relative">
-              <Img
-                height="45px"
-                position="absolute"
-                right="100%"
-                src={ArrowDownIcon}
-                width="45px"
-              />
-              <Text variant="h2">{moneyFormatter(totalIncomes())}</Text>
-            </Stack>
-          </Stack>
+          <IncomesSummary totalIncomes={totalIncomes()} />
         </Stack>
       </Stack>
     </Container>
