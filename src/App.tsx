@@ -118,11 +118,8 @@ export const App: React.FC = () => {
               <Home
                 county={county}
                 currentPeriod={currentPeriod}
-                incomes={currentPeriod?.incomes}
-                savings={currentPeriod?.savings}
                 setCounty={setCounty}
                 setCurrentPeriod={setCurrentPeriod}
-                spends={currentPeriod?.spends}
               />
             </PrivateRoute>
           }

@@ -28,9 +28,6 @@ import { SpendsSummary } from "./components/SpendsSummary";
 import { SavingsSummary } from "./components/SavingsSummary";
 import { IncomesSummary } from "./components/IncomesSummary";
 interface Props {
-  spends: Spend[] | undefined;
-  incomes: Income[] | undefined;
-  savings: Saving[] | undefined;
   county: Period[];
   setCounty: React.Dispatch<React.SetStateAction<Period[]>>;
   currentPeriod: Period | null;
@@ -39,36 +36,37 @@ interface Props {
 
 const db = getFirestore(app);
 
-export const Home: React.FC<Props> = ({
-  spends,
-  incomes,
-  savings,
-  county,
-  setCounty,
-  currentPeriod,
-  setCurrentPeriod,
-}) => {
+export const Home: React.FC<Props> = ({ county, setCounty, currentPeriod, setCurrentPeriod }) => {
   const { user, setUser } = useAuthContext();
 
   function totalSpends() {
-    if (spends) {
-      return spends.reduce((acc: number, spend: Spend) => acc + Number(spend.amount), 0);
+    if (currentPeriod?.spends) {
+      return currentPeriod.spends.reduce(
+        (acc: number, spend: Spend) => acc + Number(spend.amount),
+        0,
+      );
     }
 
     return 0;
   }
 
   function totalSavings() {
-    if (savings) {
-      return savings.reduce((acc: number, saving: Saving) => acc + Number(saving.amount), 0);
+    if (currentPeriod?.savings) {
+      return currentPeriod.savings.reduce(
+        (acc: number, saving: Saving) => acc + Number(saving.amount),
+        0,
+      );
     }
 
     return 0;
   }
 
   function totalIncomes() {
-    if (incomes) {
-      return incomes.reduce((acc: number, income: Income) => acc + Number(income.amount), 0);
+    if (currentPeriod?.incomes) {
+      return currentPeriod.incomes.reduce(
+        (acc: number, income: Income) => acc + Number(income.amount),
+        0,
+      );
     }
 
     return 0;
