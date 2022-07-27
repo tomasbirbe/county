@@ -10,7 +10,7 @@ interface Props {
 
 export const SpendsSummary: React.FC<Props> = ({ totalSpends }) => {
   return (
-    <Stack align="center" as="article" height="40%" justify="center" spacing={0} width="full">
+    <Stack as="article" align="center" height="40%" justify="center" spacing={0} width="full">
       <Text variant="h3">Gastos</Text>
       <Stack align="center" direction="row" position="relative">
         <Img height="55px" position="absolute" right="100%" src={ArrowUpIcon} width="55px" />

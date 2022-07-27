@@ -16,7 +16,6 @@ import {
   where,
 } from "firebase/firestore";
 import { app } from "src/firebase/app";
-import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import dayjs from "dayjs";
 import { auth } from "src/firebase/app";
@@ -128,19 +127,7 @@ export const Home: React.FC<Props> = ({
   }
 
   return (
-    <Container
-      key={currentPeriod.id}
-      animate={{ y: 0, opacity: 1 }}
-      as={motion.div}
-      height="calc(100% - 125px)"
-      initial={{ y: "10px", opacity: 0 }}
-      maxWidth="full"
-      overflow="hidden"
-      paddingBlockStart={10}
-      paddingX={0}
-      position="relative"
-      transition={{ ease: "easeInOut" }}
-    >
+    <Container key={currentPeriod.id}>
       <Stack position="absolute" right="20px" top="15px">
         <IconButton
           aria-label="Delete period"
@@ -159,7 +146,7 @@ export const Home: React.FC<Props> = ({
           onClick={signOut}
         />
       </Stack>
-      <Stack as="header" height="full">
+      <Stack height="full">
         <SpendsSummary totalSpends={totalSpends()} />
 
         <Stack align="center" as="article" direction="row" height="50%">
