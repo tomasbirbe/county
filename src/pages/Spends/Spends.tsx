@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Stack,
   Img,
@@ -10,14 +10,9 @@ import {
   Grid,
   GridItem,
   chakra,
-  IconButton,
-  Icon,
-  Divider,
 } from "@chakra-ui/react";
 
 import DeleteIcon from "/Icons/delete.svg";
-import ArrowUp from "/Icons/arrow-up.svg";
-import PlusIcon from "/Icons/plus.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 import { KindOfSpend, Spend, Period } from "src/types";
@@ -27,9 +22,12 @@ import { v4 } from "uuid";
 import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
 import dayjs from "dayjs";
-import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
-import { AiOutlineArrowRight } from "react-icons/ai";
-import { FormModal } from "src/components/Modal";
+
+/* ------------------------------- Components ------------------------------- */
+import { Container } from "./components/Container";
+import { Header } from "./components/Header";
+import { CreateSpendButton } from "./components/CreateSpendButton";
+import { CreateSpendForm } from "./components/CreateSpendForm";
 
 const db = getFirestore(app);
 let timer: string | number | NodeJS.Timeout | undefined;
@@ -38,14 +36,6 @@ interface Props {
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
 }
-
-export const Container = chakra(motion.div, {
-  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
-});
-
-export const FormStep = chakra(motion.div, {
-  shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
-});
 
 export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
   const { user } = useAuthContext();
@@ -237,109 +227,18 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
   }
 
   return (
-    <Container
-      key={currentPeriod?.id}
-      animate={{ y: 0, opacity: 1 }}
-      initial={{ y: "10px", opacity: 0 }}
-      maxWidth="full"
-      paddingBlock={6}
-      paddingX={0}
-      transition={{ ease: "easeInOut" }}
-    >
-      <Stack align="center" spacing={6}>
-        <Stack align="center" spacing={0}>
-          <Img height="50px" src={ArrowUp} width="50px" />
-          <Text variant="h1/2">{moneyFormatter(totalSpends())}</Text>
-        </Stack>
-        <Box bg="spend" height="1px" width="40%" />
-      </Stack>
-      <Stack align="center" justify="center" paddingBlock={6} position="sticky" top="-5px">
-        <Button
-          _active={{ bg: "secondary.900" }}
-          _hover={{ bg: "secondary.500" }}
-          bg="secondary.300"
-          type="submit"
-          onClick={openForm}
-        >
-          <Img height="20px" marginInlineEnd={2} src={PlusIcon} width="20px" />{" "}
-          <Text color="white">Nuevo gasto</Text>
-        </Button>
-      </Stack>
+    <Container key={currentPeriod?.id}>
+      <Header totalSpends={totalSpends()} />
+      <CreateSpendButton handleClick={openForm} />
 
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
         {showForm && (
-          <FormModal title="Agrega un nuevo gasto!" onClose={closeForm}>
-            <Stack as="form" spacing={8} onSubmit={addSpend}>
-              <Box>
-                <Stack as="label" htmlFor="description" spacing={2}>
-                  <Text>Descripcion</Text>
-                </Stack>
-                <Input autoFocus required name="description" placeholder="Notebook" width="280px" />
-              </Box>
-              <Box>
-                <Box as="label" htmlFor="amount">
-                  <Text>Gasto</Text>
-                </Box>
-
-                <Input
-                  required
-                  min={1}
-                  name="amount"
-                  placeholder="50000"
-                  step="0.01"
-                  type="number"
-                  width="200px"
-                />
-              </Box>
-              <Stack direction="row">
-                <Box>
-                  <Stack as="label" htmlFor="kind_of_spend">
-                    <Text>Tipo de compra</Text>
-                  </Stack>
-                  <Select
-                    border="1px solid"
-                    borderColor="primary.900"
-                    height="42px"
-                    name="kind_of_spend"
-                    width="200px"
-                    onChange={handleSelect}
-                  >
-                    <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
-                    <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
-                  </Select>
-                </Box>
-                <Box>
-                  {kindOfSpend === KindOfSpend.INSTALLMENTS && (
-                    <>
-                      <Stack align="center" as="label" htmlFor="installments" spacing={2}>
-                        <Text>Cuotas</Text>
-                      </Stack>
-                      <Input
-                        required
-                        min={0}
-                        name="installments"
-                        placeholder="1"
-                        textAlign="center"
-                        type="number"
-                        width="70px"
-                      />
-                    </>
-                  )}
-                </Box>
-              </Stack>
-              <Button
-                _active={{ bg: "secondary.900" }}
-                _focus={{}}
-                _hover={{ bg: "secondary.500" }}
-                bg="secondary.300"
-                color="white"
-                fontWeight="regular"
-                type="submit"
-              >
-                Agregar
-              </Button>
-            </Stack>
-          </FormModal>
+          <CreateSpendForm
+            handleSelect={handleSelect}
+            handleSubmit={addSpend}
+            kindOfSpend={kindOfSpend}
+            onClose={closeForm}
+          />
         )}
         {currentPeriod?.spends.length ? (
           <Stack direction="row" spacing={10}>
