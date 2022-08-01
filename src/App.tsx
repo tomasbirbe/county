@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { auth } from "src/firebase/app";
-import { collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { Loader } from "src/pages/Loader";
-import { useAuthContext } from "./context/authContext";
+
+/* ------------------------------ Custom Hooks ------------------------------ */
+
+import { useSheets } from "src/hooks/useSheet";
+import { useAuthContext } fsrc/hContext";
 
 // Pages
 
@@ -17,56 +20,41 @@ import NotFound from "./pages/NotFound";
 
 import { Layout } from "./components/Layout";
 import { PrivateRoute } from "./PrivateRoute";
-import { Spend, Saving, Income, Period } from "./types";
-
-import { app } from "./firebase/app";
-
-const db = getFirestore(app);
+import { Spend, Saving, Income } from "./types";
 
 export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  const [county, setCounty] = useState<Period[]>([]);
-  const [currentPeriod, setCurrentPeriod] = useState<Period | null>(null);
+  const { getSheets, sheets, currentSheet } = useSheets(user);
 
   useEffect(() => {
     setIsLoading(true);
     auth.onAuthStateChanged((user) => {
-      if (user?.email) {
-        const countyRef = collection(db, "users", user.email, "countyData");
-
-        getDocs(query(countyRef)).then((doc) => {
-          const countyData: Period[] = [];
-
-          doc.forEach((docSnap) => {
-            countyData.push(docSnap.data() as Period);
-          });
-
-          setCounty(countyData);
-          setCurrentPeriod(countyData[0]);
+      getSheets()
+        .then(() => {
           setIsLogged(true);
           setUser(user);
           setIsLoading(false);
+        })
+        .catch((error: any) => {
+          setIsLogged(false);
+          setIsLoading(false);
         });
-      } else {
-        setIsLogged(false);
-        setIsLoading(false);
-      }
     });
   }, [user]);
 
   function calculateRemaining() {
-    if (currentPeriod) {
-      const totalSpends = currentPeriod.spends.reduce(
+    if (currentSheet) {
+      const totalSpends = currentSheet.spends.reduce(
         (acc: number, spend: Spend) => acc + Number(spend.amount),
         0,
       );
-      const totalSavings = currentPeriod.savings.reduce(
+      const totalSavings = currentSheet.savings.reduce(
         (acc: number, saving: Saving) => acc + Number(saving.amount),
         0,
       );
-      const totalIncomes = currentPeriod.incomes.reduce(
+      const totalIncomes = currentSheet.incomes.reduce(
         (acc: number, income: Income) => acc + Number(income.amount),
         0,
       );
@@ -77,22 +65,6 @@ export const App: React.FC = () => {
     return 0;
   }
 
-  // This is for every time that currentPeriod is modified
-  useEffect(() => {
-    if (currentPeriod) {
-      const deletedCurrentPeriod = county.filter((period) => period.id !== currentPeriod.id);
-      const sortedPeriods = [...deletedCurrentPeriod, currentPeriod].sort((a, b) => {
-        if (new Date(a.created_at) >= new Date(b.created_at)) {
-          return 1;
-        }
-
-        return -1;
-      });
-
-      setCounty(sortedPeriods);
-    }
-  }, [currentPeriod]);
-
   if (isLoading) {
     return <Loader />;
   }
@@ -102,8 +74,8 @@ export const App: React.FC = () => {
       <Route
         element={
           <Layout
-            county={county}
-            currentPeriod={currentPeriod}
+            county={sheets}
+            currentPeriod={currentSheet}
             remaining={calculateRemaining()}
             setCounty={setCounty}
             setCurrentPeriod={setCurrentPeriod}
@@ -116,8 +88,8 @@ export const App: React.FC = () => {
           element={
             <PrivateRoute isLogged={isLogged}>
               <Home
-                county={county}
-                currentPeriod={currentPeriod}
+                county={sheets}
+                currentPeriod={currentSheet}
                 setCounty={setCounty}
                 setCurrentPeriod={setCurrentPeriod}
               />
@@ -138,7 +110,7 @@ export const App: React.FC = () => {
         />
         <Route
           element={
-            county.length ? (
+            sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
                 <Savings currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
               </PrivateRoute>

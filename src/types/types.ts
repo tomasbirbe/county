@@ -23,7 +23,7 @@ export interface Income {
   amount: string;
   created_at: string;
 }
-export interface Period {
+export interface Sheet {
   id: string;
   name: string;
   spends: Spend[];
