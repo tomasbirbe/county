@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { collection, getDocs, getFirestore, query } from "firebase/firestore";
+import { collection, doc, getDocs, getFirestore, query, setDoc } from "firebase/firestore";
 import { Sheet } from "src/types";
 import { app } from "src/firebase/app";
 import { User } from "firebase/auth";
+import { v4 } from "uuid";
+import dayjs from "dayjs";
+import orderByDate from "src/utils/orderByDate";
 
 const db = getFirestore(app);
 
@@ -10,31 +13,50 @@ export const useSheets = (user: User | null) => {
   const [sheets, setSheets] = useState<Sheet[]>([]);
   const [currentSheet, setCurrentSheet] = useState<Sheet | null>(null);
 
-  async function getSheets() {
-    if (user?.email) {
-      try {
+  function getSheets() {
+    return new Promise<void>((resolve, reject) => {
+      if (user?.email) {
         const countyRef = collection(db, "users", user.email, "countyData");
-        const doc = await getDocs(query(countyRef));
-        const countyData: Sheet[] = [];
 
-        doc.forEach((docSnap) => {
-          countyData.push(docSnap.data() as Sheet);
+        getDocs(query(countyRef)).then((doc) => {
+          const countyData: Sheet[] = [];
+
+          doc.forEach((docSnap) => {
+            countyData.push(docSnap.data() as Sheet);
+          });
+          setSheets(countyData);
+          selectSheet(countyData[0]);
+          resolve();
         });
-        setSheets(countyData);
-        selectSheet(countyData[0]);
-      } catch (error) {
-        throw new Error(`${error}`);
+      } else {
+        reject();
       }
-    }
+    });
   }
 
   function selectSheet(sheet: Sheet) {
     setCurrentSheet(sheet);
   }
 
-  function addSheet(sheet: Sheet) {
-    
+  function addSheet(name: string) {
+    if (user?.email) {
+      const id = v4();
+      const docRef = doc(db, "users", user.email, "countyData", id);
+
+      const newSheet = {
+        id,
+        name: name.trim(),
+        spends: [],
+        incomes: [],
+        savings: [],
+        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+      };
+
+      setSheets((prevState) => orderByDate([...prevState, newSheet]));
+      setCurrentSheet(newSheet);
+      setDoc(docRef, newSheet);
+    }
   }
 
-  return { currentSheet, selectSheet, getSheets, sheets };
+  return { currentSheet, selectSheet, addSheet, getSheets, sheets };
 };

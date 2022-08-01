@@ -29,14 +29,13 @@ import { SavingsSummary } from "./components/SavingsSummary";
 import { IncomesSummary } from "./components/IncomesSummary";
 interface Props {
   county: Period[];
-  setCounty: React.Dispatch<React.SetStateAction<Period[]>>;
   currentPeriod: Period | null;
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
 }
 
 const db = getFirestore(app);
 
-export const Home: React.FC<Props> = ({ county, setCounty, currentPeriod, setCurrentPeriod }) => {
+export const Home: React.FC<Props> = ({ county, currentPeriod, setCurrentPeriod }) => {
   const { user, setUser } = useAuthContext();
 
   function totalSpends() {
@@ -77,7 +76,7 @@ export const Home: React.FC<Props> = ({ county, setCounty, currentPeriod, setCur
       const updatedCounty = county.filter((period) => period.id !== currentPeriod.id);
       const id = currentPeriod.id;
 
-      setCounty(updatedCounty);
+      // setCounty(updatedCounty);
       setCurrentPeriod(updatedCounty[updatedCounty.length - 1]);
       const countyRef = collection(db, "users", user.email, "countyData");
 
@@ -108,7 +107,7 @@ export const Home: React.FC<Props> = ({ county, setCounty, currentPeriod, setCur
         created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
       };
 
-      setCounty((prevState) => [...prevState, newPeriod]);
+      // setCounty((prevState) => [...prevState, newPeriod]);
       setCurrentPeriod(newPeriod);
       setDoc(docRef, newPeriod);
     }

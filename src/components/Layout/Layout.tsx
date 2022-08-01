@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import moneyFormatter from "src/utils/moneyFormatter";
 import { BsCalendar } from "react-icons/bs";
@@ -18,26 +18,20 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { IoIosArrowBack } from "react-icons/io";
 
 import Pocket from "/Icons/pocket.svg";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
-
-import { app } from "src/firebase/app";
+import { Sheet } from "src/types";
 import { useAuthContext } from "src/context/authContext";
-import dayjs from "dayjs";
-import { v4 } from "uuid";
-import { Period } from "src/types";
 import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
 import { Portal } from "src/components/Portal";
 import { NavLink } from "./components/NavLink";
 
 interface Props {
   remaining: number;
-  county: Period[];
-  currentPeriod: Period | null;
-  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
-  setCounty: React.Dispatch<React.SetStateAction<Period[]>>;
+  county: Sheet[];
+  currentPeriod: Sheet | null;
+  // setCurrentPeriod: React.Dispatch<React.SetStateAction<Sheet | null>>;
+  // setCounty: React.Dispatch<React.SetStateAction<Sheet[]>>;
+  addSheet: (arg0: string) => void;
 }
-
-const db = getFirestore(app);
 
 const SideMenu = chakra(motion.div, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
@@ -46,48 +40,35 @@ const SideMenu = chakra(motion.div, {
 export const Layout: React.FC<Props> = ({
   remaining,
   county,
-  setCounty,
+  addSheet,
   currentPeriod,
-  setCurrentPeriod,
+  // setCurrentPeriod,
 }) => {
   const [showPeriods, setShowPeriods] = useState<boolean>(false);
-  const { user } = useAuthContext();
 
   function togglePeriods() {
     setShowPeriods((prevState: boolean) => !prevState);
   }
 
-  function addPeriod(event: React.FormEvent) {
+  useEffect(() => {
+    console.log(county);
+  }, [county]);
+
+  function createNewSheet(event: React.FormEvent) {
     event.preventDefault();
-    const { periodInput } = event.target as HTMLFormElement;
+    const { newSheetInput } = event.target as HTMLFormElement;
 
-    if (user?.email && periodInput.value.trim()) {
-      const id = v4();
-      const docRef = doc(db, "users", user.email, "countyData", id);
-
-      const newPeriod = {
-        id,
-        name: periodInput.value.trim(),
-        spends: [],
-        incomes: [],
-        savings: [],
-        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-      };
-
-      setCounty((prevState) => [...prevState, newPeriod]);
-      setCurrentPeriod(newPeriod);
-      setDoc(docRef, newPeriod);
-    }
+    addSheet(newSheetInput);
   }
 
-  function changePeriod(period: Period) {
+  function changePeriod(period: Sheet) {
     setCurrentPeriod(period);
     setShowPeriods(false);
   }
 
-  if (county.length === 0) {
-    return <Outlet />;
-  }
+  // if (county.length === 0) {
+  //   return <Outlet />;
+  // }
 
   return (
     <>
@@ -192,9 +173,14 @@ export const Layout: React.FC<Props> = ({
                     borderRadius="4px"
                     direction="row"
                     width="90%"
-                    onSubmit={addPeriod}
+                    onSubmit={createNewSheet}
                   >
-                    <Input border="none" id="periodInput" name="periodInput" placeholder="Abril" />
+                    <Input
+                      border="none"
+                      id="newSheetInput"
+                      name="newSheetInput"
+                      placeholder="Abril"
+                    />
                     <IconButton
                       aria-label="Add new period"
                       bg="transparent"

@@ -5,8 +5,8 @@ import { Loader } from "src/pages/Loader";
 
 /* ------------------------------ Custom Hooks ------------------------------ */
 
-import { useSheets } from "src/hooks/useSheet";
-import { useAuthContext } fsrc/hContext";
+import { useSheets } from "src/hooks/useSheets";
+import { useAuthContext } from "src/context/authContext";
 
 // Pages
 
@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  const { getSheets, sheets, currentSheet } = useSheets(user);
+  const { getSheets, sheets, selectSheet, currentSheet, addSheet } = useSheets(user);
 
   useEffect(() => {
     setIsLoading(true);
@@ -74,11 +74,10 @@ export const App: React.FC = () => {
       <Route
         element={
           <Layout
+            addSheet={addSheet}
             county={sheets}
             currentPeriod={currentSheet}
             remaining={calculateRemaining()}
-            setCounty={setCounty}
-            setCurrentPeriod={setCurrentPeriod}
           />
         }
         path="/"
@@ -87,20 +86,15 @@ export const App: React.FC = () => {
           index
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Home
-                county={sheets}
-                currentPeriod={currentSheet}
-                setCounty={setCounty}
-                setCurrentPeriod={setCurrentPeriod}
-              />
+              <Home county={sheets} currentPeriod={currentSheet} setCurrentPeriod={selectSheet} />
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           element={
-            county.length ? (
+            sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
-                <Spends currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
+                <Spends currentPeriod={currentSheet} setCurrentPeriod={setCurrentPeriod} />
               </PrivateRoute>
             ) : (
               <NotFound />
@@ -131,7 +125,7 @@ export const App: React.FC = () => {
             )
           }
           path="incomes"
-        />
+        /> */}
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>
