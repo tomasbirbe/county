@@ -35,7 +35,12 @@ interface Props {
 
 const db = getFirestore(app);
 
-export const Home: React.FC<Props> = ({ county, currentPeriod, setCurrentPeriod }) => {
+export const Home: React.FC<Props> = ({
+  county,
+  currentPeriod,
+  setCurrentPeriod,
+  deleteCurrentSheet,
+}) => {
   const { user, setUser } = useAuthContext();
 
   function totalSpends() {
@@ -69,25 +74,6 @@ export const Home: React.FC<Props> = ({ county, currentPeriod, setCurrentPeriod 
     }
 
     return 0;
-  }
-
-  function deletePeriod() {
-    if (currentPeriod && user?.email) {
-      const updatedCounty = county.filter((period) => period.id !== currentPeriod.id);
-      const id = currentPeriod.id;
-
-      // setCounty(updatedCounty);
-      setCurrentPeriod(updatedCounty[updatedCounty.length - 1]);
-      const countyRef = collection(db, "users", user.email, "countyData");
-
-      getDocs(query(countyRef, where("id", "==", id))).then((docs) => {
-        if (docs.size === 1) {
-          docs.forEach((doc) => {
-            deleteDoc(doc.ref);
-          });
-        }
-      });
-    }
   }
 
   function addPeriod(event: React.FormEvent): void {
@@ -132,7 +118,7 @@ export const Home: React.FC<Props> = ({ county, currentPeriod, setCurrentPeriod 
           height="50px"
           icon={<Icon as={AiFillDelete} boxSize={8} color="blackAlpha.600" />}
           width="50px"
-          onClick={deletePeriod}
+          onClick={deleteCurrentSheet}
         />
         <IconButton
           aria-label="Delete period"

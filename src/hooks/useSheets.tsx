@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { collection, doc, getDocs, getFirestore, query, setDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { Sheet } from "src/types";
 import { app } from "src/firebase/app";
 import { User } from "firebase/auth";
@@ -58,5 +67,23 @@ export const useSheets = (user: User | null) => {
     }
   }
 
-  return { currentSheet, selectSheet, addSheet, getSheets, sheets };
+  function deleteCurrentSheet() {
+    if (user?.email && currentSheet) {
+      const updatedCounty = sheets.filter((sheet) => sheet.id !== currentSheet.id);
+      const id = currentSheet.id;
+
+      setCurrentSheet(updatedCounty[updatedCounty.length - 1]);
+      const countyRef = collection(db, "users", user.email, "countyData");
+
+      getDocs(query(countyRef, where("id", "==", id))).then((docs) => {
+        if (docs.size === 1) {
+          docs.forEach((doc) => {
+            deleteDoc(doc.ref);
+          });
+        }
+      });
+    }
+  }
+
+  return { currentSheet, selectSheet, addSheet, deleteCurrentSheet, getSheets, sheets };
 };
