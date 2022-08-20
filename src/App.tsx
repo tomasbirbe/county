@@ -26,7 +26,8 @@ export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  const { getSheets, sheets, selectSheet, currentSheet, addSheet } = useSheets(user);
+  const { getSheets, sheets, selectSheet, deleteCurrentSheet, currentSheet, addSheet } =
+    useSheets(user);
 
   useEffect(() => {
     setIsLoading(true);
@@ -37,7 +38,7 @@ export const App: React.FC = () => {
           setUser(user);
           setIsLoading(false);
         })
-        .catch((error: any) => {
+        .catch(() => {
           setIsLogged(false);
           setIsLoading(false);
         });
@@ -86,7 +87,11 @@ export const App: React.FC = () => {
           index
           element={
             <PrivateRoute isLogged={isLogged}>
-              <Home county={sheets} currentPeriod={currentSheet} setCurrentPeriod={selectSheet} />
+              <Home
+                currentPeriod={currentSheet}
+                deleteCurrentSheet={deleteCurrentSheet}
+                setCurrentPeriod={selectSheet}
+              />
             </PrivateRoute>
           }
         />

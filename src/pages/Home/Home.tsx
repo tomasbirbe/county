@@ -4,17 +4,8 @@ import { AiFillDelete } from "react-icons/ai";
 import { BiExit } from "react-icons/bi";
 
 import { useAuthContext } from "src/context/authContext";
-import { Income, Saving, Spend, Period } from "src/types";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  getFirestore,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
+import { Income, Saving, Spend, Sheet } from "src/types";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
 import { v4 } from "uuid";
 import dayjs from "dayjs";
@@ -28,19 +19,14 @@ import { SpendsSummary } from "./components/SpendsSummary";
 import { SavingsSummary } from "./components/SavingsSummary";
 import { IncomesSummary } from "./components/IncomesSummary";
 interface Props {
-  county: Period[];
-  currentPeriod: Period | null;
-  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
+  currentPeriod: Sheet | null;
+  setCurrentPeriod: (arg01: Sheet) => void;
+  deleteCurrentSheet: () => void;
 }
 
 const db = getFirestore(app);
 
-export const Home: React.FC<Props> = ({
-  county,
-  currentPeriod,
-  setCurrentPeriod,
-  deleteCurrentSheet,
-}) => {
+export const Home: React.FC<Props> = ({ currentPeriod, setCurrentPeriod, deleteCurrentSheet }) => {
   const { user, setUser } = useAuthContext();
 
   function totalSpends() {
