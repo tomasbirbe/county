@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import {
   collection,
   deleteDoc,
@@ -18,8 +18,43 @@ import orderByDate from "src/utils/orderByDate";
 
 const db = getFirestore(app);
 
+enum SheetType {
+  add = "ADD",
+}
+
+interface SheetAction {
+  type: SheetType;
+  payload?: any;
+}
+
+function sheetsReducer(state: Sheet[], action: SheetAction) {
+  switch (action.type) {
+    case SheetType.add: {
+      const { user, sheetName } = action.payload;
+      const id = v4();
+      const docRef = doc(db, "users", user.email, "countyData", id);
+
+      const newSheet = {
+        id,
+        name: sheetName.trim(),
+        spends: [],
+        incomes: [],
+        savings: [],
+        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+      };
+
+      setDoc(docRef, newSheet);
+
+      return orderByDate([...state, newSheet]);
+    }
+    default: {
+      console.log("hola");
+    }
+  }
+}
+
 export const useSheets = (user: User | null) => {
-  const [sheets, setSheets] = useState<Sheet[]>([]);
+  const [sheets, dispatch] = useReducer(sheetsReducer, [] as Sheet[]);
   const [currentSheet, setCurrentSheet] = useState<Sheet | null>(null);
 
   function getSheets() {
@@ -50,7 +85,6 @@ export const useSheets = (user: User | null) => {
   function addSheet(name: string) {
     if (user?.email) {
       const id = v4();
-      const docRef = doc(db, "users", user.email, "countyData", id);
 
       const newSheet = {
         id,
@@ -61,9 +95,7 @@ export const useSheets = (user: User | null) => {
         created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
       };
 
-      setSheets((prevState) => orderByDate([...prevState, newSheet]));
       setCurrentSheet(newSheet);
-      setDoc(docRef, newSheet);
     }
   }
 

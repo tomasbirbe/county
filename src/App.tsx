@@ -11,9 +11,6 @@ import { useAuthContext } from "src/context/authContext";
 // Pages
 
 import { Home } from "./pages/Home";
-import { Spends } from "./pages/Spends";
-import { Savings } from "./pages/Savings";
-import { Incomes } from "./pages/Incomes";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -26,8 +23,7 @@ export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  const { getSheets, sheets, selectSheet, deleteCurrentSheet, currentSheet, addSheet } =
-    useSheets(user);
+  const { sheets, selectSheet, deleteCurrentSheet, currentSheet, addSheet } = useSheets(user);
 
   useEffect(() => {
     setIsLoading(true);
