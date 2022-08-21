@@ -58,7 +58,7 @@ export const SpendsTable: React.FC<Props> = ({
               </Stack>
             </GridItem>
             <GridItem colSpan={2} textAlign="center">
-              {spend.kind === KindOfSpend.INSTALLMENTS ? (
+              {spend.kind === KindOfSpend.hasInstallments ? (
                 <Stack align="center" direction="row" justify="center">
                   <Button
                     bg="transparent"

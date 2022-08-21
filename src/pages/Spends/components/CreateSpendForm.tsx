@@ -53,12 +53,12 @@ export const CreateSpendForm: React.FC<Props> = ({
               width="200px"
               onChange={handleSelect}
             >
-              <option value={KindOfSpend.NOINSTALLMENTS}>Efectivo / Debito</option>
-              <option value={KindOfSpend.INSTALLMENTS}>Credito</option>
+              <option value={KindOfSpend.noInstallments}>Efectivo / Debito</option>
+              <option value={KindOfSpend.hasInstallments}>Credito</option>
             </Select>
           </Box>
           <Box>
-            {kindOfSpend === KindOfSpend.INSTALLMENTS && (
+            {kindOfSpend === KindOfSpend.hasInstallments && (
               <>
                 <Stack align="center" as="label" htmlFor="installments" spacing={2}>
                   <Text>Cuotas</Text>
@@ -66,7 +66,7 @@ export const CreateSpendForm: React.FC<Props> = ({
                 <Input
                   required
                   min={0}
-                  name="installments"
+                  name="totalInstallments"
                   placeholder="1"
                   textAlign="center"
                   type="number"

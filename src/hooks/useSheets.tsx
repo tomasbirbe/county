@@ -20,6 +20,7 @@ import dayjs from "dayjs";
 import orderByDate from "src/utils/orderByDate";
 
 const db = getFirestore(app);
+let timer: string | number | NodeJS.Timeout | undefined;
 
 export const useSheets = (user: User | null) => {
   const [sheets, setSheets] = useState<Sheet[]>([]);
@@ -139,12 +140,104 @@ export const useSheets = (user: User | null) => {
     }
   }
 
+  function incrementInstallment(spend: Spend) {
+    clearTimeout(timer);
+    if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
+      const updateSpend: Spend = {
+        ...spend,
+        currentInstallment:
+          spend.currentInstallment < spend.totalInstallments
+            ? spend.currentInstallment + 1
+            : spend.currentInstallment,
+      };
+
+      const updatedSpends: Spend[] = [
+        ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
+        updateSpend,
+      ];
+
+      const sortedSpends = updatedSpends.sort((a, b) => {
+        if (new Date(a.created_at) >= new Date(b.created_at)) {
+          return 1;
+        }
+
+        return -1;
+      });
+
+      setCurrentSheet((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            spends: sortedSpends,
+          };
+        }
+
+        return null;
+      });
+      if (user?.email) {
+        const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
+
+        timer = setTimeout(() => {
+          updateDoc(docRef, {
+            spends: sortedSpends,
+          });
+        }, 1000);
+      }
+    }
+  }
+
+  function decrementInstallment(spend: Spend) {
+    clearTimeout(timer);
+    if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
+      const updateSpend: Spend = {
+        ...spend,
+        currentInstallment:
+          spend.currentInstallment > 1 ? spend.currentInstallment - 1 : spend.currentInstallment,
+      };
+
+      const updatedSpends: Spend[] = [
+        ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
+        updateSpend,
+      ];
+
+      const sortedSpends = updatedSpends.sort((a, b) => {
+        if (new Date(a.created_at) >= new Date(b.created_at)) {
+          return 1;
+        }
+
+        return -1;
+      });
+
+      setCurrentSheet((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            spends: sortedSpends,
+          };
+        }
+
+        return null;
+      });
+      if (user?.email) {
+        const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
+
+        timer = setTimeout(() => {
+          updateDoc(docRef, {
+            spends: sortedSpends,
+          });
+        }, 1000);
+      }
+    }
+  }
+
   return {
     currentSheet,
     selectSheet,
     addSheet,
     addSpend,
     deleteSpend,
+    incrementInstallment,
+    decrementInstallment,
     deleteCurrentSheet,
     getSheets,
     sheets,

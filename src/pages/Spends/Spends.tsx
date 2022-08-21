@@ -15,16 +15,22 @@ import { CreateSpendForm } from "./components/CreateSpendForm";
 import { SpendsTable } from "./components/SpendsTable";
 
 const db = getFirestore(app);
-let timer: string | number | NodeJS.Timeout | undefined;
 
 interface Props {
   currentPeriod: Sheet | null;
   addSpend: (arg01: AddSpendProps) => void;
   deleteSpend: (spend: Spend) => void;
+  decrementInstallment: (spend: Spend) => void;
+  incrementInstallment: (spend: Spend) => void;
 }
 
-export const Spends: React.FC<Props> = ({ currentPeriod, addSpend, deleteSpend }) => {
-  const { user } = useAuthContext();
+export const Spends: React.FC<Props> = ({
+  currentPeriod,
+  addSpend,
+  deleteSpend,
+  decrementInstallment,
+  incrementInstallment,
+}) => {
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.noInstallments);
 
   const [showForm, setShowForm] = useState(false);
@@ -48,7 +54,7 @@ export const Spends: React.FC<Props> = ({ currentPeriod, addSpend, deleteSpend }
       description: description.value,
       amount: amount.value,
       kind: kind.value,
-      totalInstallments: totalInstallments,
+      totalInstallments: totalInstallments ? totalInstallments.value : null,
     });
 
     description.value = "";
@@ -59,96 +65,6 @@ export const Spends: React.FC<Props> = ({ currentPeriod, addSpend, deleteSpend }
       totalInstallments.value = "";
     }
     setShowForm(false);
-  }
-
-  function incrementInstallment(spend: Spend) {
-    clearTimeout(timer);
-    if (currentPeriod?.spends && spend.currentInstallment && spend.totalInstallments) {
-      const updateSpend: Spend = {
-        ...spend,
-        currentInstallment:
-          spend.currentInstallment < spend.totalInstallments
-            ? spend.currentInstallment + 1
-            : spend.currentInstallment,
-      };
-
-      const updatedSpends: Spend[] = [
-        ...currentPeriod.spends.filter((spendItem) => spendItem.id !== spend.id),
-        updateSpend,
-      ];
-
-      const sortedSpends = updatedSpends.sort((a, b) => {
-        if (new Date(a.created_at) >= new Date(b.created_at)) {
-          return 1;
-        }
-
-        return -1;
-      });
-
-      // setCurrentPeriod((prevState) => {
-      //   if (prevState) {
-      //     return {
-      //       ...prevState,
-      //       spends: sortedSpends,
-      //     };
-      //   }
-
-      //   return null;
-      // });
-      if (user?.email) {
-        const docRef = doc(db, "users", user.email, "countyData", currentPeriod.id);
-
-        timer = setTimeout(() => {
-          updateDoc(docRef, {
-            spends: sortedSpends,
-          });
-        }, 1000);
-      }
-    }
-  }
-
-  function decrementInstallment(spend: Spend) {
-    clearTimeout(timer);
-    if (currentPeriod?.spends && spend.currentInstallment && spend.totalInstallments) {
-      const updateSpend: Spend = {
-        ...spend,
-        currentInstallment:
-          spend.currentInstallment > 1 ? spend.currentInstallment - 1 : spend.currentInstallment,
-      };
-
-      const updatedSpends: Spend[] = [
-        ...currentPeriod.spends.filter((spendItem) => spendItem.id !== spend.id),
-        updateSpend,
-      ];
-
-      const sortedSpends = updatedSpends.sort((a, b) => {
-        if (new Date(a.created_at) >= new Date(b.created_at)) {
-          return 1;
-        }
-
-        return -1;
-      });
-
-      // setCurrentPeriod((prevState) => {
-      //   if (prevState) {
-      //     return {
-      //       ...prevState,
-      //       spends: sortedSpends,
-      //     };
-      //   }
-
-      //   return null;
-      // });
-      if (user?.email) {
-        const docRef = doc(db, "users", user.email, "countyData", currentPeriod.id);
-
-        timer = setTimeout(() => {
-          updateDoc(docRef, {
-            spends: sortedSpends,
-          });
-        }, 1000);
-      }
-    }
   }
 
   function totalSpends() {
