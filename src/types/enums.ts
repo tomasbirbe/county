@@ -1,5 +1,5 @@
 export enum KindOfSpend {
-  NOINSTALLMENTS = "NOINSTALLMENTS",
-  INSTALLMENTS = "INSTALLMENTS",
-  RECURRENT = "RECURRENT",
+  noInstallments = "noInstallments",
+  hasInstallments = "hasInstallments",
+  itsRecurrent = "itsRecurrent",
 }

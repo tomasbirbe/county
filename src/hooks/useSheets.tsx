@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  arrayUnion,
   collection,
   deleteDoc,
   doc,
@@ -7,9 +8,10 @@ import {
   getFirestore,
   query,
   setDoc,
+  updateDoc,
   where,
 } from "firebase/firestore";
-import { Sheet } from "src/types";
+import { KindOfSpend, Sheet, Spend, AddSpendProps } from "src/types";
 import { app } from "src/firebase/app";
 import { User } from "firebase/auth";
 import { v4 } from "uuid";
@@ -85,5 +87,35 @@ export const useSheets = (user: User | null) => {
     }
   }
 
-  return { currentSheet, selectSheet, addSheet, deleteCurrentSheet, getSheets, sheets };
+  function addSpend({ description, amount, kind, totalInstallments }: AddSpendProps) {
+    const newSpend: Spend = {
+      id: v4(),
+      description: description,
+      amount: amount,
+      kind: kind,
+      totalInstallments: kind === KindOfSpend.hasInstallments ? Number(totalInstallments) : null,
+      currentInstallment: kind == KindOfSpend.hasInstallments ? 1 : null,
+      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+    };
+
+    if (currentSheet) {
+      setCurrentSheet((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            spends: [...prevState.spends, newSpend],
+          };
+        }
+
+        return null;
+      });
+      if (user?.email && currentSheet) {
+        updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+          spends: arrayUnion(newSpend),
+        });
+      }
+    }
+  }
+
+  return { currentSheet, selectSheet, addSheet, addSpend, deleteCurrentSheet, getSheets, sheets };
 };

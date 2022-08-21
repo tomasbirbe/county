@@ -31,3 +31,10 @@ export interface Sheet {
   savings: Saving[];
   created_at: string;
 }
+
+export interface AddSpendProps {
+  description: string;
+  amount: string;
+  kind: KindOfSpend;
+  totalInstallments?: number;
+}

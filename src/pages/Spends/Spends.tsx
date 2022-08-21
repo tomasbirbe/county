@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Stack, Text, Box } from "@chakra-ui/react";
 
-import { KindOfSpend, Spend, Period } from "src/types";
+import { KindOfSpend, Spend, Period, AddSpendProps } from "src/types";
 
 import { useAuthContext } from "src/context/authContext";
 import { v4 } from "uuid";
@@ -22,11 +22,12 @@ let timer: string | number | NodeJS.Timeout | undefined;
 interface Props {
   setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
   currentPeriod: Period | null;
+  addSpend: (arg01: AddSpendProps) => void;
 }
 
-export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
+export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod, addSpend }) => {
   const { user } = useAuthContext();
-  const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.NOINSTALLMENTS);
+  const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.noInstallments);
 
   const [showForm, setShowForm] = useState(false);
 
@@ -36,50 +37,28 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
     setKindOfSpend(value);
   }
 
-  function addSpend(event: React.FormEvent) {
+  function createNewSpend(event: React.FormEvent) {
     event.preventDefault();
     const {
       description,
       amount,
       kind_of_spend: kind,
-      installments,
+      totalInstallments,
     } = event.target as HTMLFormElement;
 
-    const newSpend: Spend = {
-      id: v4(),
+    addSpend({
       description: description.value,
       amount: amount.value,
       kind: kind.value,
-      totalInstallments:
-        kind.value !== KindOfSpend.INSTALLMENTS ? null : Number(installments?.value),
-      currentInstallment: kind.value !== KindOfSpend.INSTALLMENTS ? null : 1,
-      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-    };
-
-    if (currentPeriod) {
-      setCurrentPeriod((prevPeriod) => {
-        if (prevPeriod) {
-          return {
-            ...prevPeriod,
-            spends: [...prevPeriod.spends, newSpend],
-          };
-        }
-
-        return null;
-      });
-      if (user?.email && currentPeriod) {
-        updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-          spends: arrayUnion(newSpend),
-        });
-      }
-    }
+      totalInstallments: totalInstallments,
+    });
 
     description.value = "";
     amount.value = "";
-    kind.value = KindOfSpend.NOINSTALLMENTS;
-    setKindOfSpend(KindOfSpend.NOINSTALLMENTS);
-    if (installments?.value) {
-      installments.value = "";
+    kind.value = KindOfSpend.noInstallments;
+    setKindOfSpend(KindOfSpend.noInstallments);
+    if (totalInstallments?.value) {
+      totalInstallments.value = "";
     }
     setShowForm(false);
   }
@@ -222,7 +201,7 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => 
         {showForm && (
           <CreateSpendForm
             handleSelect={handleSelect}
-            handleSubmit={addSpend}
+            handleSubmit={createNewSpend}
             kindOfSpend={kindOfSpend}
             onClose={closeForm}
           />

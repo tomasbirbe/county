@@ -14,7 +14,7 @@ import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import NotFound from "./pages/NotFound";
-
+import { Spends } from "./pages/Spends";
 import { Layout } from "./components/Layout";
 import { PrivateRoute } from "./PrivateRoute";
 import { Spend, Saving, Income } from "./types";
@@ -23,7 +23,8 @@ export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  const { getSheets, sheets, deleteCurrentSheet, currentSheet, addSheet } = useSheets(user);
+  const { getSheets, addSpend, sheets, deleteCurrentSheet, currentSheet, addSheet } =
+    useSheets(user);
 
   useEffect(() => {
     setIsLoading(true);
@@ -91,11 +92,15 @@ export const App: React.FC = () => {
             </PrivateRoute>
           }
         />
-        {/* <Route
+        <Route
           element={
             sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
-                <Spends currentPeriod={currentSheet} setCurrentPeriod={setCurrentPeriod} />
+                <Spends
+                  addSpend={addSpend}
+                  currentPeriod={currentSheet}
+                  setCurrentPeriod={setCurrentPeriod}
+                />
               </PrivateRoute>
             ) : (
               <NotFound />
@@ -103,7 +108,7 @@ export const App: React.FC = () => {
           }
           path="spends"
         />
-        <Route
+        {/* <Route
           element={
             sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
