@@ -3,10 +3,21 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { Container } from "./Container";
 
 interface Props {
-  addPeriod: (event: React.FormEvent) => void;
+  addPeriod: (arg01: string) => void;
 }
 
 export const FirstTime: React.FC<Props> = ({ addPeriod }) => {
+  function createNewSheet(event: React.FormEvent) {
+    event.preventDefault();
+    const { sheetNameInput } = event.target as HTMLFormElement;
+
+    if (sheetNameInput.value) {
+      addPeriod(sheetNameInput.value);
+    } else {
+      console.log("Debes ingresar un nombre valido");
+    }
+  }
+
   return (
     <Container
       animate={{ y: 0, opacity: 1 }}
@@ -40,9 +51,9 @@ export const FirstTime: React.FC<Props> = ({ addPeriod }) => {
           direction="row"
           paddingInline={1}
           width="40%"
-          onSubmit={addPeriod}
+          onSubmit={createNewSheet}
         >
-          <Input border="none" name="periodInput" placeholder="Abril" />
+          <Input border="none" name="sheetNameInput" placeholder="Abril" />
           <IconButton
             aria-label="Add new period"
             bg="transparent"

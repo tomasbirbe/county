@@ -5,10 +5,6 @@ import { BiExit } from "react-icons/bi";
 
 import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend, Sheet } from "src/types";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
-import { app } from "src/firebase/app";
-import { v4 } from "uuid";
-import dayjs from "dayjs";
 import { auth } from "src/firebase/app";
 import { Container } from "./components/Container";
 
@@ -20,14 +16,12 @@ import { SavingsSummary } from "./components/SavingsSummary";
 import { IncomesSummary } from "./components/IncomesSummary";
 interface Props {
   currentPeriod: Sheet | null;
-  setCurrentPeriod: (arg01: Sheet) => void;
+  addSheet: (arg01: string) => void;
   deleteCurrentSheet: () => void;
 }
 
-const db = getFirestore(app);
-
-export const Home: React.FC<Props> = ({ currentPeriod, setCurrentPeriod, deleteCurrentSheet }) => {
-  const { user, setUser } = useAuthContext();
+export const Home: React.FC<Props> = ({ currentPeriod, addSheet, deleteCurrentSheet }) => {
+  const { setUser } = useAuthContext();
 
   function totalSpends() {
     if (currentPeriod?.spends) {
@@ -62,29 +56,6 @@ export const Home: React.FC<Props> = ({ currentPeriod, setCurrentPeriod, deleteC
     return 0;
   }
 
-  function addPeriod(event: React.FormEvent): void {
-    event.preventDefault();
-    const { periodInput } = event.target as HTMLFormElement;
-
-    if (user?.email && periodInput.value.trim()) {
-      const id = v4();
-      const docRef = doc(db, "users", user.email, "countyData", id);
-
-      const newPeriod = {
-        id,
-        name: periodInput.value.trim(),
-        spends: [],
-        incomes: [],
-        savings: [],
-        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-      };
-
-      // setCounty((prevState) => [...prevState, newPeriod]);
-      setCurrentPeriod(newPeriod);
-      setDoc(docRef, newPeriod);
-    }
-  }
-
   function signOut() {
     auth.signOut().then(() => {
       setUser(null);
@@ -92,7 +63,7 @@ export const Home: React.FC<Props> = ({ currentPeriod, setCurrentPeriod, deleteC
   }
 
   if (!currentPeriod) {
-    return <FirstTime addPeriod={addPeriod} />;
+    return <FirstTime addPeriod={addSheet} />;
   }
 
   return (
