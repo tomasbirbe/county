@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { Stack, Text, Box } from "@chakra-ui/react";
 
-import { KindOfSpend, Spend, Period, AddSpendProps } from "src/types";
+import { KindOfSpend, Spend, Sheet, AddSpendProps } from "src/types";
 
 import { useAuthContext } from "src/context/authContext";
-import { v4 } from "uuid";
-import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
+import { doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from "src/firebase/app";
-import dayjs from "dayjs";
 
 /* ------------------------------- Components ------------------------------- */
 import { Container } from "./components/Container";
@@ -20,12 +18,12 @@ const db = getFirestore(app);
 let timer: string | number | NodeJS.Timeout | undefined;
 
 interface Props {
-  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
-  currentPeriod: Period | null;
+  currentPeriod: Sheet | null;
   addSpend: (arg01: AddSpendProps) => void;
+  deleteSpend: (spend: Spend) => void;
 }
 
-export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod, addSpend }) => {
+export const Spends: React.FC<Props> = ({ currentPeriod, addSpend, deleteSpend }) => {
   const { user } = useAuthContext();
   const [kindOfSpend, setKindOfSpend] = useState<KindOfSpend>(KindOfSpend.noInstallments);
 
@@ -63,26 +61,6 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod, addSp
     setShowForm(false);
   }
 
-  function deleteSpend(spend: Spend) {
-    if (user?.email && currentPeriod) {
-      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-        spends: arrayRemove({ ...spend }),
-      }).catch((error) => {
-        throw new Error(error);
-      });
-      setCurrentPeriod((prevPeriod) => {
-        if (prevPeriod) {
-          return {
-            ...prevPeriod,
-            spends: prevPeriod.spends.filter((spendItem: Spend) => spendItem.id !== spend.id),
-          };
-        }
-
-        return null;
-      });
-    }
-  }
-
   function incrementInstallment(spend: Spend) {
     clearTimeout(timer);
     if (currentPeriod?.spends && spend.currentInstallment && spend.totalInstallments) {
@@ -107,16 +85,16 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod, addSp
         return -1;
       });
 
-      setCurrentPeriod((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            spends: sortedSpends,
-          };
-        }
+      // setCurrentPeriod((prevState) => {
+      //   if (prevState) {
+      //     return {
+      //       ...prevState,
+      //       spends: sortedSpends,
+      //     };
+      //   }
 
-        return null;
-      });
+      //   return null;
+      // });
       if (user?.email) {
         const docRef = doc(db, "users", user.email, "countyData", currentPeriod.id);
 
@@ -151,16 +129,16 @@ export const Spends: React.FC<Props> = ({ setCurrentPeriod, currentPeriod, addSp
         return -1;
       });
 
-      setCurrentPeriod((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            spends: sortedSpends,
-          };
-        }
+      // setCurrentPeriod((prevState) => {
+      //   if (prevState) {
+      //     return {
+      //       ...prevState,
+      //       spends: sortedSpends,
+      //     };
+      //   }
 
-        return null;
-      });
+      //   return null;
+      // });
       if (user?.email) {
         const docRef = doc(db, "users", user.email, "countyData", currentPeriod.id);
 

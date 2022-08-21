@@ -23,7 +23,7 @@ export const App: React.FC = () => {
   const { user, setUser } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  const { getSheets, addSpend, sheets, deleteCurrentSheet, currentSheet, addSheet } =
+  const { getSheets, addSpend, deleteSpend, sheets, deleteCurrentSheet, currentSheet, addSheet } =
     useSheets(user);
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export const App: React.FC = () => {
                 <Spends
                   addSpend={addSpend}
                   currentPeriod={currentSheet}
-                  setCurrentPeriod={setCurrentPeriod}
+                  deleteSpend={deleteSpend}
                 />
               </PrivateRoute>
             ) : (

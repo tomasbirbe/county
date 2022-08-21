@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  arrayRemove,
   arrayUnion,
   collection,
   deleteDoc,
@@ -117,5 +118,35 @@ export const useSheets = (user: User | null) => {
     }
   }
 
-  return { currentSheet, selectSheet, addSheet, addSpend, deleteCurrentSheet, getSheets, sheets };
+  function deleteSpend(spend: Spend) {
+    if (user?.email && currentSheet) {
+      setCurrentSheet((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            spends: prevState.spends.filter((spendItem: Spend) => spendItem.id !== spend.id),
+          };
+        }
+
+        return null;
+      });
+
+      updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+        spends: arrayRemove({ ...spend }),
+      }).catch((error) => {
+        throw new Error(error);
+      });
+    }
+  }
+
+  return {
+    currentSheet,
+    selectSheet,
+    addSheet,
+    addSpend,
+    deleteSpend,
+    deleteCurrentSheet,
+    getSheets,
+    sheets,
+  };
 };
