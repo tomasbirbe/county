@@ -7,14 +7,9 @@ import DeleteIcon from "/Icons/delete.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 
-import { arrayRemove, doc, getFirestore, updateDoc } from "firebase/firestore";
-import { useAuthContext } from "src/context/authContext";
-import { app } from "src/firebase/app";
 import { Saving, Sheet } from "src/types";
 import { isValidMotionProp, motion } from "framer-motion";
 import { FormModal } from "src/components/Modal";
-
-const db = getFirestore(app);
 
 interface Props {
   currentSheet: Sheet | null;

@@ -1,10 +1,14 @@
-import { Stack, Input, IconButton, Text } from "@chakra-ui/react";
+import { Stack, Input, IconButton, Text, Box } from "@chakra-ui/react";
 import { AiOutlinePlus } from "react-icons/ai";
+import { SignOutButton } from "src/components/SignOutButton";
+import { v4 } from "uuid";
 import { Container } from "./Container";
 
 interface Props {
   addPeriod: (arg01: string) => void;
 }
+
+const id = v4();
 
 export const FirstTime: React.FC<Props> = ({ addPeriod }) => {
   function createNewSheet(event: React.FormEvent) {
@@ -19,16 +23,10 @@ export const FirstTime: React.FC<Props> = ({ addPeriod }) => {
   }
 
   return (
-    <Container
-      animate={{ y: 0, opacity: 1 }}
-      height="calc(100% - 81px)"
-      initial={{ y: "10px", opacity: 0 }}
-      maxWidth="full"
-      paddingBlockStart={10}
-      paddingX={0}
-      position="relative"
-      transition={{ ease: "easeInOut" }}
-    >
+    <Container key={id}>
+      <Box position="absolute" right="20px" top="15px">
+        <SignOutButton />
+      </Box>
       <Stack
         align="center"
         height="full"

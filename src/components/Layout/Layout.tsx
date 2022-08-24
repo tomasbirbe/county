@@ -60,6 +60,10 @@ export const Layout: React.FC<Props> = ({
     setShowPeriods(false);
   }
 
+  if (sheets.length < 1) {
+    return <Outlet />;
+  }
+
   return (
     <>
       <Stack align="center" as="nav" bg="white" spacing={0} width="full">
