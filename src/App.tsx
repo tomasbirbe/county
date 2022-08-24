@@ -28,6 +28,7 @@ export const App: React.FC = () => {
     getSheets,
     spendsActions,
     savingsActions,
+    incomesActions,
     sheets,
     deleteCurrentSheet,
     currentSheet,
@@ -134,19 +135,23 @@ export const App: React.FC = () => {
           }
           path="savings"
         />
-        {/*
+
         <Route
           element={
-            county.length ? (
+            sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
-                <Incomes currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
+                <Incomes
+                  addIncome={incomesAction.addIncome}
+                  currentSheet={currentSheet}
+                  deleteIncome={incomesAction.deleteIncome}
+                />
               </PrivateRoute>
             ) : (
               <NotFound />
             )
           }
           path="incomes"
-        /> */}
+        />
         <Route
           element={
             <PrivateRoute isLogged={isLogged}>

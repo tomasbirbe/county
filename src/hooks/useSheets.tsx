@@ -12,7 +12,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { KindOfSpend, Sheet, Spend, AddSpendProps, Saving } from "src/types";
+import { KindOfSpend, Sheet, Spend, AddSpendProps, Saving, Income } from "src/types";
 import { app } from "src/firebase/app";
 import { User } from "firebase/auth";
 import { v4 } from "uuid";
@@ -229,147 +229,6 @@ export const useSheets = (user: User | null) => {
     },
   };
 
-  // function addSpend({ description, amount, kind, totalInstallments }: AddSpendProps) {
-  //   const newSpend: Spend = {
-  //     id: v4(),
-  //     description: description,
-  //     amount: amount,
-  //     kind: kind,
-  //     totalInstallments: kind === KindOfSpend.hasInstallments ? Number(totalInstallments) : null,
-  //     currentInstallment: kind == KindOfSpend.hasInstallments ? 1 : null,
-  //     created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-  //   };
-
-  //   if (currentSheet) {
-  //     setCurrentSheet((prevState) => {
-  //       if (prevState) {
-  //         return {
-  //           ...prevState,
-  //           spends: [...prevState.spends, newSpend],
-  //         };
-  //       }
-
-  //       return null;
-  //     });
-  //     if (user?.email && currentSheet) {
-  //       updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
-  //         spends: arrayUnion(newSpend),
-  //       });
-  //     }
-  //   }
-  // }
-
-  // function deleteSpend(spend: Spend) {
-  //   if (user?.email && currentSheet) {
-  //     setCurrentSheet((prevState) => {
-  //       if (prevState) {
-  //         return {
-  //           ...prevState,
-  //           spends: prevState.spends.filter((spendItem: Spend) => spendItem.id !== spend.id),
-  //         };
-  //       }
-
-  //       return null;
-  //     });
-
-  //     updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
-  //       spends: arrayRemove({ ...spend }),
-  //     }).catch((error) => {
-  //       throw new Error(error);
-  //     });
-  //   }
-  // }
-
-  // function incrementInstallment(spend: Spend) {
-  //   clearTimeout(timer);
-  //   if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
-  //     const updateSpend: Spend = {
-  //       ...spend,
-  //       currentInstallment:
-  //         spend.currentInstallment < spend.totalInstallments
-  //           ? spend.currentInstallment + 1
-  //           : spend.currentInstallment,
-  //     };
-
-  //     const updatedSpends: Spend[] = [
-  //       ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
-  //       updateSpend,
-  //     ];
-
-  //     const sortedSpends = updatedSpends.sort((a, b) => {
-  //       if (new Date(a.created_at) >= new Date(b.created_at)) {
-  //         return 1;
-  //       }
-
-  //       return -1;
-  //     });
-
-  //     setCurrentSheet((prevState) => {
-  //       if (prevState) {
-  //         return {
-  //           ...prevState,
-  //           spends: sortedSpends,
-  //         };
-  //       }
-
-  //       return null;
-  //     });
-  //     if (user?.email) {
-  //       const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
-
-  //       timer = setTimeout(() => {
-  //         updateDoc(docRef, {
-  //           spends: sortedSpends,
-  //         });
-  //       }, 1000);
-  //     }
-  //   }
-  // }
-
-  // function decrementInstallment(spend: Spend) {
-  //   clearTimeout(timer);
-  //   if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
-  //     const updateSpend: Spend = {
-  //       ...spend,
-  //       currentInstallment:
-  //         spend.currentInstallment > 1 ? spend.currentInstallment - 1 : spend.currentInstallment,
-  //     };
-
-  //     const updatedSpends: Spend[] = [
-  //       ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
-  //       updateSpend,
-  //     ];
-
-  //     const sortedSpends = updatedSpends.sort((a, b) => {
-  //       if (new Date(a.created_at) >= new Date(b.created_at)) {
-  //         return 1;
-  //       }
-
-  //       return -1;
-  //     });
-
-  //     setCurrentSheet((prevState) => {
-  //       if (prevState) {
-  //         return {
-  //           ...prevState,
-  //           spends: sortedSpends,
-  //         };
-  //       }
-
-  //       return null;
-  //     });
-  //     if (user?.email) {
-  //       const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
-
-  //       timer = setTimeout(() => {
-  //         updateDoc(docRef, {
-  //           spends: sortedSpends,
-  //         });
-  //       }, 1000);
-  //     }
-  //   }
-  // }
-
   const savingsActions = {
     addSaving: (description: string, amount: string) => {
       const newSaving: Saving = {
@@ -417,16 +276,59 @@ export const useSheets = (user: User | null) => {
     },
   };
 
+  const incomesActions = {
+    addIncome: (description: string, amount: string) => {
+      const newIncome: Income = {
+        id: v4(),
+        description: description,
+        amount: amount,
+        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+      };
+
+      if (user?.email && currentSheet) {
+        updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+          incomes: arrayUnion(newIncome),
+        });
+        setCurrentSheet((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              incomes: [...prevState.incomes, newIncome],
+            };
+          }
+
+          return null;
+        });
+      }
+    },
+
+    deleteIncome: (income: Income) => {
+      if (user?.email && currentSheet) {
+        updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+          incomes: arrayRemove(income),
+        });
+
+        setCurrentSheet((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              incomes: prevState.incomes.filter((incomeItem) => incomeItem.id !== income.id),
+            };
+          }
+
+          return null;
+        });
+      }
+    },
+  };
+
   return {
     currentSheet,
     selectSheet,
     addSheet,
     spendsActions,
     savingsActions,
-    // addSpend,
-    // deleteSpend,
-    // incrementInstallment,
-    // decrementInstallment,
+    incomesActions,
     deleteCurrentSheet,
     getSheets,
     sheets,

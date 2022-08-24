@@ -5,79 +5,32 @@ import moneyFormatter from "src/utils/moneyFormatter";
 import ArrowDown from "/Icons/arrow-down.svg";
 import PlusIcon from "/Icons/plus.svg";
 import DeleteIcon from "/Icons/delete.svg";
-import { Income, Period } from "src/types";
-import { v4 } from "uuid";
-import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
-import { useAuthContext } from "src/context/authContext";
+import { Income, Sheet } from "src/types";
 
-import { app } from "src/firebase/app";
-import dayjs from "dayjs";
 import { isValidMotionProp, motion } from "framer-motion";
 import { FormModal } from "src/components/Modal";
 interface Props {
-  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
-  currentPeriod: Period | null;
+  currentPeriod: Sheet | null;
+  addIncome: (arg01: string, arg02: string) => void;
+  deleteIncome: (arg01: Income) => void;
 }
 
 const Container = chakra(motion.main, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
 });
 
-const db = getFirestore(app);
-
-export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
-  const { user } = useAuthContext();
+export const Incomes: React.FC<Props> = ({ currentPeriod, addIncome, deleteIncome }) => {
   const [showForm, setShowForm] = useState(false);
 
-  function addIncome(event: React.FormEvent) {
+  function createNewIncome(event: React.FormEvent) {
     event.preventDefault();
     const { description, amount } = event.target as HTMLFormElement;
 
-    const newIncome: Income = {
-      id: v4(),
-      description: description.value,
-      amount: amount.value,
-      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-    };
-
-    if (user?.email && currentPeriod) {
-      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-        incomes: arrayUnion(newIncome),
-      });
-      setCurrentPeriod((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            incomes: [...prevState.incomes, newIncome],
-          };
-        }
-
-        return null;
-      });
-    }
+    addIncome(description.value, amount.value);
 
     description.value = "";
     amount.value = "";
     setShowForm(false);
-  }
-
-  function deleteIncome(income: Income) {
-    if (user?.email && currentPeriod) {
-      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-        incomes: arrayRemove(income),
-      });
-
-      setCurrentPeriod((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            incomes: prevState.incomes.filter((incomeItem) => incomeItem.id !== income.id),
-          };
-        }
-
-        return null;
-      });
-    }
   }
 
   function calculateTotal() {
@@ -134,7 +87,7 @@ export const Incomes: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
         <Stack align="center">
           {showForm && (
             <FormModal title="Agrega un nuevo ingreso!" onClose={closeForm}>
-              <Stack as="form" spacing={8} onSubmit={addIncome}>
+              <Stack as="form" spacing={8} onSubmit={createNewIncome}>
                 <Stack as="label" htmlFor="description" spacing={2}>
                   <Text>Descripcion</Text>
                   <Input autoFocus name="description" placeholder="Notebook" width="280px" />
