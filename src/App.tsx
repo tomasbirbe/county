@@ -16,6 +16,7 @@ import { Register } from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import { Spends } from "./pages/Spends";
 import { Savings } from "./pages/Savings";
+import { Incomes } from "./pages/Incomes";
 import { Layout } from "./components/Layout";
 import { PrivateRoute } from "./PrivateRoute";
 import { Spend, Saving, Income } from "./types";
@@ -141,9 +142,9 @@ export const App: React.FC = () => {
             sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
                 <Incomes
-                  addIncome={incomesAction.addIncome}
+                  addIncome={incomesActions.addIncome}
                   currentSheet={currentSheet}
-                  deleteIncome={incomesAction.deleteIncome}
+                  deleteIncome={incomesActions.deleteIncome}
                 />
               </PrivateRoute>
             ) : (

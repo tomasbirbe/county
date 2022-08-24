@@ -10,7 +10,7 @@ import { Income, Sheet } from "src/types";
 import { isValidMotionProp, motion } from "framer-motion";
 import { FormModal } from "src/components/Modal";
 interface Props {
-  currentPeriod: Sheet | null;
+  currentSheet: Sheet | null;
   addIncome: (arg01: string, arg02: string) => void;
   deleteIncome: (arg01: Income) => void;
 }
@@ -19,7 +19,7 @@ const Container = chakra(motion.main, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
 });
 
-export const Incomes: React.FC<Props> = ({ currentPeriod, addIncome, deleteIncome }) => {
+export const Incomes: React.FC<Props> = ({ currentSheet, addIncome, deleteIncome }) => {
   const [showForm, setShowForm] = useState(false);
 
   function createNewIncome(event: React.FormEvent) {
@@ -34,8 +34,8 @@ export const Incomes: React.FC<Props> = ({ currentPeriod, addIncome, deleteIncom
   }
 
   function calculateTotal() {
-    if (currentPeriod) {
-      return currentPeriod.incomes.reduce(
+    if (currentSheet) {
+      return currentSheet.incomes.reduce(
         (acc: number, income: Income) => acc + Number(income.amount),
         0,
       );
@@ -54,7 +54,7 @@ export const Incomes: React.FC<Props> = ({ currentPeriod, addIncome, deleteIncom
 
   return (
     <Container
-      key={currentPeriod?.id}
+      key={currentSheet?.id}
       animate={{ y: 0, opacity: 1 }}
       initial={{ y: "10px", opacity: 0 }}
       maxWidth="full"
@@ -112,7 +112,7 @@ export const Incomes: React.FC<Props> = ({ currentPeriod, addIncome, deleteIncom
             </FormModal>
           )}
         </Stack>
-        {currentPeriod?.incomes.length ? (
+        {currentSheet?.incomes.length ? (
           <Stack spacing={0}>
             <Grid
               borderBlockEnd="1px solid"
@@ -129,7 +129,7 @@ export const Incomes: React.FC<Props> = ({ currentPeriod, addIncome, deleteIncom
                 Gasto
               </GridItem>
             </Grid>
-            {currentPeriod?.incomes.map((income: Income) => (
+            {currentSheet?.incomes.map((income: Income) => (
               <Grid
                 key={income.id}
                 _hover={{ bg: "primary.700" }}
