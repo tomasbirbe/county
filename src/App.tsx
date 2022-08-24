@@ -38,8 +38,8 @@ export const App: React.FC = () => {
   } = useSheets(user);
 
   useEffect(() => {
+    setIsLoading(true);
     auth.onAuthStateChanged((userInfo) => {
-      setIsLoading(true);
       if (userInfo) {
         setIsLogged(true);
         setUser(userInfo);
