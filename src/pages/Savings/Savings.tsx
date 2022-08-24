@@ -7,56 +7,33 @@ import DeleteIcon from "/Icons/delete.svg";
 
 import moneyFormatter from "src/utils/moneyFormatter";
 
-import { v4 } from "uuid";
-import { arrayRemove, arrayUnion, doc, getFirestore, updateDoc } from "firebase/firestore";
+import { arrayRemove, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuthContext } from "src/context/authContext";
 import { app } from "src/firebase/app";
-import { Saving, Period } from "src/types";
+import { Saving, Sheet } from "src/types";
 import { isValidMotionProp, motion } from "framer-motion";
-import dayjs from "dayjs";
 import { FormModal } from "src/components/Modal";
 
 const db = getFirestore(app);
 
 interface Props {
-  setCurrentPeriod: React.Dispatch<React.SetStateAction<Period | null>>;
-  currentPeriod: Period | null;
+  currentSheet: Sheet | null;
+  addSaving: (arg01: string, arg02: string) => void;
+  deleteSaving: (arg01: Saving) => void;
 }
 
 const Container = chakra(motion.div, {
   shouldForwardProp: (prop) => isValidMotionProp(prop) || prop === "children",
 });
 
-export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) => {
-  const { user } = useAuthContext();
+export const Savings: React.FC<Props> = ({ currentSheet, addSaving, deleteSaving }) => {
   const [showForm, setShowForm] = useState(false);
 
-  function addSaving(event: React.FormEvent) {
+  function createNewSaving(event: React.FormEvent) {
     event.preventDefault();
     const { description, amount } = event.target as HTMLFormElement;
-    const newSaving: Saving = {
-      id: v4(),
-      description: description.value,
-      amount: amount.value,
-      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-    };
 
-    if (user?.email && currentPeriod) {
-      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-        savings: arrayUnion(newSaving),
-      });
-
-      setCurrentPeriod((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            savings: [...prevState.savings, newSaving],
-          };
-        }
-
-        return null;
-      });
-    }
+    addSaving(description.value, amount.value);
 
     description.value = "";
     amount.value = "";
@@ -64,29 +41,9 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
     setShowForm(false);
   }
 
-  function deleteSaving(saving: Saving) {
-    if (user?.email && currentPeriod) {
-      updateDoc(doc(db, "users", user.email, "countyData", currentPeriod.id), {
-        savings: arrayRemove(saving),
-      });
-      if (currentPeriod) {
-        setCurrentPeriod((prevState) => {
-          if (prevState) {
-            return {
-              ...prevState,
-              savings: prevState.savings.filter((savingItem) => savingItem.id !== saving.id),
-            };
-          }
-
-          return null;
-        });
-      }
-    }
-  }
-
   function calculateTotal() {
-    if (currentPeriod) {
-      return currentPeriod.savings.reduce(
+    if (currentSheet) {
+      return currentSheet.savings.reduce(
         (acc: number, saving: Saving) => acc + Number(saving.amount),
         0,
       );
@@ -105,7 +62,7 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
 
   return (
     <Container
-      key={currentPeriod?.id}
+      key={currentSheet?.id}
       animate={{ y: 0, opacity: 1 }}
       initial={{ y: "10px", opacity: 0 }}
       maxWidth="full"
@@ -137,7 +94,7 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
       <Box marginInline="auto" paddingBlockStart={8} width="80%">
         {showForm && (
           <FormModal title="Agrega un nuevo ahorro!" onClose={closeForm}>
-            <Stack as="form" spacing={8} onSubmit={addSaving}>
+            <Stack as="form" spacing={8} onSubmit={createNewSaving}>
               <Stack as="label" htmlFor="description" spacing={2}>
                 <Text>Descripcion</Text>
                 <Input autoFocus name="description" placeholder="Notebook" width="280px" />
@@ -162,7 +119,7 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
           </FormModal>
         )}
 
-        {currentPeriod?.savings.length ? (
+        {currentSheet?.savings.length ? (
           <Stack spacing={0}>
             <Grid
               borderBlockEnd="1px solid"
@@ -179,7 +136,7 @@ export const Savings: React.FC<Props> = ({ setCurrentPeriod, currentPeriod }) =>
                 Gasto
               </GridItem>
             </Grid>
-            {currentPeriod?.savings.map((saving: Saving) => (
+            {currentSheet?.savings.map((saving: Saving) => (
               <Grid
                 key={saving.id}
                 _hover={{ bg: "primary.700" }}

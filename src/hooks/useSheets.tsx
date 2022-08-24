@@ -12,7 +12,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { KindOfSpend, Sheet, Spend, AddSpendProps } from "src/types";
+import { KindOfSpend, Sheet, Spend, AddSpendProps, Saving } from "src/types";
 import { app } from "src/firebase/app";
 import { User } from "firebase/auth";
 import { v4 } from "uuid";
@@ -89,155 +89,344 @@ export const useSheets = (user: User | null) => {
     }
   }
 
-  function addSpend({ description, amount, kind, totalInstallments }: AddSpendProps) {
-    const newSpend: Spend = {
-      id: v4(),
-      description: description,
-      amount: amount,
-      kind: kind,
-      totalInstallments: kind === KindOfSpend.hasInstallments ? Number(totalInstallments) : null,
-      currentInstallment: kind == KindOfSpend.hasInstallments ? 1 : null,
-      created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
-    };
+  const spendsActions = {
+    addSpend: ({ description, amount, kind, totalInstallments }: AddSpendProps) => {
+      const newSpend: Spend = {
+        id: v4(),
+        description: description,
+        amount: amount,
+        kind: kind,
+        totalInstallments: kind === KindOfSpend.hasInstallments ? Number(totalInstallments) : null,
+        currentInstallment: kind == KindOfSpend.hasInstallments ? 1 : null,
+        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+      };
 
-    if (currentSheet) {
-      setCurrentSheet((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            spends: [...prevState.spends, newSpend],
-          };
+      if (currentSheet) {
+        setCurrentSheet((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              spends: [...prevState.spends, newSpend],
+            };
+          }
+
+          return null;
+        });
+        if (user?.email && currentSheet) {
+          updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+            spends: arrayUnion(newSpend),
+          });
         }
-
-        return null;
-      });
+      }
+    },
+    deleteSpend: (spend: Spend) => {
       if (user?.email && currentSheet) {
+        setCurrentSheet((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              spends: prevState.spends.filter((spendItem: Spend) => spendItem.id !== spend.id),
+            };
+          }
+
+          return null;
+        });
+
         updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
-          spends: arrayUnion(newSpend),
+          spends: arrayRemove({ ...spend }),
+        }).catch((error) => {
+          throw new Error(error);
         });
       }
-    }
-  }
+    },
+    incrementInstallment: (spend: Spend) => {
+      clearTimeout(timer);
+      if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
+        const updateSpend: Spend = {
+          ...spend,
+          currentInstallment:
+            spend.currentInstallment < spend.totalInstallments
+              ? spend.currentInstallment + 1
+              : spend.currentInstallment,
+        };
 
-  function deleteSpend(spend: Spend) {
-    if (user?.email && currentSheet) {
-      setCurrentSheet((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            spends: prevState.spends.filter((spendItem: Spend) => spendItem.id !== spend.id),
-          };
+        const updatedSpends: Spend[] = [
+          ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
+          updateSpend,
+        ];
+
+        const sortedSpends = updatedSpends.sort((a, b) => {
+          if (new Date(a.created_at) >= new Date(b.created_at)) {
+            return 1;
+          }
+
+          return -1;
+        });
+
+        setCurrentSheet((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              spends: sortedSpends,
+            };
+          }
+
+          return null;
+        });
+        if (user?.email) {
+          const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
+
+          timer = setTimeout(() => {
+            updateDoc(docRef, {
+              spends: sortedSpends,
+            });
+          }, 1000);
         }
+      }
+    },
+    decrementInstallment: (spend: Spend) => {
+      clearTimeout(timer);
+      if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
+        const updateSpend: Spend = {
+          ...spend,
+          currentInstallment:
+            spend.currentInstallment > 1 ? spend.currentInstallment - 1 : spend.currentInstallment,
+        };
 
-        return null;
-      });
+        const updatedSpends: Spend[] = [
+          ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
+          updateSpend,
+        ];
 
-      updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
-        spends: arrayRemove({ ...spend }),
-      }).catch((error) => {
-        throw new Error(error);
-      });
-    }
-  }
+        const sortedSpends = updatedSpends.sort((a, b) => {
+          if (new Date(a.created_at) >= new Date(b.created_at)) {
+            return 1;
+          }
 
-  function incrementInstallment(spend: Spend) {
-    clearTimeout(timer);
-    if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
-      const updateSpend: Spend = {
-        ...spend,
-        currentInstallment:
-          spend.currentInstallment < spend.totalInstallments
-            ? spend.currentInstallment + 1
-            : spend.currentInstallment,
+          return -1;
+        });
+
+        setCurrentSheet((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              spends: sortedSpends,
+            };
+          }
+
+          return null;
+        });
+        if (user?.email) {
+          const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
+
+          timer = setTimeout(() => {
+            updateDoc(docRef, {
+              spends: sortedSpends,
+            });
+          }, 1000);
+        }
+      }
+    },
+  };
+
+  // function addSpend({ description, amount, kind, totalInstallments }: AddSpendProps) {
+  //   const newSpend: Spend = {
+  //     id: v4(),
+  //     description: description,
+  //     amount: amount,
+  //     kind: kind,
+  //     totalInstallments: kind === KindOfSpend.hasInstallments ? Number(totalInstallments) : null,
+  //     currentInstallment: kind == KindOfSpend.hasInstallments ? 1 : null,
+  //     created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
+  //   };
+
+  //   if (currentSheet) {
+  //     setCurrentSheet((prevState) => {
+  //       if (prevState) {
+  //         return {
+  //           ...prevState,
+  //           spends: [...prevState.spends, newSpend],
+  //         };
+  //       }
+
+  //       return null;
+  //     });
+  //     if (user?.email && currentSheet) {
+  //       updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+  //         spends: arrayUnion(newSpend),
+  //       });
+  //     }
+  //   }
+  // }
+
+  // function deleteSpend(spend: Spend) {
+  //   if (user?.email && currentSheet) {
+  //     setCurrentSheet((prevState) => {
+  //       if (prevState) {
+  //         return {
+  //           ...prevState,
+  //           spends: prevState.spends.filter((spendItem: Spend) => spendItem.id !== spend.id),
+  //         };
+  //       }
+
+  //       return null;
+  //     });
+
+  //     updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+  //       spends: arrayRemove({ ...spend }),
+  //     }).catch((error) => {
+  //       throw new Error(error);
+  //     });
+  //   }
+  // }
+
+  // function incrementInstallment(spend: Spend) {
+  //   clearTimeout(timer);
+  //   if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
+  //     const updateSpend: Spend = {
+  //       ...spend,
+  //       currentInstallment:
+  //         spend.currentInstallment < spend.totalInstallments
+  //           ? spend.currentInstallment + 1
+  //           : spend.currentInstallment,
+  //     };
+
+  //     const updatedSpends: Spend[] = [
+  //       ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
+  //       updateSpend,
+  //     ];
+
+  //     const sortedSpends = updatedSpends.sort((a, b) => {
+  //       if (new Date(a.created_at) >= new Date(b.created_at)) {
+  //         return 1;
+  //       }
+
+  //       return -1;
+  //     });
+
+  //     setCurrentSheet((prevState) => {
+  //       if (prevState) {
+  //         return {
+  //           ...prevState,
+  //           spends: sortedSpends,
+  //         };
+  //       }
+
+  //       return null;
+  //     });
+  //     if (user?.email) {
+  //       const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
+
+  //       timer = setTimeout(() => {
+  //         updateDoc(docRef, {
+  //           spends: sortedSpends,
+  //         });
+  //       }, 1000);
+  //     }
+  //   }
+  // }
+
+  // function decrementInstallment(spend: Spend) {
+  //   clearTimeout(timer);
+  //   if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
+  //     const updateSpend: Spend = {
+  //       ...spend,
+  //       currentInstallment:
+  //         spend.currentInstallment > 1 ? spend.currentInstallment - 1 : spend.currentInstallment,
+  //     };
+
+  //     const updatedSpends: Spend[] = [
+  //       ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
+  //       updateSpend,
+  //     ];
+
+  //     const sortedSpends = updatedSpends.sort((a, b) => {
+  //       if (new Date(a.created_at) >= new Date(b.created_at)) {
+  //         return 1;
+  //       }
+
+  //       return -1;
+  //     });
+
+  //     setCurrentSheet((prevState) => {
+  //       if (prevState) {
+  //         return {
+  //           ...prevState,
+  //           spends: sortedSpends,
+  //         };
+  //       }
+
+  //       return null;
+  //     });
+  //     if (user?.email) {
+  //       const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
+
+  //       timer = setTimeout(() => {
+  //         updateDoc(docRef, {
+  //           spends: sortedSpends,
+  //         });
+  //       }, 1000);
+  //     }
+  //   }
+  // }
+
+  const savingsActions = {
+    addSaving: (description: string, amount: string) => {
+      const newSaving: Saving = {
+        id: v4(),
+        description: description,
+        amount: amount,
+        created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
       };
 
-      const updatedSpends: Spend[] = [
-        ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
-        updateSpend,
-      ];
+      if (user?.email && currentSheet) {
+        updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+          savings: arrayUnion(newSaving),
+        });
 
-      const sortedSpends = updatedSpends.sort((a, b) => {
-        if (new Date(a.created_at) >= new Date(b.created_at)) {
-          return 1;
-        }
+        setCurrentSheet((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              savings: [...prevState.savings, newSaving],
+            };
+          }
 
-        return -1;
-      });
-
-      setCurrentSheet((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            spends: sortedSpends,
-          };
-        }
-
-        return null;
-      });
-      if (user?.email) {
-        const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
-
-        timer = setTimeout(() => {
-          updateDoc(docRef, {
-            spends: sortedSpends,
-          });
-        }, 1000);
+          return null;
+        });
       }
-    }
-  }
+    },
+    deleteSaving: (saving: Saving) => {
+      if (user?.email && currentSheet) {
+        updateDoc(doc(db, "users", user.email, "countyData", currentSheet.id), {
+          savings: arrayRemove(saving),
+        });
+        if (currentSheet) {
+          setCurrentSheet((prevState) => {
+            if (prevState) {
+              return {
+                ...prevState,
+                savings: prevState.savings.filter((savingItem) => savingItem.id !== saving.id),
+              };
+            }
 
-  function decrementInstallment(spend: Spend) {
-    clearTimeout(timer);
-    if (currentSheet?.spends && spend.currentInstallment && spend.totalInstallments) {
-      const updateSpend: Spend = {
-        ...spend,
-        currentInstallment:
-          spend.currentInstallment > 1 ? spend.currentInstallment - 1 : spend.currentInstallment,
-      };
-
-      const updatedSpends: Spend[] = [
-        ...currentSheet.spends.filter((spendItem) => spendItem.id !== spend.id),
-        updateSpend,
-      ];
-
-      const sortedSpends = updatedSpends.sort((a, b) => {
-        if (new Date(a.created_at) >= new Date(b.created_at)) {
-          return 1;
-        }
-
-        return -1;
-      });
-
-      setCurrentSheet((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            spends: sortedSpends,
-          };
-        }
-
-        return null;
-      });
-      if (user?.email) {
-        const docRef = doc(db, "users", user.email, "countyData", currentSheet.id);
-
-        timer = setTimeout(() => {
-          updateDoc(docRef, {
-            spends: sortedSpends,
+            return null;
           });
-        }, 1000);
+        }
       }
-    }
-  }
+    },
+  };
 
   return {
     currentSheet,
     selectSheet,
     addSheet,
-    addSpend,
-    deleteSpend,
-    incrementInstallment,
-    decrementInstallment,
+    spendsActions,
+    savingsActions,
+    // addSpend,
+    // deleteSpend,
+    // incrementInstallment,
+    // decrementInstallment,
     deleteCurrentSheet,
     getSheets,
     sheets,

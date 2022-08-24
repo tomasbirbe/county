@@ -15,6 +15,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import { Spends } from "./pages/Spends";
+import { Savings } from "./pages/Savings";
 import { Layout } from "./components/Layout";
 import { PrivateRoute } from "./PrivateRoute";
 import { Spend, Saving, Income } from "./types";
@@ -25,14 +26,12 @@ export const App: React.FC = () => {
   const [isLogged, setIsLogged] = useState(false);
   const {
     getSheets,
-    addSpend,
-    deleteSpend,
+    spendsActions,
+    savingsActions,
     sheets,
     deleteCurrentSheet,
     currentSheet,
     addSheet,
-    incrementInstallment,
-    decrementInstallment,
   } = useSheets(user);
 
   useEffect(() => {
@@ -106,11 +105,11 @@ export const App: React.FC = () => {
             sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
                 <Spends
-                  addSpend={addSpend}
+                  addSpend={spendsActions.addSpend}
                   currentPeriod={currentSheet}
-                  decrementInstallment={decrementInstallment}
-                  deleteSpend={deleteSpend}
-                  incrementInstallment={incrementInstallment}
+                  decrementInstallment={spendsActions.decrementInstallment}
+                  deleteSpend={spendsActions.deleteSpend}
+                  incrementInstallment={spendsActions.incrementInstallment}
                 />
               </PrivateRoute>
             ) : (
@@ -119,11 +118,15 @@ export const App: React.FC = () => {
           }
           path="spends"
         />
-        {/* <Route
+        <Route
           element={
             sheets.length ? (
               <PrivateRoute isLogged={isLogged}>
-                <Savings currentPeriod={currentPeriod} setCurrentPeriod={setCurrentPeriod} />
+                <Savings
+                  addSaving={savingsActions.addSaving}
+                  currentSheet={currentSheet}
+                  deleteSaving={savingsActions.deleteSaving}
+                />
               </PrivateRoute>
             ) : (
               <NotFound />
@@ -131,6 +134,7 @@ export const App: React.FC = () => {
           }
           path="savings"
         />
+        {/*
         <Route
           element={
             county.length ? (
