@@ -1,5 +1,5 @@
-import { Box, chakra, Icon, Stack, Text } from "@chakra-ui/react";
-import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
+import { Box, chakra, Icon } from "@chakra-ui/react";
+import { isValidMotionProp, motion } from "framer-motion";
 import React from "react";
 import { AiOutlineWarning } from "react-icons/ai";
 import { Overlay } from "./Overlay";
@@ -32,6 +32,7 @@ export const Alert: React.FC<Props> = ({ children, onClose }) => {
         top="calc(50% - 125px)"
         transition={{ duration: "0.3" }}
         width="400px"
+        zIndex={2}
       >
         <Box
           bg="yellow.500"
