@@ -27,7 +27,7 @@ export const useSheets = (user: User | null) => {
   const [currentSheet, setCurrentSheet] = useState<Sheet | null>(null);
 
   function getSheets() {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       if (user?.email) {
         const countyRef = collection(db, "users", user.email, "countyData");
 
@@ -41,8 +41,6 @@ export const useSheets = (user: User | null) => {
           selectSheet(countyData[0]);
           resolve();
         });
-      } else {
-        reject();
       }
     });
   }

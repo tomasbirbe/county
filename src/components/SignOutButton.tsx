@@ -1,16 +1,14 @@
 import { Icon, IconButton } from "@chakra-ui/react";
 import React from "react";
 import { BiExit } from "react-icons/bi";
-import { useAuthContext } from "src/context/authContext";
+// import { useAuthContext } from "src/context/authContext";
 import { auth } from "src/firebase/app";
 
 export function SignOutButton() {
-  const { setUser } = useAuthContext();
+  // const { user, setUser } = useAuthContext();
 
   function signOut() {
-    auth.signOut().then(() => {
-      setUser(null);
-    });
+    auth.signOut();
   }
 
   return (

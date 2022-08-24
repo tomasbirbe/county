@@ -38,18 +38,18 @@ export const App: React.FC = () => {
   } = useSheets(user);
 
   useEffect(() => {
-    setIsLoading(true);
-    auth.onAuthStateChanged((user) => {
-      getSheets()
-        .then(() => {
-          setIsLogged(true);
-          setUser(user);
-          setIsLoading(false);
-        })
-        .catch(() => {
-          setIsLogged(false);
+    auth.onAuthStateChanged((userInfo) => {
+      setIsLoading(true);
+      if (userInfo) {
+        setIsLogged(true);
+        setUser(userInfo);
+        getSheets().then(() => {
           setIsLoading(false);
         });
+      } else {
+        setIsLogged(false);
+        setIsLoading(false);
+      }
     });
   }, [user]);
 

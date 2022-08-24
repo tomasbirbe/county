@@ -78,6 +78,7 @@ export const Login: React.FC = () => {
         <Stack as="label" htmlFor="emailInput" spacing={2}>
           <Text>Email</Text>
           <Input
+            required
             id="emailInput"
             minLength={3}
             placeholder="county@gmail.com"
@@ -93,9 +94,10 @@ export const Login: React.FC = () => {
         <Stack as="label" htmlFor="passwordInput">
           <Text>Password</Text>
           <Input
+            required
             id="passwordInput"
             minLength={6}
-            placeholder="*******"
+            placeholder="Ingresa tu clave"
             type="password"
             variant={passwordError ? "invalid" : "base"}
           />
@@ -137,7 +139,15 @@ export const Login: React.FC = () => {
               intentos fallidos
             </Text>
             <Text> Volve a intentarlo mas tarde</Text>
-            <Button type="button" variant="primary" onClick={closeAlert}>
+            <Button
+              _active={{ bg: "secondary.900" }}
+              _focus={{}}
+              _hover={{ bg: "secondary.500" }}
+              bg="secondary.300"
+              type="button"
+              variant="primary"
+              onClick={closeAlert}
+            >
               Aceptar
             </Button>
           </Stack>
