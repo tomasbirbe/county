@@ -1,11 +1,9 @@
 import React from "react";
 import { Box, Icon, IconButton, Stack } from "@chakra-ui/react";
 import { AiFillDelete } from "react-icons/ai";
-import { BiExit } from "react-icons/bi";
 
-import { useAuthContext } from "src/context/authContext";
 import { Income, Saving, Spend, Sheet } from "src/types";
-import { auth } from "src/firebase/app";
+import { SignOutButton } from "src/components/SignOutButton";
 import { Container } from "./components/Container";
 
 /* ------------------------------- Components ------------------------------- */
@@ -21,8 +19,6 @@ interface Props {
 }
 
 export const Home: React.FC<Props> = ({ currentPeriod, addSheet, deleteCurrentSheet }) => {
-  const { setUser } = useAuthContext();
-
   function totalSpends() {
     if (currentPeriod?.spends) {
       return currentPeriod.spends.reduce(
@@ -56,12 +52,6 @@ export const Home: React.FC<Props> = ({ currentPeriod, addSheet, deleteCurrentSh
     return 0;
   }
 
-  function signOut() {
-    auth.signOut().then(() => {
-      setUser(null);
-    });
-  }
-
   if (!currentPeriod) {
     return <FirstTime addPeriod={addSheet} />;
   }
@@ -77,14 +67,7 @@ export const Home: React.FC<Props> = ({ currentPeriod, addSheet, deleteCurrentSh
           width="50px"
           onClick={deleteCurrentSheet}
         />
-        <IconButton
-          aria-label="Delete period"
-          bg="transparent"
-          height="50px"
-          icon={<Icon as={BiExit} boxSize={8} color="blackAlpha.600" />}
-          width="50px"
-          onClick={signOut}
-        />
+        <SignOutButton />
       </Stack>
       <Stack height="full">
         <SpendsSummary totalSpends={totalSpends()} />

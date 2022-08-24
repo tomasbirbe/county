@@ -90,11 +90,17 @@ export const Incomes: React.FC<Props> = ({ currentSheet, addIncome, deleteIncome
               <Stack as="form" spacing={8} onSubmit={createNewIncome}>
                 <Stack as="label" htmlFor="description" spacing={2}>
                   <Text>Descripcion</Text>
-                  <Input autoFocus name="description" placeholder="Notebook" width="280px" />
+                  <Input
+                    autoFocus
+                    required
+                    name="description"
+                    placeholder="Notebook"
+                    width="280px"
+                  />
                 </Stack>
                 <Stack as="label" htmlFor="amount" spacing={2}>
                   <Text>Ingreso</Text>
-                  <Input name="amount" placeholder="50000" type="number" width="200px" />
+                  <Input required name="amount" placeholder="50000" type="number" width="200px" />
                 </Stack>
 
                 <Button

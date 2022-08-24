@@ -32,6 +32,7 @@ export const App: React.FC = () => {
     incomesActions,
     sheets,
     deleteCurrentSheet,
+    selectSheet,
     currentSheet,
     addSheet,
   } = useSheets(user);
@@ -83,9 +84,10 @@ export const App: React.FC = () => {
         element={
           <Layout
             addSheet={addSheet}
-            county={sheets}
-            currentPeriod={currentSheet}
+            currentSheet={currentSheet}
             remaining={calculateRemaining()}
+            selectSheet={selectSheet}
+            sheets={sheets}
           />
         }
         path="/"

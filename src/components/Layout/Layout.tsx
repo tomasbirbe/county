@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import moneyFormatter from "src/utils/moneyFormatter";
 import { BsCalendar } from "react-icons/bs";
@@ -19,18 +19,16 @@ import { IoIosArrowBack } from "react-icons/io";
 
 import Pocket from "/Icons/pocket.svg";
 import { Sheet } from "src/types";
-import { useAuthContext } from "src/context/authContext";
 import { AnimatePresence, isValidMotionProp, motion } from "framer-motion";
 import { Portal } from "src/components/Portal";
 import { NavLink } from "./components/NavLink";
 
 interface Props {
   remaining: number;
-  county: Sheet[];
-  currentPeriod: Sheet | null;
-  // setCurrentPeriod: React.Dispatch<React.SetStateAction<Sheet | null>>;
-  // setCounty: React.Dispatch<React.SetStateAction<Sheet[]>>;
-  addSheet: (arg0: string) => void;
+  sheets: Sheet[];
+  currentSheet: Sheet | null;
+  addSheet: (arg01: string) => void;
+  selectSheet: (arg01: Sheet) => void;
 }
 
 const SideMenu = chakra(motion.div, {
@@ -39,20 +37,16 @@ const SideMenu = chakra(motion.div, {
 
 export const Layout: React.FC<Props> = ({
   remaining,
-  county,
+  sheets,
   addSheet,
-  currentPeriod,
-  // setCurrentPeriod,
+  currentSheet,
+  selectSheet,
 }) => {
   const [showPeriods, setShowPeriods] = useState<boolean>(false);
 
   function togglePeriods() {
     setShowPeriods((prevState: boolean) => !prevState);
   }
-
-  useEffect(() => {
-    console.log(county);
-  }, [county]);
 
   function createNewSheet(event: React.FormEvent) {
     event.preventDefault();
@@ -61,14 +55,10 @@ export const Layout: React.FC<Props> = ({
     addSheet(newSheetInput);
   }
 
-  function changePeriod(period: Sheet) {
-    setCurrentPeriod(period);
+  function changePeriod(sheet: Sheet) {
+    selectSheet(sheet);
     setShowPeriods(false);
   }
-
-  // if (county.length === 0) {
-  //   return <Outlet />;
-  // }
 
   return (
     <>
@@ -102,17 +92,17 @@ export const Layout: React.FC<Props> = ({
           </Stack>
         </Stack>
         <Divider color="black" />
-        {currentPeriod && (
+        {currentSheet && (
           <>
             <Stack align="center" height="35px" justify="center" width="full">
-              <Text>{currentPeriod.name}</Text>
+              <Text>{currentSheet.name}</Text>
             </Stack>
             <Divider color="black" />
           </>
         )}
       </Stack>
       <Portal>
-        {currentPeriod && (
+        {currentSheet && (
           <IconButton
             aria-label="Close side menu"
             bg="white"
@@ -201,16 +191,16 @@ export const Layout: React.FC<Props> = ({
                     spacing={2}
                     width="full"
                   >
-                    {county.map((period) => (
+                    {sheets.map((sheet) => (
                       <Button
-                        key={period.id}
+                        key={sheet.id}
                         as="li"
                         bg="transparent"
                         paddingBlock={4}
                         width="90%"
-                        onClick={() => changePeriod(period)}
+                        onClick={() => changePeriod(sheet)}
                       >
-                        {period.name}
+                        {sheet.name}
                       </Button>
                     ))}
                   </Stack>
