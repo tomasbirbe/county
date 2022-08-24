@@ -52,7 +52,7 @@ export const Layout: React.FC<Props> = ({
     event.preventDefault();
     const { newSheetInput } = event.target as HTMLFormElement;
 
-    addSheet(newSheetInput);
+    addSheet(newSheetInput.value);
   }
 
   function changePeriod(sheet: Sheet) {

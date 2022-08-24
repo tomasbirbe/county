@@ -63,7 +63,15 @@ export const useSheets = (user: User | null) => {
         created_at: dayjs().format("YYYY/MM/DD hh:mm:ss"),
       };
 
-      setSheets((prevState) => orderByDate([...prevState, newSheet]));
+      setSheets((prevState) =>
+        [...prevState, newSheet].sort((a, b) => {
+          if (new Date(a.created_at) >= new Date(b.created_at)) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }),
+      );
       setCurrentSheet(newSheet);
       setDoc(docRef, newSheet);
     }
@@ -71,10 +79,20 @@ export const useSheets = (user: User | null) => {
 
   function deleteCurrentSheet() {
     if (user?.email && currentSheet) {
-      const updatedCounty = sheets.filter((sheet) => sheet.id !== currentSheet.id);
+      const updatedSheets = sheets.filter((sheet) => sheet.id !== currentSheet.id);
+
       const id = currentSheet.id;
 
-      setCurrentSheet(updatedCounty[updatedCounty.length - 1]);
+      setCurrentSheet(updatedSheets[updatedSheets.length - 1]);
+      setSheets(
+        updatedSheets.sort((a, b) => {
+          if (new Date(a.created_at) >= new Date(b.created_at)) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }),
+      );
       const countyRef = collection(db, "users", user.email, "countyData");
 
       getDocs(query(countyRef, where("id", "==", id))).then((docs) => {
