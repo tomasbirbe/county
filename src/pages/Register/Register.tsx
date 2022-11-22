@@ -22,34 +22,39 @@ export const Register: React.FC = () => {
   const [passwordConfirmError, setPasswordConfirmError] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
-  function logIn(event: React.FormEvent) {
+  function signUp(event: React.FormEvent) {
     event.preventDefault();
     setErrorMessage("");
     setEmailError(false);
     setPasswordError(false);
-    setIsLoading(true);
-    const { emailInput, passwordInput } = event.target as HTMLFormElement;
+    const { emailInput, passwordInput, passwordConfirmInput } = event.target as HTMLFormElement;
 
-    createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-      .then((userCredentials) => {
-        setIsLoading(false);
-        setUser(userCredentials.user);
-        navigate("/");
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        const msg = error.message as string;
+    if (passwordConfirmInput.value === passwordInput.value) {
+      setIsLoading(true);
+      createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+        .then((userCredentials) => {
+          setIsLoading(false);
+          setUser(userCredentials.user);
+          navigate("/");
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          const msg = error.message as string;
 
-        if (msg.includes("invalid-email")) {
-          setEmailError(true);
-          setErrorMessage("El correo electronico es invalido");
-        }
+          if (msg.includes("invalid-email")) {
+            setEmailError(true);
+            setErrorMessage("El correo electronico es invalido");
+          }
 
-        if (msg.includes("email-already-in-use")) {
-          setEmailError(true);
-          setErrorMessage("El correo electronico es invalido");
-        }
-      });
+          if (msg.includes("email-already-in-use")) {
+            setEmailError(true);
+            setErrorMessage("El correo electronico ya esta en uso");
+          }
+        });
+    } else {
+      setPasswordConfirmError(true);
+      setErrorMessage("Las claves no coinciden");
+    }
   }
 
   function closeAlert() {
@@ -71,7 +76,7 @@ export const Register: React.FC = () => {
         justify="flex-start"
         spacing={6}
         width="300px"
-        onSubmit={logIn}
+        onSubmit={signUp}
       >
         <Stack as="label" htmlFor="emailInput" spacing={2}>
           <Text>Correo electronico</Text>

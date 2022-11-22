@@ -119,15 +119,6 @@ export const Login: React.FC = () => {
           <Button cursor="pointer" variant="secondary" onClick={goToRegister}>
             <LinkRouter to="/register">Registrate!</LinkRouter>
           </Button>
-
-          <Box textAlign="center">
-            <Text display="inline" fontSize={14}>
-              Did you forget your password? Try with
-            </Text>
-            <Link color="blue.500" fontSize={14} paddingInlineStart={1}>
-              recover your password
-            </Link>
-          </Box>
         </Stack>
       </Stack>
       {isAlertOpen && (
