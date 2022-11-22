@@ -56,6 +56,10 @@ export const Register: React.FC = () => {
     setIsAlertOpen(false);
   }
 
+  function backToLogin() {
+    navigate("/login");
+  }
+
   return (
     <Container centerContent height="full" maxWidth="full" paddingBlockStart={20} paddingX={0}>
       <Text alignSelf="center" marginBlockEnd={8} variant="h1/2">
@@ -118,7 +122,7 @@ export const Register: React.FC = () => {
           <Button type="submit" variant="primary">
             {isLoading ? <PuffLoader color="white" size={70} /> : "Crear cuenta!"}
           </Button>
-          <Button type="button" variant="secondary">
+          <Button type="button" variant="secondary" onClick={backToLogin}>
             Volver
           </Button>
         </Stack>

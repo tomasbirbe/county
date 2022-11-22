@@ -6,6 +6,7 @@ import { Alert } from "src/components/Alert";
 // Chakra ui
 
 import { Box, Button, Container, Input, Link, Stack, Text } from "@chakra-ui/react";
+import { Link as LinkRouter } from "react-router-dom";
 
 // Firebase
 
@@ -62,6 +63,10 @@ export const Login: React.FC = () => {
     setIsAlertOpen(false);
   }
 
+  function goToRegister() {
+    navigate("/register");
+  }
+
   return (
     <Container centerContent height="full" maxWidth="full" paddingBlockStart={20} paddingX={0}>
       <Text alignSelf="center" marginBlockEnd={8} variant="h1/2">
@@ -111,8 +116,8 @@ export const Login: React.FC = () => {
           <Button type="submit" variant="primary">
             {isLoading ? <PuffLoader color="white" size={70} /> : "Entrar"}
           </Button>
-          <Button as="a" cursor="pointer" href="register" variant="secondary">
-            Registrate!
+          <Button cursor="pointer" variant="secondary" onClick={goToRegister}>
+            <LinkRouter to="/register">Registrate!</LinkRouter>
           </Button>
 
           <Box textAlign="center">
