@@ -167,6 +167,7 @@ export const App: React.FC = () => {
 
       <Route element={isLogged ? <Navigate to="/" /> : <Register />} path="register" />
       <Route element={isLogged ? <Navigate to="/" /> : <Login />} path="login" />
+
     </Routes>
   );
 };
