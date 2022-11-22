@@ -38,8 +38,8 @@ export const App: React.FC = () => {
   } = useSheets(user);
 
   useEffect(() => {
-    setIsLoading(true);
     auth.onAuthStateChanged((userInfo) => {
+      setIsLoading(true);
       if (userInfo) {
         setIsLogged(true);
         setUser(userInfo);
@@ -167,7 +167,6 @@ export const App: React.FC = () => {
 
       <Route element={isLogged ? <Navigate to="/" /> : <Register />} path="register" />
       <Route element={isLogged ? <Navigate to="/" /> : <Login />} path="login" />
-
     </Routes>
   );
 };
